@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { App } from 'monocdk';
-import { ServerlessBoiStack } from '../lib/stacks/serverless_boi-stack';
+import { ApiGatewayStack } from '../lib/stacks/ApiGatewayStack';
 
 const app = new App();
-new ServerlessBoiStack(app, 'ServerlessBoiStack');
+new ApiGatewayStack(app, 'ServerlessBoiStack');
