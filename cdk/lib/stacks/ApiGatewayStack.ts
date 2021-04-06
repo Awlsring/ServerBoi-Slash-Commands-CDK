@@ -45,7 +45,7 @@ export class ApiGatewayStack extends Stack {
       actions: ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
     }))
 
-    const api = new RestApi(this, "-ServerlessBoi-Discord-Endpoint")
+    const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint")
 
     const discord = api.root.addResource('discord')
 
