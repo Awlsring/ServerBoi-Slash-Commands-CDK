@@ -1,0 +1,49 @@
+{
+  "Resources": {
+    "ServerBoiManagedPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "*",
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Description": "",
+        "ManagedPolicyName": "ServerBoi-Resource.Assumed-Role-Policy"
+      }
+    },
+    "ServerBoiAssumedRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::742762521158:root"
+              },
+              "Condition": {
+                "StringEquals": { "aws:ResourceTag/AccessibleBy": "ServerBoi" }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Path": "/",
+        "Description": "Allows ServerBoi to perform actions on resources in account.",
+        "ManagedPolicyArns": [
+          {
+            "Ref": "ServerBoiManagedPolicy"
+          }
+        ],
+        "RoleName": "ServerBoi-Resource.Assumed-Role"
+      }
+    }
+  }
+}

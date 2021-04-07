@@ -9,47 +9,41 @@ from flask import (
     request,
 )
 
-PUBLIC_KEY = os.environ.get('APPLICATION_ID')
+PUBLIC_KEY = os.environ.get("APPLICATION_ID")
 
 app = Flask(__name__)
 
-@app.route('/discord', methods=['POST'])
+
+@app.route("/discord", methods=["POST"])
 @verify_key_decorator(PUBLIC_KEY)
-def index():
+def index() -> dict:
 
     print(request.json)
     if request.json["type"] == 1:
         return jsonify({"type": 1})
     else:
 
-        command =  request.json["data"]["options"][0]['name']
+        command = request.json["data"]["options"][0]["name"]
 
         response = route_command(command, request)
 
         print(response)
 
-        return jsonify({
-            "type": 4,
-            "data": {
-                "content": response
-            }
-        })
+        return jsonify({"type": 4, "data": {"content": response}})
 
-def route_command(command, request):
+
+def route_command(command: str, request: request) -> dict:
 
     commands = {
-        'server': route_server_command
+        "server": route_server_command,
+        ""
     }
 
     return commands[command](request)
 
+
 def lambda_handler(event, context):
-    
+
     print(event)
 
-    return awsgi.response(
-        app,
-        event,
-        context,
-        base64_content_types={"image/png"}
-    )
+    return awsgi.response(app, event, context, base64_content_types={"image/png"})
