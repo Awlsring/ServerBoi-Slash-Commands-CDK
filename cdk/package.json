@@ -24,7 +24,7 @@
   "dependencies": {
     "@aws-cdk/core": "1.94.1",
     "dotenv": "*",
-    "monocdk": "^1.94.1",
+    "monocdk": "^1.100.0",
     "source-map-support": "^0.5.16"
   }
 }
