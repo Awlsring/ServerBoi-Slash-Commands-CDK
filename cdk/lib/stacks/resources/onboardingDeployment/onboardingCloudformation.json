@@ -29,7 +29,7 @@
                 "AWS": "arn:aws:iam::742762521158:root"
               },
               "Condition": {
-                "StringEquals": { "aws:ResourceTag/AccessibleBy": "ServerBoi" }
+                "StringEquals": { "aws:ResourceTag/ManagedBy": "ServerBoi" }
               }
             }
           ],

@@ -2,6 +2,7 @@ from flask import request
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClietError as BotoClientError
+from uuid import uuid4
 
 
 def route_server_command(request: request) -> dict:
@@ -11,16 +12,25 @@ def route_server_command(request: request) -> dict:
         "status": server_status,
         "start": server_start,
         "stop": server_stop,
+        "add": add_server
     }
 
-    server_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
+    if request.json["data"]["options"][0]["options"][0]["options"][0]["name"] == 'ID':
+        server_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
 
-    return server_commands[server_command](server_id)
+        return server_commands[server_command](server_id)
+    elif request.json["data"]["options"][0]["options"][0]["options"][0]["name"] == 'Name':
+        name = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
+        game = request.json["data"]["options"][0]["options"][0]["options"][1]["value"]
+        service = request.json["data"]["options"][0]["options"][0]["options"][2]["value"]
+        service_id = request.json["data"]["options"][0]["options"][0]["options"][3]["value"]
+        instance = request.json["data"]["options"][0]["options"][0]["options"][4]["value"]
 
+        return server_commands[server_command](name, game, service, serviec_id, instance)
 
 def server_start(id: int) -> str:
     response = f"Placeholder response for server start. Server {id} was entered"
-    instance = _get_resource_from_id(id)
+    instance = _get_instance_from_id(id)
 
     try:
         instance.start()
@@ -35,7 +45,7 @@ def server_start(id: int) -> str:
 
 def server_stop(id: int) -> str:
     response = f"Placeholder response for server stop. Server {id} was entered"
-    instance = _get_resource_from_id(id)
+    instance = _get_instance_from_id(id)
 
     try:
         instance.stop()
@@ -50,7 +60,7 @@ def server_stop(id: int) -> str:
 
 def server_status(id: int) -> str:
     response = f"Placeholder response for server status. Server {id} was entered"
-    instance = _get_resource_from_id(id)
+    instance = _get_instance_from_id(id)
 
     try:
         state = instance.state()
@@ -61,6 +71,45 @@ def server_status(id: int) -> str:
 
     return response
 
+def add_server(name: str, game: str, service: str, service_id: str, region: str, instance: str) -> str:
+    # Assume role into account
+    if service == 'AWS':
+        ec2 = _create_ec2_resource(service_id, instance)
+        instance = ec2.Instance(instance)
+
+        # Check server exists   
+        try:
+            instance.load()
+        except BotoClientError as error:
+            return f'"{Instance}" is not a valid instance. Server not added.'
+
+        server_item = {
+            'Service': service,
+            'AccountID': service_id,
+            'Region': region,
+            'InstanceID': instance
+        }
+
+    long_id = uuid4()
+    short_id = str(long_id)[:4]
+
+    item.update({
+        'ID': short_id,
+        'Name': name,
+        'Game': game,
+    })
+
+    dynamo = boto3.resource('dynamodb')
+
+    table = dynamo.Table(SERVER_TABLE)
+
+    table.put_item(
+        Item=server_item
+    )
+
+    response = f'Added {name} to management list with the ID: {short_id}.'
+
+    return response
 
 def _get_server_info_from_table(id: int) -> dict:
     # Set this outside handler
@@ -79,14 +128,9 @@ def _get_server_info_from_table(id: int) -> dict:
     return server_info
 
 
-def _create_ec2_resource(server_info: dict):
+def _create_ec2_resource(account_id: str, region: str):
     # Create this sts client in init
     sts_client = boto3.client("sts")
-
-    # Maybe depack all this into a server_info object?
-    account_id = server_info.get("account_id")
-    instance_id = server_info.get("instance_id")
-    region = server_info.get("region")
 
     try:
         assumed_role_object = sts_client.assume_role(
@@ -106,12 +150,18 @@ def _create_ec2_resource(server_info: dict):
         aws_session_token=credentials["SessionToken"],
     )
 
-    instance = ec2.Instance(instance_id)
-
-    return instance
+    return ec2
 
 
-def _get_resource_from_id(id: int) -> boto3.resource:
+def _get_instance_from_id(id: int) -> boto3.resource:
     server_info = _get_server_info_from_table(id)
-    resource = _create_ec2_resource(server_info)
-    return resource
+
+    account_id = server_info.get('account_id')
+    region = server_info.get('region')
+
+    resource = _create_ec2_resource(account_id, region)
+
+    instance_id = server_info.get("instance_id")
+
+    instance = resource.Instance(instance_id)
+    return instance

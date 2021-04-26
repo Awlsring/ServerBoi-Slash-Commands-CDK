@@ -1,4 +1,4 @@
-import { Stack, StackProps, Construct, Duration } from "monocdk";
+import { Stack, Construct } from "monocdk";
 import { Table, AttributeType, Attribute } from "monocdk/aws-dynamodb";
 import { Bucket } from "monocdk/aws-s3";
 import { BucketDeployment, Source } from "monocdk/aws-s3-deployment";
@@ -7,26 +7,25 @@ import { SynthUtils } from "@monocdk-experiment/assert";
 
 export class ServerlessBoiResourcesStack extends Stack {
   //Creates all resources referenced across stacks
+
+  readonly resourcesBucket: Bucket;
+  readonly serverList: Table;
+
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const resourcesBucket = new Bucket(this, "Resources-Bucket", {
+    this.resourcesBucket = new Bucket(this, "Resources-Bucket", {
       bucketName: "serverboi-resources-bucket",
     });
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],
-      destinationBucket: resourcesBucket,
+      destinationBucket: this.resourcesBucket,
     });
 
-    const serverList = new Table(this, "Server-List", {
+    this.serverList = new Table(this, "Server-List", {
       partitionKey: { name: "server_id", type: AttributeType.NUMBER },
       tableName: "ServerlessBoi-Server-List",
-    });
-
-    serverList.addGlobalSecondaryIndex({
-      indexName: "Game",
-      partitionKey: { name: "game", type: AttributeType.STRING },
     });
   }
 }

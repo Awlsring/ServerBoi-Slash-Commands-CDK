@@ -1,10 +1,13 @@
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 """
 https://discord.com/developers/docs/interactions/slash-commands#registering-a-command
 """
-application_id = os.getenv("APPLICATION_ID")
+application_id = os.getenv("APP_ID")
 server_id = os.getenv("GUILD_ID")
 discord_token = os.getenv("DISCORD_TOKEN")
 
@@ -57,6 +60,55 @@ commands = {
                             "required": True
                         }
                     ]
+                },
+                {
+                    "name": "Add",
+                    "type": 1,
+                    "description": "Add server to ServerBoi management.",
+                    "options": [
+                        {
+                            "name": "Name",
+                            "description": "Name of the server",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "Game",
+                            "description": "Game that is hosted on the server.",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "Service",
+                            "description": "The cloud provider the instance is on.",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "Service Identifier",
+                            "description": "The cloud providers account identifier (AWS: Account ID, Azure: Subscription ID, GCP: Project)",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "InstanceId",
+                            "description": "The ID of the instance in the cloud provider.",
+                            "type": 3,
+                            "required": True
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Onboard",
+            "description": "Onboard your service account to ServerBoi.",
+            "type": 2,
+            "options": [
+                {
+                    "name": "AWS",
+                    "type": 1,
+                    "description": "Onboard AWS Account to ServerBoi."
                 }
             ]
         }
