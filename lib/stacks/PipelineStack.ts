@@ -3,7 +3,7 @@ import { CdkPipeline, SimpleSynthAction } from "monocdk/pipelines";
 import { Artifact } from "monocdk/aws-codepipeline";
 import { CodeStarConnectionsSourceAction } from "monocdk/aws-codepipeline-actions";
 
-export class MyPipelineStack extends Stack {
+export class PipelineStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -28,6 +28,7 @@ export class MyPipelineStack extends Stack {
       synthAction: SimpleSynthAction.standardNpmSynth({
         sourceArtifact,
         cloudAssemblyArtifact,
+        installCommand: "npm ci",
         buildCommand: "npm run build",
       }),
     });
