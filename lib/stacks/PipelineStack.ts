@@ -31,14 +31,13 @@ export class PipelineStack extends Stack {
         cloudAssemblyArtifact,
         installCommand: "npm ci",
         buildCommand: "npm run build",
+        rolePolicyStatements: [
+          new PolicyStatement({
+            resources: ["*"],
+            actions: ["cloudformation:GetTemplate"],
+          }),
+        ],
       }),
     });
-
-    pipeline.codePipeline.addToRolePolicy(
-      new PolicyStatement({
-        resources: ["*"],
-        actions: ["cloudformation:GetTemplate"],
-      })
-    );
   }
 }
