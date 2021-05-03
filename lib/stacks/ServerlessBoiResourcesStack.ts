@@ -16,6 +16,7 @@ export class ServerlessBoiResourcesStack extends Stack {
 
     this.resourcesBucket = new Bucket(this, "Resources-Bucket", {
       bucketName: "serverboi-resources-bucket",
+      publicReadAccess: true,
     });
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
