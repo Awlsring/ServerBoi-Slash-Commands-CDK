@@ -12,7 +12,8 @@ def route_server_command(request: request) -> dict:
         "status": server_status,
         "start": server_start,
         "stop": server_stop,
-        "add": add_server
+        "add": add_server,
+        "list": server_list
     }
 
     if request.json["data"]["options"][0]["options"][0]["options"][0]["name"] == 'ID':
@@ -28,9 +29,9 @@ def route_server_command(request: request) -> dict:
 
         return server_commands[server_command](name, game, service, serviec_id, instance)
 
-def server_start(id: int) -> str:
-    response = f"Placeholder response for server start. Server {id} was entered"
-    instance = _get_instance_from_id(id)
+def server_start(server_id: int) -> str:
+    response = f"Placeholder response for server start. Server {server_id} was entered"
+    instance = _get_instance_from_id(server_id)
 
     try:
         instance.start()
@@ -43,9 +44,9 @@ def server_start(id: int) -> str:
     return response
 
 
-def server_stop(id: int) -> str:
-    response = f"Placeholder response for server stop. Server {id} was entered"
-    instance = _get_instance_from_id(id)
+def server_stop(server_id: int) -> str:
+    response = f"Placeholder response for server stop. Server {server_id} was entered"
+    instance = _get_instance_from_id(server_id)
 
     try:
         instance.stop()
@@ -58,9 +59,9 @@ def server_stop(id: int) -> str:
     return response
 
 
-def server_status(id: int) -> str:
-    response = f"Placeholder response for server status. Server {id} was entered"
-    instance = _get_instance_from_id(id)
+def server_status(server_id: int) -> str:
+    response = f"Placeholder response for server status. Server {server_id} was entered"
+    instance = _get_instance_from_id(server_id)
 
     try:
         state = instance.state()
@@ -70,6 +71,40 @@ def server_status(id: int) -> str:
         response = f"Instance is {state['Name']}"
 
     return response
+
+def server_list() -> str:
+    response = f"**Current managed servers:**\n"
+
+    # Set this outside handler
+    dynamo = boto3.resource("dynamodb")
+
+    # Use env variable for table name
+    server_table = dynamo.Table("ServerlessBoi-Server-List")
+
+    try:
+        table_response = server_table.scan()
+    except BotoClientError as error:
+        raise RuntimeError(error)
+
+    for item in table_response["Items"]
+
+        server_info = response["Items"][0]
+
+        server_id = server_info.get('ID')
+        server_name = server_info.get('Name')
+        game = server_info.get('Game')
+
+        instance = _get_instance_from_id(server_id)
+
+        try:
+            state = instance.state()
+        except BotoClientError as error:
+            raise RuntimeError(error)
+
+        response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | Status: {state['Name']}\n"
+
+    return response
+
 
 def add_server(name: str, game: str, service: str, service_id: str, region: str, instance: str) -> str:
     # Assume role into account
@@ -111,7 +146,7 @@ def add_server(name: str, game: str, service: str, service_id: str, region: str,
 
     return response
 
-def _get_server_info_from_table(id: int) -> dict:
+def _get_server_info_from_table(server_id: int) -> dict:
     # Set this outside handler
     dynamo = boto3.resource("dynamodb")
 
@@ -119,7 +154,7 @@ def _get_server_info_from_table(id: int) -> dict:
     server_table = dynamo.Table("ServerlessBoi-Server-List")
 
     try:
-        response = server_table.query(KeyConditionExpression=Key("server_id").eq(id))
+        response = server_table.query(KeyConditionExpression=Key("server_id").eq(server_id))
     except BotoClientError as error:
         raise RuntimeError(error)
     else:
@@ -153,8 +188,8 @@ def _create_ec2_resource(account_id: str, region: str):
     return ec2
 
 
-def _get_instance_from_id(id: int) -> boto3.resource:
-    server_info = _get_server_info_from_table(id)
+def _get_instance_from_id(server_id: int) -> boto3.resource:
+    server_info = _get_server_info_from_table(server_id)
 
     account_id = server_info.get('account_id')
     region = server_info.get('region')
