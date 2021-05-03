@@ -3,6 +3,7 @@ import { CdkPipeline, SimpleSynthAction } from "monocdk/pipelines";
 import { Artifact } from "monocdk/aws-codepipeline";
 import { CodeStarConnectionsSourceAction } from "monocdk/aws-codepipeline-actions";
 import { Role, ServicePrincipal, PolicyStatement } from "monocdk/aws-iam";
+import { PipelineStage } from "./constructs/Stage";
 
 export class PipelineStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -39,5 +40,9 @@ export class PipelineStack extends Stack {
         ],
       }),
     });
+
+    const deployment = new PipelineStage(this, "Deployment");
+
+    pipeline.addApplicationStage(deployment);
   }
 }
