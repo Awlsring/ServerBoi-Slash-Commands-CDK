@@ -1,3 +1,5 @@
+from flask import request
+
 def route_onboard_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
 

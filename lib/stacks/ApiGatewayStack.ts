@@ -35,7 +35,7 @@ export class ApiGatewayStack extends Stack {
       "ServerlessBoi-Discord-Interactions-Layer",
       {
         code: Code.fromAsset(
-          "lambda/layers/discordInteractions/discordIntegrationsLayer.zip"
+          "lambdas/layers/discordInteractions/discordIntegrationsLayer.zip"
         ),
         compatibleRuntimes: [Runtime.PYTHON_3_8],
         description: "Lambda Layer for Discord Interactions",
@@ -46,7 +46,9 @@ export class ApiGatewayStack extends Stack {
     const lambda = new Function(this, "ServerlessBoi-Main-Lambda", {
       runtime: Runtime.PYTHON_3_8,
       handler: "main.lambda_handler",
-      code: Code.fromAsset("lambda/handlers/interactions"),
+      code: Code.fromAsset(
+        "lambdas/handlers/interactions/serverboi_interactions_lambda"
+      ),
       layers: [flaskLayer],
       memorySize: 128,
       tracing: Tracing.ACTIVE,

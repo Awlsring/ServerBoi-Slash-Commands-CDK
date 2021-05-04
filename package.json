@@ -5,9 +5,9 @@
     "serverless_boi": "bin/serverless_boi.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && pip install lambdas/handlers/interactions/",
     "watch": "tsc -w",
-    "test": "jest",
+    "test": "make testpython",
     "cdk": "cdk"
   },
   "devDependencies": {

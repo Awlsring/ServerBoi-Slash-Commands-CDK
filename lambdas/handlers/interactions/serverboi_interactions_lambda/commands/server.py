@@ -1,7 +1,7 @@
 from flask import request
 import boto3
 from boto3.dynamodb.conditions import Key
-from botocore.exceptions import ClietError as BotoClientError
+from botocore.exceptions import ClientError as BotoClientError
 from uuid import uuid4
 
 
@@ -86,7 +86,7 @@ def server_list() -> str:
     except BotoClientError as error:
         raise RuntimeError(error)
 
-    for item in table_response["Items"]
+    for item in table_response["Items"]:
 
         server_info = response["Items"][0]
 
