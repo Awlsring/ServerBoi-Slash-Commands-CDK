@@ -41,7 +41,7 @@ export class PipelineStack extends Stack {
       }),
     });
 
-    const prod = new PipelineStage(this, "ServerBoi-Production-");
+    const prod = new PipelineStage(this, "ServerBoi-Production");
 
     pipeline.addApplicationStage(prod);
   }
