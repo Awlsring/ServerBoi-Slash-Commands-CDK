@@ -24,11 +24,8 @@ export class ApiGatewayStack extends Stack {
   constructor(scope: Construct, id: string, props: ApiGatewayStackProps) {
     super(scope, id, props);
 
-    config({
-      path: "../../.env",
-    });
-
-    const applicationId = process.env["APPLICATION_ID"];
+    const applicationId = process.env["PUBLIC_ID"];
+    console.log(applicationId);
 
     const flaskLayer = new LayerVersion(
       this,
@@ -53,7 +50,7 @@ export class ApiGatewayStack extends Stack {
       timeout: Duration.seconds(60),
       functionName: "ServerlessBoi-Main-Lambda",
       environment: {
-        APPLICATION_ID: <string>applicationId,
+        PUBLIC_KEY: <string>applicationId,
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
       },

@@ -10,7 +10,7 @@ from flask import (
     request,
 )
 
-PUBLIC_KEY = os.environ.get("APPLICATION_ID")
+PUBLIC_KEY = os.environ.get("PUBLIC_KEY")
 RESOURCES_BUCKET = os.environ.get("RESOURCES_BUCKET")
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
 app = Flask(__name__)
