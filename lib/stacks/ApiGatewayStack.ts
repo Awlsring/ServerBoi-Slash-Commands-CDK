@@ -45,10 +45,8 @@ export class ApiGatewayStack extends Stack {
 
     const lambda = new Function(this, "ServerlessBoi-Main-Lambda", {
       runtime: Runtime.PYTHON_3_8,
-      handler: "main.lambda_handler",
-      code: Code.fromAsset(
-        "lambdas/handlers/interactions/serverboi_interactions_lambda"
-      ),
+      handler: "serverboi_interactions_lambda.main.lambda_handler",
+      code: Code.fromAsset("lambdas/handlers/interactions/"),
       layers: [flaskLayer],
       memorySize: 128,
       tracing: Tracing.ACTIVE,

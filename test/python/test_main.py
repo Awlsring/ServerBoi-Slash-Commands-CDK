@@ -1,9 +1,9 @@
-from serverboi_interactions_lambda import main as interactions
+import main
 
 def test_import():
     import os
     assert True
 
 def test_lambda():
-    interactions.lambda_handler()
+    main.lambda_handler()
     assert True
