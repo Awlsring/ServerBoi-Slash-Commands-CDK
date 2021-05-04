@@ -1,0 +1,8 @@
+{
+  "valheim": {
+    "container": "lloesche/valheim-server",
+    "aws": {
+      "instance_type": "c4.large"
+    }
+  }
+}

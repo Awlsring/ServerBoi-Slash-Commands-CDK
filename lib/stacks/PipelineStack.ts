@@ -41,8 +41,8 @@ export class PipelineStack extends Stack {
       }),
     });
 
-    const deployment = new PipelineStage(this, "Deployment");
+    const prod = new PipelineStage(this, "ServerBoi-Production-");
 
-    pipeline.addApplicationStage(deployment);
+    pipeline.addApplicationStage(prod);
   }
 }
