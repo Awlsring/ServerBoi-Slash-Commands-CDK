@@ -17,7 +17,7 @@ def route_server_command(request: request) -> dict:
     }
 
     if server_command == 'list':
-        return server_command[server_command]()
+        return server_commands[server_command]()
     
     elif server_command == 'add':
         name = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
@@ -37,6 +37,9 @@ def server_start(server_id: int) -> str:
     response = f"Placeholder response for server start. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
 
+    if not instance:
+        return f"{server_id} is not a server."
+
     try:
         instance.start()
     except BotoClientError as error:
@@ -52,6 +55,9 @@ def server_stop(server_id: int) -> str:
     response = f"Placeholder response for server stop. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
 
+    if not instance:
+        return f"{server_id} is not a server."
+
     try:
         instance.stop()
     except BotoClientError as error:
@@ -66,6 +72,9 @@ def server_stop(server_id: int) -> str:
 def server_status(server_id: int) -> str:
     response = f"Placeholder response for server status. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
+
+    if not instance:
+        return f"{server_id} is not a server."
 
     try:
         state = instance.state()
@@ -101,8 +110,11 @@ def server_list() -> str:
             server_id = server_info.get('ID')
             server_name = server_info.get('Name')
             game = server_info.get('Game')
+            account_id = server_info.get('AccountID')
+            region = server_info.get('Region')
+            instance_id = server_info.get("InstanceID")
 
-            instance = _get_instance_from_id(server_id)
+            instance = _create_instance_resource(account_id, region, instance_id)
 
             try:
                 state = instance.state()
@@ -166,10 +178,11 @@ def _get_server_info_from_table(server_id: int) -> dict:
     except BotoClientError as error:
         raise RuntimeError(error)
     else:
-        server_info = response["Items"][0]
 
-    return server_info
-
+    if len(response["Items"]) != 1:
+        return False
+    else:
+        return response["Items"][0]
 
 def _create_ec2_resource(account_id: str, region: str):
     # Create this sts client in init
@@ -197,14 +210,24 @@ def _create_ec2_resource(account_id: str, region: str):
 
 
 def _get_instance_from_id(server_id: int) -> boto3.resource:
+
     server_info = _get_server_info_from_table(server_id)
 
-    account_id = server_info.get('account_id')
-    region = server_info.get('region')
+    if not server_info:
+        return False
 
+    account_id = server_info.get('AccountID')
+    region = server_info.get('Region')
+    instance_id = server_info.get("InstanceID")
+
+    instance = _create_instance_resource(account_id, region, instance_id)
+    
+    return instance
+
+def _create_instance_resource(account_id: str, region: str, instance_id: str) -> boto3.resource:
+    
     resource = _create_ec2_resource(account_id, region)
 
-    instance_id = server_info.get("instance_id")
-
     instance = resource.Instance(instance_id)
+
     return instance
