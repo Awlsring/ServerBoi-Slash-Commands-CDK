@@ -13,7 +13,6 @@ import {
 } from "monocdk/aws-lambda";
 import { Role, ServicePrincipal, PolicyStatement } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
-import { config } from "dotenv";
 
 export interface ApiGatewayStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;
@@ -67,6 +66,8 @@ export class ApiGatewayStack extends Stack {
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
+          "dynamodb:Scan",
+          "dynamodb:Query",
         ],
       })
     );

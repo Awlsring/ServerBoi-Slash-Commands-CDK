@@ -16,18 +16,22 @@ def route_server_command(request: request) -> dict:
         "list": server_list
     }
 
-    if request.json["data"]["options"][0]["options"][0]["options"][0]["name"] == 'ID':
-        server_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
-
-        return server_commands[server_command](server_id)
-    elif request.json["data"]["options"][0]["options"][0]["options"][0]["name"] == 'Name':
+    if server_command == 'list':
+        return server_command[server_command]()
+    
+    elif server_command == 'add':
         name = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
         game = request.json["data"]["options"][0]["options"][0]["options"][1]["value"]
         service = request.json["data"]["options"][0]["options"][0]["options"][2]["value"]
         service_id = request.json["data"]["options"][0]["options"][0]["options"][3]["value"]
         instance = request.json["data"]["options"][0]["options"][0]["options"][4]["value"]
 
-        return server_commands[server_command](name, game, service, serviec_id, instance)
+        return server_commands[server_command](name, game, service, service_id, instance)
+
+    else:
+        server_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
+
+        return server_commands[server_command](server_id)
 
 def server_start(server_id: int) -> str:
     response = f"Placeholder response for server start. Server {server_id} was entered"
@@ -86,22 +90,26 @@ def server_list() -> str:
     except BotoClientError as error:
         raise RuntimeError(error)
 
-    for item in table_response["Items"]:
+    if len(table_response["Items"]) == 0:
+        response = "No servers are currently managed. :("
 
-        server_info = response["Items"][0]
+    else:
+        for item in table_response["Items"]:
 
-        server_id = server_info.get('ID')
-        server_name = server_info.get('Name')
-        game = server_info.get('Game')
+            server_info = response["Items"][0]
 
-        instance = _get_instance_from_id(server_id)
+            server_id = server_info.get('ID')
+            server_name = server_info.get('Name')
+            game = server_info.get('Game')
 
-        try:
-            state = instance.state()
-        except BotoClientError as error:
-            raise RuntimeError(error)
+            instance = _get_instance_from_id(server_id)
 
-        response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | Status: {state['Name']}\n"
+            try:
+                state = instance.state()
+            except BotoClientError as error:
+                raise RuntimeError(error)
+
+            response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | Status: {state['Name']}\n"
 
     return response
 

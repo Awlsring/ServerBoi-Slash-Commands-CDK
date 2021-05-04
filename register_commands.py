@@ -62,6 +62,11 @@ commands = {
                     ]
                 },
                 {
+                    "name": "List",
+                    "type": 1,
+                    "description": "Get status of the specified server.",
+                },
+                {
                     "name": "Add",
                     "type": 1,
                     "description": "Add server to ServerBoi management.",
@@ -85,7 +90,7 @@ commands = {
                             "required": True
                         },
                         {
-                            "name": "Service Identifier",
+                            "name": "ServiceIdentifier",
                             "description": "The cloud providers account identifier (AWS: Account ID, Azure: Subscription ID, GCP: Project)",
                             "type": 3,
                             "required": True
