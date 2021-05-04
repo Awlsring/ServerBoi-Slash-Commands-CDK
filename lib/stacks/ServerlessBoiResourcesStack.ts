@@ -25,14 +25,14 @@ export class ServerlessBoiResourcesStack extends Stack {
       destinationBucket: this.resourcesBucket,
     });
 
-    this.serverList = new Table(this, "Server-List", {
+    this.serverList = new Table(this, "Server-Tarle", {
       partitionKey: { name: "ServerID", type: AttributeType.STRING },
-      tableName: "ServerlessBoi-Server-List",
+      tableName: "ServerBoi-Server-List",
     });
 
-    this.userList = new Table(this, "User-List", {
+    this.userList = new Table(this, "User-Table", {
       partitionKey: { name: "UserID", type: AttributeType.STRING },
-      tableName: "ServerlessBoi-User-List",
+      tableName: "ServerBoi-User-List",
     });
   }
 }

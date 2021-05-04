@@ -14,7 +14,7 @@ def route_onboard_command(request: request) -> dict:
 def onboard_aws() -> str:
     account_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
     user_id = request.json["member"]["user"]["id"]
-    table = _get_table("ServerlessBoi-User-List")
+    table = _get_table("ServersBoi-User-List")
 
     resp = _write_user_info_to_table(user_id, table, AWSAccountID=account_id)
 
@@ -74,7 +74,7 @@ def validate(user_id: str, service: str) - str:
     '''
     Assume role into target account to verify account is accessible.
     '''
-    table = _get_table("ServerlessBoi-Server-List")
+    table = _get_table("ServerBoi-Server-List")
     user_info = _get_user_info_from_table(user_id, table)
 
     account_id = user_info.get("AWSAccountID")
