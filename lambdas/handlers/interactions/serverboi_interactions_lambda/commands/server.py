@@ -38,7 +38,7 @@ def server_start(server_id: int) -> str:
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        return f"{server_id} is not a server."
+        return f"ServerID: {server_id} is not a server."
 
     try:
         instance.start()
@@ -56,7 +56,7 @@ def server_stop(server_id: int) -> str:
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        return f"{server_id} is not a server."
+        return f"ServerID: {server_id} is not a server."
 
     try:
         instance.stop()
@@ -74,7 +74,7 @@ def server_status(server_id: int) -> str:
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        return f"{server_id} is not a server."
+        return f"ServerID: {server_id} is not a server."
 
     try:
         state = instance.state()
@@ -176,13 +176,13 @@ def _get_server_info_from_table(server_id: int) -> dict:
     try:
         response = server_table.query(KeyConditionExpression=Key("server_id").eq(server_id))
     except BotoClientError as error:
-        raise RuntimeError(error)
-    else:
-
-    if len(response["Items"]) != 1:
         return False
     else:
-        return response["Items"][0]
+
+        if len(response["Items"]) != 1:
+            return False
+        else:
+            return response["Items"][0]
 
 def _create_ec2_resource(account_id: str, region: str):
     # Create this sts client in init
@@ -221,7 +221,7 @@ def _get_instance_from_id(server_id: int) -> boto3.resource:
     instance_id = server_info.get("InstanceID")
 
     instance = _create_instance_resource(account_id, region, instance_id)
-    
+
     return instance
 
 def _create_instance_resource(account_id: str, region: str, instance_id: str) -> boto3.resource:
