@@ -10,6 +10,7 @@ export class ServerlessBoiResourcesStack extends Stack {
 
   readonly resourcesBucket: Bucket;
   readonly serverList: Table;
+  readonly userList: Table;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -25,8 +26,13 @@ export class ServerlessBoiResourcesStack extends Stack {
     });
 
     this.serverList = new Table(this, "Server-List", {
-      partitionKey: { name: "server_id", type: AttributeType.NUMBER },
+      partitionKey: { name: "ServerID", type: AttributeType.STRING },
       tableName: "ServerlessBoi-Server-List",
+    });
+
+    this.userList = new Table(this, "User-List", {
+      partitionKey: { name: "UserID", type: AttributeType.STRING },
+      tableName: "ServerlessBoi-User-List",
     });
   }
 }

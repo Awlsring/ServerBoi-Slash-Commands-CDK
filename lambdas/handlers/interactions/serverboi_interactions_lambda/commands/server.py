@@ -174,7 +174,7 @@ def _get_server_info_from_table(server_id: int) -> dict:
     server_table = dynamo.Table("ServerlessBoi-Server-List")
 
     try:
-        response = server_table.query(KeyConditionExpression=Key("server_id").eq(server_id))
+        response = server_table.query(KeyConditionExpression=Key("ServerID").eq(server_id))
     except BotoClientError as error:
         return False
     else:

@@ -90,7 +90,7 @@ commands = {
                             "required": True
                         },
                         {
-                            "name": "ServiceIdentifier",
+                            "name": "Service-Identifier",
                             "description": "The cloud providers account identifier (AWS: Account ID, Azure: Subscription ID, GCP: Project)",
                             "type": 3,
                             "required": True
@@ -106,6 +106,57 @@ commands = {
             ]
         },
         {
+            "name": "Create",
+            "description": "Create a server.",
+            "type": 2,
+            "options": [
+                {
+                    "name": "Valheim",
+                    "type": 1,
+                    "description": "Create a Valheim Server.",
+                    "options": [
+                        {
+                            "name": "Service",
+                            "description": "Service server is hosted on.",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "Region",
+                            "description": "Geographical region server will be hosted on.",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "Name",
+                            "description": "Name of the server.",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "World-Name",
+                            "description": "Name of the servers world.",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "Password",
+                            "description": "Password for server. Must be at least 5 characters in length.",
+                            "type": 3,
+                            "required": True
+                        },
+                        {
+                            "name": "World-File-Url",
+                            "description": "Use an existing world file. Must be publicly accessible url.",
+                            "type": 3,
+                            "required": False
+                        },
+
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Onboard",
             "description": "Onboard your service account to ServerBoi.",
             "type": 2,
@@ -113,7 +164,28 @@ commands = {
                 {
                     "name": "AWS",
                     "type": 1,
-                    "description": "Onboard AWS Account to ServerBoi."
+                    "description": "Onboard AWS Account to ServerBoi.",
+                    "options": [
+                        {
+                            "name": "AccountId",
+                            "description": "ID of the AWS Account to onboard",
+                            "type": 3,
+                            "required": True
+                        }
+                    ]
+                },
+                {
+                    "name": "Validate",
+                    "type": 1,
+                    "description": "Validate cloud account can be reached bn ServerBoi.",
+                    "options": [
+                        {
+                            "name": "Service",
+                            "description": "Service to validate",
+                            "type": 3,
+                            "required": True
+                        }
+                    ]
                 }
             ]
         }
