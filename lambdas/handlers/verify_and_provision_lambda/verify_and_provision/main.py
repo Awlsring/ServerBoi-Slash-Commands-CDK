@@ -1,10 +1,13 @@
 import boto3
 import json
 from uuid import uuid4
+import os
+from botocore.exceptions import ClientError as BotoClientError
+from boto3.dynamodb.conditions import Key
 
 DYNAMO = boto3.resource("dynamodb")
-USER_TABLE = dynamo.Table(os.environ.get("USER_TABLE"))
-SERVER_TABLE = dynamo.Table(os.environ.get("SERVER_TABLE"))
+USER_TABLE = DYNAMO.Table(os.environ.get("USER_TABLE"))
+SERVER_TABLE = DYNAMO.Table(os.environ.get("SERVER_TABLE"))
 STS = boto3.client('sts')
 
 # TODO: Find and pull latest Debian
@@ -67,7 +70,7 @@ def lambda_handler(event, context) -> dict:
     server_id = uuid4()
     server_id = str(server_id)[:4]
 
-    user_info = _get_user_info_from_table(event['user_id'], table)
+    user_info = _get_user_info_from_table(user_id, USER_TABLE)
 
     account_id = user_info.get("AWSAccountID")
 
@@ -82,7 +85,7 @@ def lambda_handler(event, context) -> dict:
             # Replace with boto session then creation
             ec2_client = boto3.client(
                 "ec2",
-                region=region,
+                region_name=region,
                 aws_access_key_id=assumed_role['Credentials']['AccessKeyId'],
                 aws_secret_access_key=assumed_role['Credentials']['SecretAccessKey'],
                 aws_session_token=assumed_role['Credentials']['SessionToken']
@@ -90,7 +93,7 @@ def lambda_handler(event, context) -> dict:
 
             ec2_resource = boto3.resource(
                 "ec2",
-                region=region,
+                region_name=region,
                 aws_access_key_id=assumed_role['Credentials']['AccessKeyId'],
                 aws_secret_access_key=assumed_role['Credentials']['SecretAccessKey'],
                 aws_session_token=assumed_role['Credentials']['SessionToken']
@@ -99,22 +102,24 @@ def lambda_handler(event, context) -> dict:
             print("Account verified")
 
         except BotoClientError as error:
-            print("error")
+            print(error)
 
-        with open('build.json') as build:
+        with open('verify_and_provision/build.json') as build:
             build_data = json.load(build)
 
         game_data = build_data[game]
 
         sec_group_name = f"ServerBoi-Resource-{game}-{name}-{server_id}"
 
-        ec2_client.create_security_group(
+        sec_resp = ec2_client.create_security_group(
             Description=f"Sec group for {game} server: {name}",
             GroupName=sec_group_name
         )
 
-        ec2_client = authorize_security_group_egress(
-            GroupName=sec_group_name,
+        group_id = sec_resp['GroupId']
+
+        ec2_client.authorize_security_group_egress(
+            GroupId=group_id,
             IpPermissions=[
                 {
                     'IpProtocol': 'tcp',
@@ -140,7 +145,7 @@ def lambda_handler(event, context) -> dict:
         )
 
         ec2_client.authorize_security_group_ingress(
-            GroupName=sec_group_name,
+            GroupId=group_id,
             IpPermissions=[
                 {
                     'IpProtocol': 'tcp',
@@ -170,10 +175,12 @@ def lambda_handler(event, context) -> dict:
         instances = ec2_resource.create_instances(
             ImageId=IMAGE_ID,
             InstanceType=game_data['aws']['instance_type'],
-            MaxCount=1
+            MaxCount=1,
             MinCount=1,
-            SecurityGroup=sec_group,
-            UserData=user_data,
+            SecurityGroupIds=[
+                group_id
+            ],
+            UserData=user_data
         )
 
         instance = instances[0]
@@ -188,7 +195,8 @@ def lambda_handler(event, context) -> dict:
             "Password": password,
             "Service": service,
             "AccountID": account_id,
-            "Region": region
+            "Region": region,
+            "InstanceID": instance_id
         }
 
         SERVER_TABLE.put_item(

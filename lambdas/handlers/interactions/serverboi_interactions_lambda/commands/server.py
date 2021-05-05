@@ -92,7 +92,7 @@ def server_list() -> str:
     dynamo = boto3.resource("dynamodb")
 
     # Use env variable for table name
-    server_table = dynamo.Table("ServerlessBoi-Server-List")
+    server_table = dynamo.Table("ServerBoi-Server-List")
 
     try:
         table_response = server_table.scan()
@@ -103,13 +103,12 @@ def server_list() -> str:
         response = "No servers are currently managed. :("
 
     else:
-        for item in table_response["Items"]:
+        for server_info in table_response["Items"]:
 
-            server_info = response["Items"][0]
-
-            server_id = server_info.get('ID')
-            server_name = server_info.get('Name')
+            server_id = server_info.get('ServerID')
+            server_name = server_info.get('ServerName')
             game = server_info.get('Game')
+            owner = server_info.get('Owner')
             account_id = server_info.get('AccountID')
             region = server_info.get('Region')
             instance_id = server_info.get("InstanceID")
@@ -117,11 +116,11 @@ def server_list() -> str:
             instance = _create_instance_resource(account_id, region, instance_id)
 
             try:
-                state = instance.state()
+                state = instance.state
             except BotoClientError as error:
                 raise RuntimeError(error)
 
-            response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | Status: {state['Name']}\n"
+            response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | Owner: {owner} | Status: {state['Name']}\n"
 
     return response
 
@@ -190,7 +189,7 @@ def _create_ec2_resource(account_id: str, region: str):
 
     try:
         assumed_role_object = sts_client.assume_role(
-            RoleArn=f"arn:aws:iam::{account_id}:role/ServerBoiRole",
+            RoleArn=f"arn:aws:iam::{account_id}:role/ServerBoi-Resource.Assumed-Role",
             RoleSessionName="ServerBoiSession",
         )
     except BotoClientError as error:

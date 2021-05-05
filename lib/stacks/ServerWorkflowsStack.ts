@@ -15,7 +15,7 @@ import {
   WaitTime,
 } from "monocdk/aws-stepfunctions";
 import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
-import { Role, ServicePrincipal } from "monocdk/aws-iam";
+import { PolicyStatement, Role, ServicePrincipal } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 
 export interface ServerWorkflowsStackProps extends StackProps {
@@ -38,6 +38,7 @@ export class ServerWorkflowsStack extends Stack {
       functionName: verifyName,
       environment: {
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
+        USER_TABLE: props.resourcesStack.userList.tableName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
       },
       role: new Role(this, `${verifyName}-Role`, {
@@ -45,6 +46,22 @@ export class ServerWorkflowsStack extends Stack {
         roleName: `${verifyName}-Role`,
       }),
     });
+
+    verifyLambda.addToRolePolicy(
+      new PolicyStatement({
+        resources: ["*"],
+        actions: [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "sts:AssumeRole",
+        ],
+      })
+    );
 
     //step definitions
     const verifyLambdaStep = new LambdaInvoke(

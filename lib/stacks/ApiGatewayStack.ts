@@ -68,6 +68,9 @@ export class ApiGatewayStack extends Stack {
           "logs:PutLogEvents",
           "dynamodb:Scan",
           "dynamodb:Query",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "sts:AssumeRole",
         ],
       })
     );

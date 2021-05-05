@@ -1,5 +1,6 @@
 from flask import request
 import boto3
+from botocore.exceptions import ClientError as BotoClientError
 
 def route_onboard_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
@@ -14,7 +15,7 @@ def route_onboard_command(request: request) -> dict:
 def onboard_aws() -> str:
     account_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
     user_id = request.json["member"]["user"]["id"]
-    table = _get_table("ServersBoi-User-List")
+    table = _get_table("ServerBoi-User-List")
 
     resp = _write_user_info_to_table(user_id, table, AWSAccountID=account_id)
 
@@ -49,13 +50,15 @@ def _get_user_info_from_table(user_id: str, table: boto3.resource) -> str:
 
 
 def _write_user_info_to_table(user_id: str, table: boto3.resource, **kwargs) -> bool:
-    update_expression = 'Set '
+    update_expression = 'Set'
     expression_attribute_values = {}
     i = 1
     for key, value in kwargs.items(): 
-        update_expression = f'{key} = :val{i}'
-        expression_attribute_values[f'val{i}'] = value
+        update_expression = f'{update_expression} {key} = :val{i},'
+        expression_attribute_values[f':val{i}'] = value
         i += 1
+
+    update_expression = update_expression[:-1]
 
     try:
         response = table.update_item(
@@ -70,7 +73,7 @@ def _write_user_info_to_table(user_id: str, table: boto3.resource, **kwargs) -> 
         return False
     return True
 
-def validate(user_id: str, service: str) - str:
+def validate(user_id: str, service: str) -> str:
     '''
     Assume role into target account to verify account is accessible.
     '''

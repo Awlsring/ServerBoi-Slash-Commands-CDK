@@ -3,6 +3,7 @@ import awsgi
 import boto3
 from serverboi_interactions_lambda.commands.server import route_server_command
 from serverboi_interactions_lambda.commands.onboard import route_onboard_command
+from serverboi_interactions_lambda.commands.create import route_create_command
 from discord_interactions import verify_key_decorator
 from flask import (
     Flask,
@@ -38,6 +39,7 @@ def route_command(command: str, request: request) -> dict:
     commands = {
         "server": route_server_command,
         "onboard": route_onboard_command,
+        "create": route_create_command
     }
 
     return commands[command](request)
