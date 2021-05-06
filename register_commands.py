@@ -1,8 +1,5 @@
 import os
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 """
 https://discord.com/developers/docs/interactions/slash-commands#registering-a-command

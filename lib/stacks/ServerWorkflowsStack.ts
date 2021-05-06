@@ -13,6 +13,8 @@ import {
   Pass,
   Wait,
   WaitTime,
+  Succeed,
+  Fail
 } from "monocdk/aws-stepfunctions";
 import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement, Role, ServicePrincipal } from "monocdk/aws-iam";
@@ -47,6 +49,24 @@ export class ServerWorkflowsStack extends Stack {
       }),
     });
 
+    const checkName = "ServerBoi-Check-Server-Status-Lambda";
+    const checkLambda = new Function(this, checkName, {
+      runtime: Runtime.PYTHON_3_8,
+      handler: "check_server_status.main.lambda_handler",
+      code: Code.fromAsset("lambdas/handlers/check_server_status/"),
+      memorySize: 128,
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(60),
+      functionName: checkName,
+      environment: {
+        PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow'
+      },
+      role: new Role(this, `${checkName}-Role`, {
+        assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+        roleName: `${checkName}-Role`,
+      }),
+    });
+
     verifyLambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -63,6 +83,19 @@ export class ServerWorkflowsStack extends Stack {
       })
     );
 
+    checkLambda.addToRolePolicy(
+      new PolicyStatement({
+        resources: ["*"],
+        actions: [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "ec2:TerminateInstances",
+          "sts:AssumeRole",
+        ],
+      })
+    );
+
     //step definitions
     const verifyLambdaStep = new LambdaInvoke(
       this,
@@ -72,11 +105,28 @@ export class ServerWorkflowsStack extends Stack {
       }
     );
 
+    const waitForProvision = new Wait(this, 'Wait-For-Provision', {
+      time: WaitTime.secondsPath('$.wait_time'),
+      
+    })
+
     const checkServerStatus = new Pass(this, "Check-Server-Status-Step");
 
-    const stepDefinition = verifyLambdaStep.next(checkServerStatus);
+    const isServerUpCheck = new Choice(this, 'Is-Server-Up-Check')
 
-    new StateMachine(this, "Provision-Server-State-Machine", {
+    const errorStep = new Fail(this, 'Fail-Step')
+
+    const endStep = new Succeed(this, 'End-Step')
+
+    const stepDefinition = verifyLambdaStep
+      .next(waitForProvision)
+      .next(checkServerStatus)
+      .next(isServerUpCheck)
+      isServerUpCheck.when(Condition.booleanEquals('$.rollback', true), errorStep) 
+      isServerUpCheck.when(Condition.booleanEquals('$.server_up', false), waitForProvision);
+      isServerUpCheck.when(Condition.booleanEquals('$.server_up', true), endStep);
+
+    const provision = new StateMachine(this, "Provision-Server-State-Machine", {
       definition: stepDefinition,
       stateMachineName: "Provision-Server-Workflow",
     });

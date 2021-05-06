@@ -1,6 +1,9 @@
 from flask import request
 from botocore.exceptions import ClientError as BotoClientError
+import boto3
+import os
 
+PROVISION_ARN = os.environ.get("PROVISION_ARN")
 
 def route_create_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
@@ -21,11 +24,25 @@ def create_valheim(*args, **kwargs) -> str:
     game = args[6]
     world_file = kwargs.get("world_file")
 
-    # verify account and user
-    # look up game run book
-    # provision server
-    # verify server has started
-    # Write to webhook server is done
+    sfn = boto3.client('stepfunctions')
 
+    input_data = {
+        "input": {
+            "service": service,
+            "region": region,
+            "name": name,
+            "world_name": world_name,
+            "password": password,
+            "user_id": user_id,
+            "game": game
+        }
+    }
+
+    data = json.dumps(input_data)
+
+    client.start_execution(
+        stateMachineArn=PROVISION_ARN,
+        input=data
+    )
 
     return response

@@ -73,6 +73,7 @@ def lambda_handler(event, context) -> dict:
     user_info = _get_user_info_from_table(user_id, USER_TABLE)
 
     account_id = user_info.get("AWSAccountID")
+    event['account_id'] = account_id
 
     if account_id:
 
@@ -108,6 +109,10 @@ def lambda_handler(event, context) -> dict:
             build_data = json.load(build)
 
         game_data = build_data[game]
+
+        event['wait_time'] = game_data['build_time']
+        port_range = game_data['ports']['range']
+        event['server_port'] = game_data['ports']['primary']
 
         sec_group_name = f"ServerBoi-Resource-{game}-{name}-{server_id}"
 
@@ -149,8 +154,8 @@ def lambda_handler(event, context) -> dict:
             IpPermissions=[
                 {
                     'IpProtocol': 'tcp',
-                    'FromPort': 2456,
-                    'ToPort': 2458,
+                    'FromPort': port_range[0],
+                    'ToPort': port_range[1],
                     'IpRanges': [
                         {
                             'CidrIp': '0.0.0.0/0'
@@ -159,8 +164,8 @@ def lambda_handler(event, context) -> dict:
                 },
                 {
                     'IpProtocol': 'udp',
-                    'FromPort': 2456,
-                    'ToPort': 2458,
+                    'FromPort': port_range[0],
+                    'ToPort': port_range[1],
                     'IpRanges': [
                         {
                             'CidrIp': '0.0.0.0/0'
@@ -203,7 +208,15 @@ def lambda_handler(event, context) -> dict:
             Item=server_item
         )
 
-        return True
+        ip = instance.public_ip_address
+        print(f"Instance IP: {ip}")
+        
+        if ip != '':
+            event['instance_ip'] = ip
+
+        event['instance_id'] = instance_id
+        
+        return event
 
     else:
         raise Exception("No account associated with user")
