@@ -45,4 +45,6 @@ def create_valheim(*args, **kwargs) -> str:
         input=data
     )
 
+    response = f"Started creation of {game} server. It'll take several minutes for it to be ready."
+
     return response

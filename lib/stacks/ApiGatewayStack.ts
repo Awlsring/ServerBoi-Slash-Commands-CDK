@@ -52,6 +52,7 @@ export class ApiGatewayStack extends Stack {
         PUBLIC_KEY: <string>applicationId,
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
+        PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow'
       },
       role: new Role(this, "ServerlessBoi-Main-Lambda-Role", {
         assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
