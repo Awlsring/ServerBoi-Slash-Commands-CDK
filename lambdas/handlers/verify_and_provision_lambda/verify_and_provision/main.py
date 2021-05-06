@@ -175,7 +175,7 @@ def lambda_handler(event, context) -> dict:
             ]
         )
 
-        user_data = form_user_data(name, event['world_name'], password)
+        user_data = form_user_data(name, event['world-name'], password)
 
         instances = ec2_resource.create_instances(
             ImageId=IMAGE_ID,

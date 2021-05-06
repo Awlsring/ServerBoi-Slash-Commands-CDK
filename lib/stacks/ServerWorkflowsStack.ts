@@ -117,13 +117,20 @@ export class ServerWorkflowsStack extends Stack {
     );
 
     const waitForProvision = new Wait(this, 'Wait-For-Provision', {
-      time: WaitTime.secondsPath('$.wait_time'),
-      
+      time: WaitTime.secondsPath('$.input.Payload.wait_time'),
     })
 
-    const checkServerStatus = new Pass(this, "Check-Server-Status-Step");
+    const checkServerStatus = new LambdaInvoke(
+      this,
+      "Check-Server-Status-Step",
+      {
+        lambdaFunction: checkLambda,
+        inputPath: "$.Payload"
+      });
 
-    const isServerUpCheck = new Choice(this, 'Is-Server-Up-Check')
+    const isServerUpCheck = new Choice(this, 'Is-Server-Up-Check', {
+      inputPath:"$.Payload"
+    })
 
     const errorStep = new Fail(this, 'Fail-Step')
 
