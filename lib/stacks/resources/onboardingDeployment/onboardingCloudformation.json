@@ -8,6 +8,14 @@
             {
               "Action": "*",
               "Effect": "Allow",
+              "Resource": "*",
+              "Condition": {
+                "StringEquals": { "aws:ResourceTag/ManagedBy": "ServerBoi" }
+              }
+            },
+            {
+              "Action": "ec2:RunInstances",
+              "Effect": "Allow",
               "Resource": "*"
             }
           ],
@@ -27,9 +35,6 @@
               "Effect": "Allow",
               "Principal": {
                 "AWS": "arn:aws:iam::742762521158:root"
-              },
-              "Condition": {
-                "StringEquals": { "aws:ResourceTag/ManagedBy": "ServerBoi" }
               }
             }
           ],

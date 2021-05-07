@@ -35,7 +35,7 @@ def route_server_command(request: request) -> dict:
 
         return server_commands[server_command](server_id)
 
-def server_start(server_id: int) -> str:
+def server_start(server_id: str) -> str:
     response = f"Placeholder response for server start. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
 
@@ -53,7 +53,7 @@ def server_start(server_id: int) -> str:
     return response
 
 
-def server_stop(server_id: int) -> str:
+def server_stop(server_id: str) -> str:
     response = f"Placeholder response for server stop. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
 
@@ -71,7 +71,7 @@ def server_stop(server_id: int) -> str:
     return response
 
 
-def server_status(server_id: int) -> str:
+def server_status(server_id: str) -> str:
     response = f"Placeholder response for server status. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
 
@@ -79,7 +79,7 @@ def server_status(server_id: int) -> str:
         return f"ServerID: {server_id} is not a server."
 
     try:
-        state = instance.state()
+        state = instance.state
     except BotoClientError as error:
         raise RuntimeError(error)
     else:
@@ -169,24 +169,24 @@ def add_server(name: str, game: str, service: str, service_id: str, region: str,
 
     return response
 
-def _get_server_info_from_table(server_id: int) -> dict:
+def _get_server_info_from_table(server_id: str) -> dict:
     # Set this outside handler
     dynamo = boto3.resource("dynamodb")
 
     # Use env variable for table name
-    server_table = dynamo.Table("ServerlessBoi-Server-List")
+    server_table = dynamo.Table("ServerBoi-Server-List")
 
     try:
-        response = server_table.query(KeyConditionExpression=Key("ServerID").eq(server_id))
+        response = server_table.get_item(
+            Key={
+                'ServerID': server_id
+            }
+        )
     except BotoClientError as error:
         print(error)
         return False
     else:
-
-        if len(response["Items"]) != 1:
-            return False
-        else:
-            return response["Items"][0]
+        return response["Item"]
 
 def _create_ec2_resource(account_id: str, region: str):
     # Create this sts client in init
@@ -213,7 +213,7 @@ def _create_ec2_resource(account_id: str, region: str):
     return ec2
 
 
-def _get_instance_from_id(server_id: int) -> boto3.resource:
+def _get_instance_from_id(server_id: str) -> boto3.resource:
 
     server_info = _get_server_info_from_table(server_id)
 

@@ -72,6 +72,7 @@ export class ApiGatewayStack extends Stack {
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",
           "states:StartExecution",
+          "dynamodb:GetItem",
           "sts:AssumeRole",
         ],
       })

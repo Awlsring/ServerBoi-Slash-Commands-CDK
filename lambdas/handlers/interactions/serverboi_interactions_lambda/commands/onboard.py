@@ -1,5 +1,6 @@
 from flask import request
 import boto3
+from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError as BotoClientError
 
 def route_onboard_command(request: request) -> dict:
@@ -10,10 +11,21 @@ def route_onboard_command(request: request) -> dict:
         "validate": validate
     }
 
-    return server_commands[server_command]()
+    if server_command == 'aws':
 
-def onboard_aws() -> str:
-    account_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
+        account_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
+
+        response = server_commands[server_command](account_id)
+    
+    elif server_command == 'validate':
+        service = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
+        user_id = request.json['member']['user']['id']
+
+        response = server_commands[server_command](user_id, service)
+
+    return response
+
+def onboard_aws(account_id: str) -> str:
     user_id = request.json["member"]["user"]["id"]
     table = _get_table("ServerBoi-User-List")
 
@@ -68,6 +80,7 @@ def _write_user_info_to_table(user_id: str, table: boto3.resource, **kwargs) -> 
             UpdateExpression=update_expression,
             ExpressionAttributeValues=expression_attribute_values
         )
+        print(response)
     except BotoClientError as error:
         print(error)
         return False
@@ -77,7 +90,7 @@ def validate(user_id: str, service: str) -> str:
     '''
     Assume role into target account to verify account is accessible.
     '''
-    table = _get_table("ServerBoi-Server-List")
+    table = _get_table("ServerBoi-User-List")
     user_info = _get_user_info_from_table(user_id, table)
 
     account_id = user_info.get("AWSAccountID")
@@ -90,6 +103,7 @@ def validate(user_id: str, service: str) -> str:
                 RoleSessionName="ServerBoiValidateAWSAccount"
             )
         except BotoClientError as error:
+            print(error)
             return "Unable to assume into ServerBoi-Resource.Assumed-Role. Make sure you've created the needed resources in your account."
 
         return "Successfully able to access account. You're onboarded!"

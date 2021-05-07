@@ -66,7 +66,6 @@ def lambda_handler(event, context) -> dict:
     user_id = event['user_id']
     password = event['password']
     service = event['service']
-    dry_run = event['dry_run']
 
     server_id = uuid4()
     server_id = str(server_id)[:4].upper()
@@ -186,7 +185,17 @@ def lambda_handler(event, context) -> dict:
             SecurityGroupIds=[
                 group_id
             ],
-            UserData=user_data
+            UserData=user_data,
+            TagSpecifications=[
+                {
+                    'Tags': [
+                        {
+                            'Key': 'ManagedBy',
+                            'Value': 'ServerBoi'
+                        },
+                    ]
+                },
+            ],
         )
 
         instance = instances[0]
