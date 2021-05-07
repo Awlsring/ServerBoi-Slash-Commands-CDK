@@ -211,21 +211,19 @@ def lambda_handler(event, context) -> dict:
             SecurityGroupIds=[
                 group_id
             ],
-            UserData=user_data,
-            TagSpecifications=[
-                {
-                    'Tags': [
-                        {
-                            'Key': 'ManagedBy',
-                            'Value': 'ServerBoi'
-                        },
-                    ]
-                },
-            ],
+            UserData=user_data
         )
 
         instance = instances[0]
 
+        instance.create_tags(
+            Tags=[
+                {
+                    'Key': 'ManagedBy',
+                    'Value': 'ServerBoi'
+                },
+            ]
+        )
         instance_id = instance.instance_id
 
         server_item = {

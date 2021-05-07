@@ -182,11 +182,12 @@ def _get_server_info_from_table(server_id: str) -> dict:
                 'ServerID': server_id
             }
         )
+        print(response)
     except BotoClientError as error:
         print(error)
         return False
     else:
-        return response["Item"]
+        return response['Item']
 
 def _create_ec2_resource(account_id: str, region: str):
     # Create this sts client in init
