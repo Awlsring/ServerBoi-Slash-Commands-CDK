@@ -3,6 +3,7 @@ from botocore.exceptions import ClientError as BotoClientError
 import boto3
 import os
 import json
+from uuid import uuid4
 
 PROVISION_ARN = os.environ.get("PROVISION_ARN")
 
@@ -29,11 +30,14 @@ def create_server(**kwargs) -> str:
 
     data = json.dumps(kwargs)
 
+    execution_name = uuid4().hex.upper()
+
     sfn.start_execution(
         stateMachineArn=PROVISION_ARN,
+        name=execution_name,
         input=data
     )
 
-    response = f"Started creation of {kwargs.get('game')} server. It'll take several minutes for it to be ready."
+    response = f"Started creation of {kwargs.get('game')} server as execution {execution_name}. It'll take several minutes for it to be ready."
 
     return response

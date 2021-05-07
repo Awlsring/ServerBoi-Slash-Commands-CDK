@@ -66,9 +66,10 @@ def lambda_handler(event, context) -> dict:
     user_id = event['user_id']
     password = event['password']
     service = event['service']
+    dry_run = event['dry_run']
 
     server_id = uuid4()
-    server_id = str(server_id)[:4]
+    server_id = str(server_id)[:4].upper()
 
     user_info = _get_user_info_from_table(user_id, USER_TABLE)
 

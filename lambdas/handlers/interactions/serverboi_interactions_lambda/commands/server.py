@@ -3,7 +3,9 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError as BotoClientError
 from uuid import uuid4
+import os
 
+SERVER_TABLE = os.environ.get("SERVER_TABLE")
 
 def route_server_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
@@ -117,10 +119,11 @@ def server_list() -> str:
 
             try:
                 state = instance.state
+                ip = instance.public_ip_address
             except BotoClientError as error:
                 raise RuntimeError(error)
 
-            response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | Owner: {owner} | Status: {state['Name']}\n"
+            response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | IP: {ip} | Status: {state['Name']}\n"
 
     return response
 
@@ -135,19 +138,20 @@ def add_server(name: str, game: str, service: str, service_id: str, region: str,
         try:
             instance.load()
         except BotoClientError as error:
-            return f'"{Instance}" is not a valid instance. Server not added.'
+            print(error)
+            return f'"{instance.instance_id}" is not a valid instance. Server not added.'
 
         server_item = {
             'Service': service,
             'AccountID': service_id,
             'Region': region,
-            'InstanceID': instance
+            'InstanceID': instance.instance_id
         }
 
     long_id = uuid4()
     short_id = str(long_id)[:4]
 
-    item.update({
+    server_item.update({
         'ID': short_id,
         'Name': name,
         'Game': game,
@@ -175,6 +179,7 @@ def _get_server_info_from_table(server_id: int) -> dict:
     try:
         response = server_table.query(KeyConditionExpression=Key("ServerID").eq(server_id))
     except BotoClientError as error:
+        print(error)
         return False
     else:
 

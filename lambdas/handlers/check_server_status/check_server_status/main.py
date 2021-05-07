@@ -44,15 +44,18 @@ def lambda_handler(event, context) -> dict:
     instance_id = event['instance_id']
     instance_ip = event.get('instance_ip', False)
     server_port = int(event.get('server_port')) + 1
+    event['rollback'] = False
 
     if not instance_ip:
         ec2 = _create_resource_in_target_account(region, event['account_id'])
-        instance = ec2.Instance('instance_id')
+        instance = ec2.Instance(instance_id)
 
         instance_ip = instance.public_ip_address
+        event['instance_ip'] = instance_ip
 
     try:
         info = a2s.info((instance_ip, server_port))
+        print(info)
     except Exception as e:
         print(e)
         info = False
