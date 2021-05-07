@@ -3,9 +3,11 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError as BotoClientError
 from uuid import uuid4
+import serverboi_interactions_lambda.messages.responses as responses
 import os
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
+
 
 def route_server_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
@@ -15,77 +17,121 @@ def route_server_command(request: request) -> dict:
         "start": server_start,
         "stop": server_stop,
         "add": add_server,
-        "list": server_list
+        "list": server_list,
     }
 
-    if server_command == 'list':
+    if server_command == "list":
         return server_commands[server_command]()
-    
-    elif server_command == 'add':
+
+    elif server_command == "add":
         name = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
         game = request.json["data"]["options"][0]["options"][0]["options"][1]["value"]
-        service = request.json["data"]["options"][0]["options"][0]["options"][2]["value"]
-        service_id = request.json["data"]["options"][0]["options"][0]["options"][3]["value"]
-        instance = request.json["data"]["options"][0]["options"][0]["options"][4]["value"]
+        service = request.json["data"]["options"][0]["options"][0]["options"][2][
+            "value"
+        ]
+        service_id = request.json["data"]["options"][0]["options"][0]["options"][3][
+            "value"
+        ]
+        instance = request.json["data"]["options"][0]["options"][0]["options"][4][
+            "value"
+        ]
 
-        return server_commands[server_command](name, game, service, service_id, instance)
+        return server_commands[server_command](
+            name, game, service, service_id, instance
+        )
 
     else:
-        server_id = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
+        server_id = request.json["data"]["options"][0]["options"][0]["options"][0][
+            "value"
+        ]
 
         return server_commands[server_command](server_id)
 
+
 def server_start(server_id: str) -> str:
-    response = f"Placeholder response for server start. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        return f"ServerID: {server_id} is not a server."
+        content = f"ServerID: {server_id} is not a server."
+        data = responses.form_response_data(content=content)
 
     try:
         instance.start()
     except BotoClientError as error:
-        raise RuntimeError(error)
+        print(error)
+        content = "Error contacting EC2."
+        data = responses.form_response_data(content=content)
     else:
-        response = "Instance is starting"
-        # Spin off second process to send another message when instance is fully up.
+        content = "Instance is starting"
+        data = responses.form_response_data(content=content)
 
-    return response
+    return data
 
 
 def server_stop(server_id: str) -> str:
-    response = f"Placeholder response for server stop. Server {server_id} was entered"
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        return f"ServerID: {server_id} is not a server."
+        return responses.form_response_data(
+            content=f"ServerID: {server_id} is not a server."
+        )
 
     try:
         instance.stop()
     except BotoClientError as error:
-        raise RuntimeError(error)
+        print(error)
+        content = "Error contacting EC2."
+        data = responses.form_response_data(content=content)
     else:
-        response = "Instance is stopping"
-        # Spin off second process to send another message when instance is fully down.
+        data = responses.form_response_data(content="Instance is stopping")
 
-    return response
+    return data
 
 
 def server_status(server_id: str) -> str:
-    response = f"Placeholder response for server status. Server {server_id} was entered"
-    instance = _get_instance_from_id(server_id)
+    server_info = _get_server_info_from_table(server_id)
 
-    if not instance:
-        return f"ServerID: {server_id} is not a server."
+    server_id = server_info["ServerID"]
+    owner = server_info["Owner"]
+    game = server_info["Game"]
+    server_name = server_info["ServerName"]
+    service = server_info["Service"]
+    location = server_info["Region"]
+    instance_id = server_info["InstanceID"]
+    account_id = server_info["AccountID"]
+    port = server_info["Port"]
+
+    if not server_info:
+        return responses.form_response_data(
+            content=f"ServerID: {server_id} is not a server."
+        )
+
+    ec2 = _create_ec2_resource(account_id, location)
+    instance = ec2.Instance(instance_id)
 
     try:
         state = instance.state
+        ip = instance.public_ip_address
     except BotoClientError as error:
-        raise RuntimeError(error)
+        print(error)
+        content = "Error contacting EC2."
+        data = responses.form_response_data(content=content)
     else:
-        response = f"Instance is {state['Name']}"
+        embed = responses.form_server_embed(
+            server_name=server_name,
+            server_id=server_id,
+            ip=ip,
+            port=port,
+            status=state["Name"],
+            location=location,
+            game=game,
+            owner=owner,
+            service=service,
+        )
+        data = responses.form_response_data(embeds=[embed])
 
-    return response
+    return data
+
 
 def server_list() -> str:
     response = f"**Current managed servers:**\n"
@@ -99,21 +145,30 @@ def server_list() -> str:
     try:
         table_response = server_table.scan()
     except BotoClientError as error:
-        raise RuntimeError(error)
+        print(error)
+        content = "Error contacting EC2."
+        return responses.form_response_data(content=content)
 
     if len(table_response["Items"]) == 0:
-        response = "No servers are currently managed. :("
+        data = responses.form_response_data(
+            content="No servers are currently managed. 😔"
+        )
 
     else:
+
+        embeds = []
+
         for server_info in table_response["Items"]:
 
-            server_id = server_info.get('ServerID')
-            server_name = server_info.get('ServerName')
-            game = server_info.get('Game')
-            owner = server_info.get('Owner')
-            account_id = server_info.get('AccountID')
-            region = server_info.get('Region')
+            server_id = server_info.get("ServerID")
+            server_name = server_info.get("ServerName")
+            game = server_info.get("Game")
+            owner = server_info.get("Owner")
+            account_id = server_info.get("AccountID")
+            region = server_info.get("Region")
             instance_id = server_info.get("InstanceID")
+            port = server_info["Port"]
+            service = server_info["Service"]
 
             instance = _create_instance_resource(account_id, region, instance_id)
 
@@ -121,53 +176,76 @@ def server_list() -> str:
                 state = instance.state
                 ip = instance.public_ip_address
             except BotoClientError as error:
-                raise RuntimeError(error)
+                print(error)
+                content = "Error contacting EC2."
+                return responses.form_response_data(content=content)
 
-            response = f"{response}- ID: {server_id} | Name: {server_name} | Game: {game} | IP: {ip} | Status: {state['Name']}\n"
+            embed = responses.form_server_embed(
+                server_name=server_name,
+                server_id=server_id,
+                ip=ip,
+                port=port,
+                status=state["Name"],
+                location=region,
+                game=game,
+                owner=owner,
+                service=service,
+            )
 
-    return response
+            embeds.append(embed)
+
+        data = responses.form_response_data(
+            content="**Currently managed servers:**", embeds=embeds
+        )
+
+    return data
 
 
-def add_server(name: str, game: str, service: str, service_id: str, region: str, instance: str) -> str:
+def add_server(
+    name: str, game: str, service: str, service_id: str, region: str, instance: str
+) -> str:
     # Assume role into account
-    if service == 'AWS':
+    if service == "AWS":
         ec2 = _create_ec2_resource(service_id, instance)
         instance = ec2.Instance(instance)
 
-        # Check server exists   
+        # Check server exists
         try:
             instance.load()
         except BotoClientError as error:
             print(error)
-            return f'"{instance.instance_id}" is not a valid instance. Server not added.'
+            return (
+                f'"{instance.instance_id}" is not a valid instance. Server not added.'
+            )
 
         server_item = {
-            'Service': service,
-            'AccountID': service_id,
-            'Region': region,
-            'InstanceID': instance.instance_id
+            "Service": service,
+            "AccountID": service_id,
+            "Region": region,
+            "InstanceID": instance.instance_id,
         }
 
     long_id = uuid4()
     short_id = str(long_id)[:4]
 
-    server_item.update({
-        'ID': short_id,
-        'Name': name,
-        'Game': game,
-    })
+    server_item.update(
+        {
+            "ID": short_id,
+            "Name": name,
+            "Game": game,
+        }
+    )
 
-    dynamo = boto3.resource('dynamodb')
+    dynamo = boto3.resource("dynamodb")
 
     table = dynamo.Table(SERVER_TABLE)
 
-    table.put_item(
-        Item=server_item
-    )
+    table.put_item(Item=server_item)
 
-    response = f'Added {name} to management list with the ID: {short_id}.'
+    response = f"Added {name} to management list with the ID: {short_id}."
 
     return response
+
 
 def _get_server_info_from_table(server_id: str) -> dict:
     # Set this outside handler
@@ -177,17 +255,14 @@ def _get_server_info_from_table(server_id: str) -> dict:
     server_table = dynamo.Table("ServerBoi-Server-List")
 
     try:
-        response = server_table.get_item(
-            Key={
-                'ServerID': server_id
-            }
-        )
+        response = server_table.get_item(Key={"ServerID": server_id})
         print(response)
     except BotoClientError as error:
         print(error)
         return False
     else:
-        return response['Item']
+        return response["Item"]
+
 
 def _create_ec2_resource(account_id: str, region: str):
     # Create this sts client in init
@@ -221,16 +296,19 @@ def _get_instance_from_id(server_id: str) -> boto3.resource:
     if not server_info:
         return False
 
-    account_id = server_info.get('AccountID')
-    region = server_info.get('Region')
+    account_id = server_info.get("AccountID")
+    region = server_info.get("Region")
     instance_id = server_info.get("InstanceID")
 
     instance = _create_instance_resource(account_id, region, instance_id)
 
     return instance
 
-def _create_instance_resource(account_id: str, region: str, instance_id: str) -> boto3.resource:
-    
+
+def _create_instance_resource(
+    account_id: str, region: str, instance_id: str
+) -> boto3.resource:
+
     resource = _create_ec2_resource(account_id, region)
 
     instance = resource.Instance(instance_id)

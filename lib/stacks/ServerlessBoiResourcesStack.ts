@@ -2,8 +2,11 @@ import { Stack, Construct } from "monocdk";
 import { Table, AttributeType, Attribute } from "monocdk/aws-dynamodb";
 import { Bucket } from "monocdk/aws-s3";
 import { BucketDeployment, Source } from "monocdk/aws-s3-deployment";
-import { OnboardingConstruct } from "./OnboardCfnDeployment";
-import { SynthUtils } from "@monocdk-experiment/assert";
+import {
+  Runtime,
+  Code,
+  LayerVersion,
+} from "monocdk/aws-lambda";
 
 export class ServerlessBoiResourcesStack extends Stack {
   //Creates all resources referenced across stacks
@@ -11,9 +14,51 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly resourcesBucket: Bucket;
   readonly serverList: Table;
   readonly userList: Table;
+  readonly discordLayer: LayerVersion
+  readonly requestsLayer: LayerVersion
+  readonly a2sLayer: LayerVersion
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
+
+    this.discordLayer = new LayerVersion(
+      this,
+      "ServerBoi-Discord-Layer",
+      {
+        code: Code.fromAsset(
+          "lambdas/layers/discordpy/discordpy.zip"
+        ),
+        compatibleRuntimes: [Runtime.PYTHON_3_8],
+        description: "Lambda Layer for Discord.py",
+        layerVersionName: "ServerBoi-Discord-Layer",
+      }
+    );
+
+    this.requestsLayer = new LayerVersion(
+      this,
+      "ServerBoi-Request-Layer",
+      {
+        code: Code.fromAsset(
+          "lambdas/layers/requests/requests.zip"
+        ),
+        compatibleRuntimes: [Runtime.PYTHON_3_8],
+        description: "Lambda Layer for Requests",
+        layerVersionName: "ServerBoi-Requests-Layer",
+      }
+    );
+
+    this.a2sLayer = new LayerVersion(
+      this,
+      "ServerBoi-A2S-Layer",
+      {
+        code: Code.fromAsset(
+          "lambdas/layers/a2s/a2s.zip"
+        ),
+        compatibleRuntimes: [Runtime.PYTHON_3_8],
+        description: "Lambda Layer for A2S",
+        layerVersionName: "ServerBoi-A2S-Layer",
+      }
+    );
 
     this.resourcesBucket = new Bucket(this, "Resources-Bucket", {
       bucketName: "serverboi-resources-bucket",

@@ -13,6 +13,7 @@ import {
 } from "monocdk/aws-lambda";
 import { Role, ServicePrincipal, PolicyStatement } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
+import { Secret } from "monocdk/aws-secretsmanager"
 
 export interface ApiGatewayStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;
@@ -22,6 +23,12 @@ export class ApiGatewayStack extends Stack {
   //Creates all resources needed for the API Gateway
   constructor(scope: Construct, id: string, props: ApiGatewayStackProps) {
     super(scope, id, props);
+
+    const publicKey = Secret.fromSecretCompleteArn(
+      this,
+      'ServerBoi-Key',
+      'arn:aws:secretsmanager:us-west-2:742762521158:secret:ServerBoi-Public-Key-gB6pgg'
+    )
 
     const applicationId = process.env["PUBLIC_ID"];
     console.log(applicationId);
@@ -39,19 +46,21 @@ export class ApiGatewayStack extends Stack {
       }
     );
 
+    const lambdaLayers = [ flaskLayer, props.resourcesStack.discordLayer, props.resourcesStack.requestsLayer]
     const lambda = new Function(this, "ServerlessBoi-Main-Lambda", {
       runtime: Runtime.PYTHON_3_8,
       handler: "serverboi_interactions_lambda.main.lambda_handler",
       code: Code.fromAsset("lambdas/handlers/interactions/"),
-      layers: [flaskLayer],
+      layers: lambdaLayers,
       memorySize: 128,
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(60),
       functionName: "ServerlessBoi-Main-Lambda",
       environment: {
-        PUBLIC_KEY: <string>applicationId,
+        PUBLIC_KEY: publicKey.secretValue.toString(),
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
+        USER_TABLE: props.resourcesStack.userList.tableName,
         PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow'
       },
       role: new Role(this, "ServerlessBoi-Main-Lambda-Role", {
