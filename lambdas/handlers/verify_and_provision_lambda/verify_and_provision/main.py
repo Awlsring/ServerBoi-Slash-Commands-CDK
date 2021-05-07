@@ -10,9 +10,6 @@ USER_TABLE = DYNAMO.Table(os.environ.get("USER_TABLE"))
 SERVER_TABLE = DYNAMO.Table(os.environ.get("SERVER_TABLE"))
 STS = boto3.client('sts')
 
-# TODO: Find and pull latest Debian
-IMAGE_ID = 'ami-0c7ea5497c02abcaf'
-
 def _get_user_info_from_table(user_id: str, table: boto3.resource) -> str:
     try:
         response = USER_TABLE.query(KeyConditionExpression=Key("UserID").eq(user_id))
@@ -58,6 +55,33 @@ sudo docker run -d \
     -e WORLD_NAME="{world_name}" \
     -e SERVER_PASS="{password}" \
     lloesche/valheim-server'''
+
+def get_image_id(ec2: boto3.client, region: str) -> str:
+    images = ec2.describe_images(
+        Filters=[
+            {
+                'Name': 'description',
+                'Values': [
+                    'Debian 10 (20210329-591)'
+                ]
+            },
+            {
+                'Name': 'architecture',
+                'Values': [
+                    'x86_64'
+                ]
+            },
+            {
+                'Name': 'virtualization-type',
+                'Values': [
+                    'hvm'
+                ]
+            }
+        ],
+        Owners=['136693071363']
+    )
+
+    return images['Images'][0]['ImageId']
 
 def lambda_handler(event, context) -> dict:
     game = event['game']
@@ -177,8 +201,10 @@ def lambda_handler(event, context) -> dict:
 
         user_data = form_user_data(name, event['world-name'], password)
 
+        image_id = get_image_id(ec2_client, region)
+
         instances = ec2_resource.create_instances(
-            ImageId=IMAGE_ID,
+            ImageId=image_id,
             InstanceType=game_data['aws']['instance_type'],
             MaxCount=1,
             MinCount=1,
