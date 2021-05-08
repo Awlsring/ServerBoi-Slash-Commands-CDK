@@ -54,6 +54,16 @@ def form_server_embed(
 
 
 def form_response_data(**kwargs) -> dict:
-    data = json.dumps(kwargs)
+    print(kwargs)
+    embeds = kwargs.get("embeds")
+    content = kwargs.get("content")
+
+    data = {}
+
+    if embeds:
+        data["embeds"] = embeds
+
+    if content:
+        data["content"] = content
 
     return data

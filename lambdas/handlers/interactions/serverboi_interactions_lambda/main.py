@@ -28,9 +28,9 @@ def index() -> dict:
         return jsonify({"type": 1})
     else:
 
-        interaction_id = request["id"]
-        interaction_token = request["token"]
-        application_id = request["application_id"]
+        interaction_id = request.json["id"]
+        interaction_token = request.json["token"]
+        application_id = request.json["application_id"]
 
         responses.post_temp_response(interaction_id, interaction_token)
 
@@ -39,9 +39,7 @@ def index() -> dict:
         command_response = route_command(command, request)
         print(command_response)
 
-        data = {"content": command_response}
-
-        responses.edit_response(application_id, interaction_token, data)
+        responses.edit_response(application_id, interaction_token, command_response)
 
         return True
 
