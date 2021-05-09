@@ -11,15 +11,15 @@ def post_temp_response(interaction_id: str, interaction_token: str):
 
 
 def edit_response(application_id: str, interaction_token: str, data: dict):
-    update_response = {"type": 4, "data": data}
-    update_url = f"https://discord.com/api/v8/webhooks/{application_id}/{interaction_token}/messages/@original"
-    update_response = requests.patch(update_url, update_response)
-    print(f"Update Response: {update_response}")
-
-
-def get_owner_from_id(user_id: str):
-    return discord.Client().get_user(user_id)
-
+    print(f"Data: {data}"
+    update_url = f"https://discord.com/api/webhooks/{application_id}/{interaction_token}/messages/@original"
+    response = requests.patch(update_url, json=data)
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+    else:
+        print(f"Payload delivered successfully, code {response.status_code}.")
 
 def form_server_embed(
     server_name: str,
@@ -61,7 +61,10 @@ def form_response_data(**kwargs) -> dict:
     data = {}
 
     if embeds:
-        data["embeds"] = embeds
+        data["embeds"] = []
+        for embed in embeds:
+            embed_dict = embed.to_dict()
+            data["embeds"].append(embed_dict)
 
     if content:
         data["content"] = content

@@ -1,31 +1,36 @@
 import os
 import requests
+import dotenv
+
+dotenv.load_dotenv()
 
 """
 https://discord.com/developers/docs/interactions/slash-commands#registering-a-command
 """
-application_id = os.getenv("APP_ID")
-server_id = os.getenv("GUILD_ID")
-discord_token = os.getenv("DISCORD_TOKEN")
+application_id = os.environ.get("APP_ID")
+server_id = os.environ.get("GUILD_ID")
+discord_token = os.environ.get("DISCORD_TOKEN")
 
 url = f"https://discord.com/api/v8/applications/{application_id}/guilds/{server_id}/commands"
 
+print(url)
+
 commands = {
-    "name": "ServerBoi",
+    "name": "sb",
     "description": "Commands to interact with Servers controlled by ServerBoi",
     "options": [
         {
-            "name": "Server",
+            "name": "server",
             "description": "What do you want to do?",
             "type": 2,
             "options": [
                 {
-                    "name": "Start",
+                    "name": "start",
                     "type": 1,
                     "description": "Start the specified server.",
                     "options": [
                         {
-                            "name": "ID",
+                            "name": "id",
                             "description": "The ID of the server to take action on.",
                             "type": 3,
                             "required": True
@@ -33,12 +38,12 @@ commands = {
                     ]
                 },
                 {
-                    "name": "Stop",
+                    "name": "stop",
                     "type": 1,
                     "description": "Stop the specified server.",
                     "options": [
                         {
-                            "name": "ID",
+                            "name": "id",
                             "description": "The ID of the server to take action on.",
                             "type": 3,
                             "required": True
@@ -46,12 +51,12 @@ commands = {
                     ]
                 },
                 {
-                    "name": "Status",
+                    "name": "status",
                     "type": 1,
                     "description": "Get status of the specified server.",
                     "options": [
                         {
-                            "name": "ID",
+                            "name": "id",
                             "description": "The ID of the server to take action on.",
                             "type": 3,
                             "required": True
@@ -59,41 +64,41 @@ commands = {
                     ]
                 },
                 {
-                    "name": "List",
+                    "name": "list",
                     "type": 1,
                     "description": "Get status of the specified server.",
                 },
                 {
-                    "name": "Add",
+                    "name": "add",
                     "type": 1,
                     "description": "Add server to ServerBoi management.",
                     "options": [
                         {
-                            "name": "Name",
+                            "name": "name",
                             "description": "Name of the server",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "Game",
+                            "name": "game",
                             "description": "Game that is hosted on the server.",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "Service",
+                            "name": "service",
                             "description": "The cloud provider the instance is on.",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "Service-Identifier",
+                            "name": "service-identifier",
                             "description": "The cloud providers account identifier (AWS: Account ID, Azure: Subscription ID, GCP: Project)",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "InstanceId",
+                            "name": "instance-id",
                             "description": "The ID of the instance in the cloud provider.",
                             "type": 3,
                             "required": True
@@ -103,47 +108,47 @@ commands = {
             ]
         },
         {
-            "name": "Create",
+            "name": "create",
             "description": "Create a server.",
             "type": 2,
             "options": [
                 {
-                    "name": "Valheim",
+                    "name": "valheim",
                     "type": 1,
                     "description": "Create a Valheim Server.",
                     "options": [
                         {
-                            "name": "Service",
+                            "name": "service",
                             "description": "Service server is hosted on.",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "Region",
+                            "name": "region",
                             "description": "Geographical region server will be hosted on.",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "Name",
+                            "name": "name",
                             "description": "Name of the server.",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "World-Name",
+                            "name": "world-name",
                             "description": "Name of the servers world.",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "Password",
+                            "name": "password",
                             "description": "Password for server. Must be at least 5 characters in length.",
                             "type": 3,
                             "required": True
                         },
                         {
-                            "name": "World-File-Url",
+                            "name": "world-file-url",
                             "description": "Use an existing world file. Must be publicly accessible url.",
                             "type": 3,
                             "required": False
@@ -154,17 +159,17 @@ commands = {
             ]
         },
         {
-            "name": "Onboard",
+            "name": "onboard",
             "description": "Onboard your service account to ServerBoi.",
             "type": 2,
             "options": [
                 {
-                    "name": "AWS",
+                    "name": "aws",
                     "type": 1,
                     "description": "Onboard AWS Account to ServerBoi.",
                     "options": [
                         {
-                            "name": "AccountId",
+                            "name": "account-id",
                             "description": "ID of the AWS Account to onboard",
                             "type": 3,
                             "required": True
@@ -172,12 +177,12 @@ commands = {
                     ]
                 },
                 {
-                    "name": "Validate",
+                    "name": "validate",
                     "type": 1,
                     "description": "Validate cloud account can be reached bn ServerBoi.",
                     "options": [
                         {
-                            "name": "Service",
+                            "name": "service",
                             "description": "Service to validate",
                             "type": 3,
                             "required": True
