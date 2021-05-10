@@ -1,7 +1,13 @@
 import requests
 import discord
 import json
+from time import gmtime, strftime
+from serverboi_utils.regions import Region
+from serverboi_utils.states import translate_state
 
+# https://azure.microsoft.com/en-us/global-infrastructure/geographies/#geographies
+# https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html
+# https://cloud.google.com/compute/docs/regions-zones
 
 def post_temp_response(interaction_id: str, interaction_token: str):
     temp_response_url = f"https://discord.com/api/v8/interactions/{interaction_id}/{interaction_token}/callback"
@@ -11,7 +17,7 @@ def post_temp_response(interaction_id: str, interaction_token: str):
 
 
 def edit_response(application_id: str, interaction_token: str, data: dict):
-    print(f"Data: {data}"
+    print(f"Data: {data}")
     update_url = f"https://discord.com/api/webhooks/{application_id}/{interaction_token}/messages/@original"
     response = requests.patch(update_url, json=data)
     try:
@@ -27,7 +33,7 @@ def form_server_embed(
     ip: str,
     port: str,
     status: str,
-    location: str,
+    region: str,
     game: str,
     owner: str,
     service: str,
@@ -38,17 +44,44 @@ def form_server_embed(
         description=f"Connect: steam://connect/{ip}:{port}",
     )
 
-    embed.set_thumbnail(url="image_url")
+    embed.set_thumbnail(url="https://i.kym-cdn.com/entries/icons/original/000/022/255/tumblr_inline_o58r6dmSfe1suaed2_500.gif")
 
-    # TODO: Pull status and and correct light emoji
-    embed.add_field(name="Status", value=f"🟢 {status}", inline=True)
-    embed.add_field(name="Address", value=f"`{ip}:{port}`", inline=True)
+    state, state_emoji = translate_state(service, status)
 
-    # TODO: Pull location and convert to generic and flag
-    embed.add_field(name="Location", value=f"🇺🇸 {location}", inline=True)
+    if state == 'running':
+        active = True
+    else:
+        active = False
+
+    embed.add_field(name="Status", value=f"{state_emoji} {state}", inline=True)
+
+    # Set address
+    if ip != "" or ip != None:
+        address = f"{ip}:{port}"
+    else:
+        address = "-"
+    embed.add_field(name="Address", value=f"`{address}`", inline=True)
+
+    # Line break
+    embed.add_field(name="\u200B", value=f"\u200B", inline=True)
+
+    # Get region
+    sb_region = Region(region).regions[service.lower()]
+    service_region = sb_region.name
+    location = sb_region.location
+    emoji = sb_region.emoji
+    embed.add_field(name="Location", value=f"{emoji} {region} ({location})", inline=True)
+
+    if not active:
+        embed.add_field(name="\u200B", value=f"\u200B", inline=True)
 
     embed.add_field(name="Game", value=game, inline=True)
-    embed.set_footer(text=f"Owner: {owner}. Hosted on {service}")
+
+    if active:
+        # TODO: Pull live player count
+        embed.add_field(name="Players", value="x/x", inline=True)
+    
+    embed.set_footer(text=f"Owner: {owner} | 🖥️ Hosted on {service} in region {service_region} | 🕒 Pulled at {strftime("%Y-%m-%d %H:%M:%S UTC", gmtime())} ")
 
     return embed
 

@@ -17,6 +17,7 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly discordLayer: LayerVersion
   readonly requestsLayer: LayerVersion
   readonly a2sLayer: LayerVersion
+  readonly serverBoiUtils: LayerVersion
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -33,6 +34,19 @@ export class ServerlessBoiResourcesStack extends Stack {
         layerVersionName: "ServerBoi-Discord-Layer",
       }
     );
+
+    this.serverBoiUtils = new LayerVersion(
+      this,
+      "Serverboi-Utils-Layer",
+      {
+        code: Code.fromAsset(
+          "lambdas/layers/serverboi_utils/serverboi_utils.zip"
+        ),
+        compatibleRuntimes: [Runtime.PYTHON_3_8],
+        description: "Lambda Layer for ServerBoi Utils",
+        layerVersionName: "ServerBoi-Utils-Layer",
+      }
+    )
 
     this.requestsLayer = new LayerVersion(
       this,

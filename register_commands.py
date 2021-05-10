@@ -125,7 +125,7 @@ commands = {
                         },
                         {
                             "name": "region",
-                            "description": "Geographical region server will be hosted on.",
+                            "description": "Use ServerBoi generics (US-West) or use a service's specific name (us-west-2)",
                             "type": 3,
                             "required": True
                         },

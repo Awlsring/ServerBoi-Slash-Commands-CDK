@@ -1,0 +1,103 @@
+{
+    "AWS": [
+        {
+            "state": "running",
+            "sb_state": "running",
+            "emoji": "🟢"
+        },
+        {
+            "state": "pending",
+            "sb_state": "provisioning",
+            "emoji": "🟡"
+        },
+        {
+            "state": "stopping",
+            "sb_state": "stopping",
+            "emoji": "🔴"
+        },
+        {
+            "state": "stopped",
+            "sb_state": "stopped",
+            "emoji": "🔴"
+        },
+        {
+            "state": "shutting-down",
+            "sb_state": "terminating",
+            "emoji": "⛔"
+        },
+        {
+            "state": "terminated",
+            "sb_state": "terminated",
+            "emoji": "⛔"
+        }
+    ],
+    "Azure": [
+        {
+            "state": "running",
+            "sb_state": "running",
+            "emoji": "🟢"
+        },
+        {
+            "state": "starting",
+            "sb_state": "provisioning",
+            "emoji": "🟡"
+        },
+        {
+            "state": "stopping",
+            "sb_state": "stopping",
+            "emoji": "🔴"
+        },
+        {
+            "state": "stopped",
+            "sb_state": "stopped",
+            "emoji": "🔴"
+        },
+        {
+            "state": "deallocating",
+            "sb_state": "terminating",
+            "emoji": "⛔"
+        },
+        {
+            "state": "deallocated",
+            "sb_state": "terminated",
+            "emoji": "⛔"
+        }
+    ],
+    "GCP": [
+        {
+            "state": "running",
+            "sb_state": "running",
+            "emoji": "🟢"
+        },
+        {
+            "state": "repairing",
+            "sb_state": "repairing",
+            "emoji": "🟡"
+        },
+        {
+            "state": "starting",
+            "sb_state": "provisioning",
+            "emoji": "🟡"
+        },
+        {
+            "state": "suspending",
+            "sb_state": "stopping",
+            "emoji": "🔴"
+        },
+        {
+            "state": "suspended",
+            "sb_state": "stopped",
+            "emoji": "🔴"
+        },
+        {
+            "state": "stopping",
+            "sb_state": "terminating",
+            "emoji": "⛔"
+        },
+        {
+            "state": "terminating",
+            "sb_state": "terminated",
+            "emoji": "⛔"
+        }
+    ]
+}

@@ -46,7 +46,13 @@ export class ApiGatewayStack extends Stack {
       }
     );
 
-    const lambdaLayers = [ flaskLayer, props.resourcesStack.discordLayer, props.resourcesStack.requestsLayer]
+    const lambdaLayers = [
+      flaskLayer,
+      props.resourcesStack.a2sLayer,
+      props.resourcesStack.discordLayer,
+      props.resourcesStack.requestsLayer,
+      props.resourcesStack.serverBoiUtils
+    ]
     const lambda = new Function(this, "ServerlessBoi-Main-Lambda", {
       runtime: Runtime.PYTHON_3_8,
       handler: "serverboi_interactions_lambda.main.lambda_handler",
