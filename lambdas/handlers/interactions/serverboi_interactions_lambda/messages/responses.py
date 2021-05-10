@@ -81,7 +81,9 @@ def form_server_embed(
         # TODO: Pull live player count
         embed.add_field(name="Players", value="x/x", inline=True)
     
-    embed.set_footer(text=f"Owner: {owner} | 🖥️ Hosted on {service} in region {service_region} | 🕒 Pulled at {strftime("%Y-%m-%d %H:%M:%S UTC", gmtime())} ")
+    embed.set_footer(
+        text=f"Owner: {owner} | 🖥️ Hosted on {service} in region {service_region} | 🕒 Pulled at {strftime('%Y-%m-%d %H:%M:%S UTC', gmtime())}"
+    )
 
     return embed
 

@@ -64,6 +64,3 @@ def form_create_server_embed(execution_name: str, data: str) -> Embed:
     embed.set_footer(text=last_updated)
 
     return embed
-
-
-

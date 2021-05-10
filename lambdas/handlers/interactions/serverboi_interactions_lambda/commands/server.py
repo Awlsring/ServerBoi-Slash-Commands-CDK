@@ -123,7 +123,7 @@ def server_status(server_id: str) -> str:
             ip=ip,
             port=port,
             status=state["Name"],
-            location=location,
+            region=location,
             game=game,
             owner=owner,
             service=service,
