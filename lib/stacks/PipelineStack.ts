@@ -12,8 +12,8 @@ export class PipelineStack extends Stack {
     const sourceArtifact = new Artifact();
     const cloudAssemblyArtifact = new Artifact();
 
-    const pipeline = new CdkPipeline(this, "ServerlessBoi-Pipeline", {
-      pipelineName: "ServerlessBoi-Pipeline",
+    const pipeline = new CdkPipeline(this, "ServerBoi-Pipeline", {
+      pipelineName: "ServerBoi-Pipeline",
       selfMutating: true,
       cloudAssemblyArtifact: cloudAssemblyArtifact,
 
@@ -41,7 +41,7 @@ export class PipelineStack extends Stack {
       }),
     });
 
-    const prod = new PipelineStage(this, "ServerBoi-Production");
+    const prod = new PipelineStage(this, "Alpha");
 
     pipeline.addApplicationStage(prod);
   }

@@ -2,7 +2,7 @@ import requests
 from discord import Embed, Color
 import json
 from time import gmtime, strftime
-from serverboi_utils.regions import Region
+from serverboi_utils.regions import ServiceRegion
 from serverboi_utils.states import translate_state
 
 # https://azure.microsoft.com/en-us/global-infrastructure/geographies/#geographies
@@ -33,7 +33,7 @@ def form_server_embed(
     ip: str,
     port: str,
     status: str,
-    region: str,
+    region: ServiceRegion,
     game: str,
     owner: str,
     service: str,
@@ -65,12 +65,7 @@ def form_server_embed(
     # Line break
     embed.add_field(name="\u200B", value=f"\u200B", inline=True)
 
-    # Get region
-    sb_region = Region(region).regions[service.lower()]
-    service_region = sb_region.name
-    location = sb_region.location
-    emoji = sb_region.emoji
-    embed.add_field(name="Location", value=f"{emoji} {region} ({location})", inline=True)
+    embed.add_field(name="Location", value=f"{region.emoji} {region.sb_region} ({region.location})", inline=True)
 
     if not active:
         embed.add_field(name="\u200B", value=f"\u200B", inline=True)
@@ -82,7 +77,7 @@ def form_server_embed(
         embed.add_field(name="Players", value="x/x", inline=True)
     
     embed.set_footer(
-        text=f"Owner: {owner} | 🖥️ Hosted on {service} in region {service_region} | 🕒 Pulled at {strftime('%Y-%m-%d %H:%M:%S UTC', gmtime())}"
+        text=f"Owner: {owner} | 🌎 Hosted on {service} in region {region.name} | 🕒 Pulled at {strftime('%H:%M:%S UTC', gmtime())}"
     )
 
     return embed

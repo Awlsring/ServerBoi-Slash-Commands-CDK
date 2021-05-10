@@ -1,9 +1,13 @@
 import json
+import os
 from typing import Tuple
 
 
 def translate_state(service: str, state: str) -> Tuple[str, str]:
-    with open("serverboi_utils/states.json") as states_data:
+    current_dir = os.path.dirname(__file__)
+    file_path = os.path.join(current_dir, "states.json")
+
+    with open(file_path) as states_data:
         states = json.load(states_data)
 
     for state_entry in states[service]:

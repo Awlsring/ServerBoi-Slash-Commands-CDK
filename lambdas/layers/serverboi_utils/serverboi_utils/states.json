@@ -1,5 +1,5 @@
 {
-    "AWS": [
+    "aws": [
         {
             "state": "running",
             "sb_state": "running",
@@ -31,7 +31,7 @@
             "emoji": "⛔"
         }
     ],
-    "Azure": [
+    "azure": [
         {
             "state": "running",
             "sb_state": "running",
@@ -63,7 +63,7 @@
             "emoji": "⛔"
         }
     ],
-    "GCP": [
+    "gcp": [
         {
             "state": "running",
             "sb_state": "running",

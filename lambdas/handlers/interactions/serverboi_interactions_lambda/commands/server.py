@@ -4,6 +4,7 @@ from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError as BotoClientError
 from uuid import uuid4
 import serverboi_interactions_lambda.messages.responses as responses
+from serverboi_utils.regions import Region, ServiceRegion
 import os
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
@@ -96,17 +97,19 @@ def server_status(server_id: str) -> str:
     game = server_info["Game"]
     server_name = server_info["ServerName"]
     service = server_info["Service"]
-    location = server_info["Region"]
+    region = server_info["Region"]
     instance_id = server_info["InstanceID"]
     account_id = server_info["AccountID"]
     port = server_info["Port"]
+
+    service_region = ServiceRegion.generate_from_lookup(region)
 
     if not server_info:
         return responses.form_response_data(
             content=f"ServerID: {server_id} is not a server."
         )
 
-    ec2 = _create_ec2_resource(account_id, location)
+    ec2 = _create_ec2_resource(account_id, region)
     instance = ec2.Instance(instance_id)
 
     try:
@@ -123,7 +126,7 @@ def server_status(server_id: str) -> str:
             ip=ip,
             port=port,
             status=state["Name"],
-            region=location,
+            region=service_region,
             game=game,
             owner=owner,
             service=service,

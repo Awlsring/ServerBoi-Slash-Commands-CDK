@@ -18,6 +18,8 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly requestsLayer: LayerVersion
   readonly a2sLayer: LayerVersion
   readonly serverBoiUtils: LayerVersion
+  readonly serverBoiUtils2: LayerVersion
+
 
   constructor(scope: Construct, id: string) {
     super(scope, id);

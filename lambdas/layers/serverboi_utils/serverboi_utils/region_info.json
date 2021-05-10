@@ -1,6 +1,6 @@
 {
     "US-West": {
-        "AWS": [
+        "aws": [
             {
                 "name": "us-west-1",
                 "location": "California",
@@ -12,7 +12,7 @@
                 "emoji": "🇺🇸"
             }
         ],
-        "Azure": [
+        "azure": [
             {
                 "name": "westus",
                 "location": "California",
@@ -24,7 +24,7 @@
                 "emoji": "🇺🇸"
             }
         ],
-        "GCP": [
+        "gcp": [
             {
                 "name": "us-west1",
                 "location": "Oregon",
@@ -48,7 +48,7 @@
         ]
     },
     "US-East": {
-        "AWS": [
+        "aws": [
             {
                 "name": "us-east-1",
                 "location": "Virginia",
@@ -60,7 +60,7 @@
                 "emoji": "🇺🇸"
             }
         ],
-        "Azure": [
+        "azure": [
             {
                 "name": "eastus",
                 "location": "Virginia",
@@ -72,7 +72,7 @@
                 "emoji": "🇺🇸"
             }
         ],
-        "GCP": [
+        "gcp": [
             {
                 "name": "us-east1",
                 "location": "South Carolina",
@@ -86,14 +86,14 @@
         ]
     },
     "US-Central": {
-        "AWS": [
+        "aws": [
             {
                 "name": "us-east-2",
                 "location": "Ohio",
                 "emoji": "🇺🇸"
             }
         ],
-        "Azure": [
+        "azure": [
             {
                 "name": "centralus",
                 "location": "Iowa",
@@ -115,7 +115,7 @@
                 "emoji": "🇺🇸"
             }
         ],
-        "GCP": [
+        "gcp": [
             {
                 "name": "us-central1",
                 "location": "Iowa",
@@ -124,14 +124,14 @@
         ]
     },
     "Canada": {
-        "AWS": [
+        "aws": [
             {
                 "name": "ca-central-1",
                 "location": "Central",
                 "emoji": "🇨🇦"
             }
         ],
-        "Azure": [
+        "azure": [
             {
                 "name": "canadacentral",
                 "location": "Ontario",
@@ -143,7 +143,7 @@
                 "emoji": "🇨🇦"
             }
         ],
-        "GCP": [
+        "gcp": [
             {
                 "name": "northamerica-northeast1",
                 "location": "Québec",
@@ -152,14 +152,14 @@
         ]
     },
     "EU-Central": {
-        "AWS": [
+        "aws": [
             {
                 "name": "eu-central-1",
                 "location": "Germany",
                 "emoji": "🇩🇪"
             }
         ],
-        "Azure": [
+        "azure": [
             {
                 "name": "westeurope",
                 "location": "Netherlands",
@@ -176,7 +176,7 @@
                 "emoji": "🇨🇭"
             }
         ],
-        "GCP": [
+        "gcp": [
             {
                 "name": "europe-west3",
                 "location": "Germany",
@@ -195,7 +195,7 @@
         ]
     },
     "EU-West": {
-        "AWS": [
+        "aws": [
             {
                 "name": "eu-west-1",
                 "location": "Ireland",
@@ -212,7 +212,7 @@
                 "emoji": "🇫🇷"
             }
         ],
-        "Azure": [
+        "azure": [
             {
                 "name": "northeurope",
                 "location": "Ireland",
@@ -234,7 +234,7 @@
                 "emoji": "🇬🇧"
             }
         ],
-        "GCP": [
+        "gcp": [
             {
                 "name": "europe-west1",
                 "location": "Belgium",
@@ -248,25 +248,25 @@
         ]
     },
     "EU-South": {
-        "AWS": [
+        "aws": [
             {
                 "name": "eu-south-1",
                 "location": "Italy",
                 "emoji": "🇮🇹"
             }
         ],
-        "Azure": [],
-        "GCP": []
+        "azure": [],
+        "gcp": []
     },
     "EU-North": {
-        "AWS": [
+        "aws": [
             {
                 "name": "eu-north-1",
                 "location": "Sweden",
                 "emoji": "🇸🇪"
             }
         ],
-        "Azure": [
+        "azure": [
             {
                 "name": "eu-north-1",
                 "location": "Sweden",
@@ -278,7 +278,7 @@
                 "emoji": "🇳🇴"
             }
         ],
-        "GCP": [
+        "gcp": [
             {
                 "name": "europe-north1",
                 "location": "Finland",

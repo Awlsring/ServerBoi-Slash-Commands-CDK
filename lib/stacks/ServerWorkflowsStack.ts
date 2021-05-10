@@ -49,26 +49,13 @@ export class ServerWorkflowsStack extends Stack {
       }),
     });
 
-    const a2sLayer = new LayerVersion(
-      this,
-      "A2S-Layer",
-      {
-        code: Code.fromAsset(
-          "lambdas/layers/a2s/a2s.zip"
-        ),
-        compatibleRuntimes: [Runtime.PYTHON_3_8],
-        description: "Lambda Layer for A2S",
-        layerVersionName: "ServerlessBoi-A2S-Layer",
-      }
-    );
-
     const checkName = "ServerBoi-Check-Server-Status-Lambda";
     const checkLambda = new Function(this, checkName, {
       runtime: Runtime.PYTHON_3_8,
       handler: "check_server_status.main.lambda_handler",
       code: Code.fromAsset("lambdas/handlers/check_server_status/"),
       memorySize: 128,
-      layers: [a2sLayer],
+      layers: [props.resourcesStack.a2sLayer],
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(60),
       functionName: checkName,
