@@ -5,6 +5,8 @@ import os
 import json
 import serverboi_interactions_lambda.messages.responses as responses
 from uuid import uuid4
+from discord import Embed, Color
+from time import gmtime, strftime
 
 PROVISION_ARN = os.environ.get("PROVISION_ARN")
 
@@ -36,8 +38,32 @@ def create_server(**kwargs) -> str:
 
     sfn.start_execution(stateMachineArn=PROVISION_ARN, name=execution_name, input=data)
 
-    message = f"Started creation of {kwargs.get('game')} server as execution {execution_name}. It'll take several minutes for it to be ready."
+    embed = form_create_server_embed(data)
 
-    data = responses.form_response_data(content=message)
+    data = responses.form_response_data(embeds=[embed])
 
     return data
+
+def form_create_server_embed(execution_name: str, data: str) -> Embed:
+    wf_name = f"Provision-Server"
+    wf_description = f"Workflow ID: {execution_name}"
+    parameters = data
+    status = "⏳ Pending"
+    stage = "Starting..."
+    last_updated = f'⏱️ Last updated: {strftime("%H:%M:%S UTC", gmtime())}'
+
+    embed = Embed(
+        title=wf_name,
+        color=Color.greyple(),
+        description=wf_description,
+    )
+
+    embed.add_field(name="Parameters", value=parameters, inline=False)
+    embed.add_field(name="Status", value=status, inline=True)
+    embed.add_field(name="Stage", value=stage, inline=True)
+    embed.set_footer(text=last_updated)
+
+    return embed
+
+
+

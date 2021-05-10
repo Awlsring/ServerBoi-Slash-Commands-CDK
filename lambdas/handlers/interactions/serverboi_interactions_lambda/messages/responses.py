@@ -1,5 +1,5 @@
 import requests
-import discord
+from discord import Embed, Color
 import json
 from time import gmtime, strftime
 from serverboi_utils.regions import Region
@@ -37,10 +37,10 @@ def form_server_embed(
     game: str,
     owner: str,
     service: str,
-) -> discord.Embed:
-    embed = discord.Embed(
+) -> Embed:
+    embed = Embed(
         title=f"{server_name}",
-        color=discord.Color.blurple(),
+        color=Color.blurple(),
         description=f"Connect: steam://connect/{ip}:{port}",
     )
 
