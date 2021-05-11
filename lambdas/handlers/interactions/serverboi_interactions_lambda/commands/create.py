@@ -3,10 +3,11 @@ from botocore.exceptions import ClientError as BotoClientError
 import boto3
 import os
 import json
-import serverboi_interactions_lambda.messages.responses as responses
+import serverboi_utils.responses as response_utils
+import serverboi_utils.embeds as embed_utils
 from uuid import uuid4
-from discord import Embed, Color
-from time import gmtime, strftime
+from discord import Color
+
 
 PROVISION_ARN = os.environ.get("PROVISION_ARN")
 
@@ -16,10 +17,16 @@ def route_create_command(request: request) -> dict:
 
     server_commands = {"valheim": create_server}
 
+    # Set user info
     create_server_kwargs = {}
     create_server_kwargs["game"] = server_command
     create_server_kwargs["user_id"] = request.json["member"]["user"]["id"]
-    create_server_kwargs["user_id"] = request.json["member"]["user"]["username"]
+    create_server_kwargs["username"] = request.json["member"]["user"]["username"]
+
+    # Set interaction info
+    create_server_kwargs["interaction_id"] = request.json["id"]
+    create_server_kwargs["interaction_token"] = request.json["token"]
+    create_server_kwargs["application_id"] = request.json["application_id"]
 
     options = request.json["data"]["options"][0]["options"][0]["options"]
 
@@ -32,35 +39,35 @@ def route_create_command(request: request) -> dict:
 def create_server(**kwargs) -> str:
     sfn = boto3.client("stepfunctions")
 
-    data = json.dumps(kwargs)
-
     execution_name = uuid4().hex.upper()
+
+    kwargs["execution_name"] = execution_name
+    data = json.dumps(kwargs)
 
     sfn.start_execution(stateMachineArn=PROVISION_ARN, name=execution_name, input=data)
 
-    embed = form_create_server_embed(data)
+    parameter_data = data
 
-    data = responses.form_response_data(embeds=[embed])
+    key_to_remove = [
+        "interaction_id",
+        "interaction_token",
+        "application_id",
+        "username",
+        "user_id",
+        "game",
+        "execution_name",
+    ]
+    for key in key_to_remove:
+        parameter_data.pop(key)
 
-    return data
-
-def form_create_server_embed(execution_name: str, data: str) -> Embed:
-    wf_name = f"Provision-Server"
-    wf_description = f"Workflow ID: {execution_name}"
-    parameters = data
-    status = "⏳ Pending"
-    stage = "Starting..."
-    last_updated = f'⏱️ Last updated: {strftime("%H:%M:%S UTC", gmtime())}'
-
-    embed = Embed(
-        title=wf_name,
+    embed = embed_utils.form_workflow_embed(
+        workflow_name=f"Provision-Server",
+        workflow_description=f"Workflow ID: {execution_name}",
+        status="⏳ Pending",
+        stage="Starting...",
         color=Color.greyple(),
-        description=wf_description,
     )
 
-    embed.add_field(name="Parameters", value=parameters, inline=False)
-    embed.add_field(name="Status", value=status, inline=True)
-    embed.add_field(name="Stage", value=stage, inline=True)
-    embed.set_footer(text=last_updated)
+    data = response_utils.form_response_data(embeds=[embed])
 
-    return embed
+    return data

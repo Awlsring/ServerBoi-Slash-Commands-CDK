@@ -4,11 +4,18 @@ from uuid import uuid4
 import os
 from botocore.exceptions import ClientError as BotoClientError
 from boto3.dynamodb.conditions import Key
+import serverboi_utils.embeds as embed_utils
+import serverboi_utils.responses as response_utils
+from discord import Color
 
 DYNAMO = boto3.resource("dynamodb")
+STS = boto3.client("sts")
+
 USER_TABLE = DYNAMO.Table(os.environ.get("USER_TABLE"))
 SERVER_TABLE = DYNAMO.Table(os.environ.get("SERVER_TABLE"))
-STS = boto3.client("sts")
+
+WORKFLOW_NAME = "Provision-Server"
+STAGE = "Provision"
 
 
 def _get_user_info_from_table(user_id: str, table: boto3.resource) -> str:
@@ -80,6 +87,20 @@ def lambda_handler(event, context) -> dict:
     username = event["username"]
     password = event["password"]
     service = event["service"]
+    interaction_token = event["interaction_token"]
+    application_id = event["application_id"]
+    execution_name = event["execution_name"]
+
+    embed = embed_utils.form_workflow_embed(
+        workflow_name=WORKFLOW_NAME,
+        workflow_description=f"Workflow ID: {execution_name}",
+        status="🟢 running",
+        stage=STAGE,
+        color=Color.green(),
+    )
+
+    data = response_utils.form_response_data(embeds=[embed])
+    response_utils.edit_response(application_id, interaction_token, data)
 
     server_id = uuid4()
     server_id = str(server_id)[:4].upper()
@@ -221,4 +242,16 @@ def lambda_handler(event, context) -> dict:
         return event
 
     else:
+
+        embed = embed_utils.form_workflow_embed(
+            workflow_name=WORKFLOW_NAME,
+            workflow_description=f"Workflow ID: {execution_name}",
+            status="❌ failed",
+            stage=STAGE,
+            color=Color.red(),
+        )
+
+        data = response_utils.form_response_data(embeds=[embed])
+        response_utils.edit_response(application_id, interaction_token, data)
+
         raise Exception("No account associated with user")

@@ -37,6 +37,7 @@ export class ServerWorkflowsStack extends Stack {
       memorySize: 128,
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(60),
+      layers: [props.resourcesStack.discordLayer, props.resourcesStack.serverBoiUtils],
       functionName: verifyName,
       environment: {
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
@@ -55,7 +56,7 @@ export class ServerWorkflowsStack extends Stack {
       handler: "check_server_status.main.lambda_handler",
       code: Code.fromAsset("lambdas/handlers/check_server_status/"),
       memorySize: 128,
-      layers: [props.resourcesStack.a2sLayer],
+      layers: [props.resourcesStack.a2sLayer, props.resourcesStack.discordLayer, props.resourcesStack.serverBoiUtils],
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(60),
       functionName: checkName,

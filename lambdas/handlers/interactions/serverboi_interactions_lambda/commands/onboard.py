@@ -2,7 +2,7 @@ from flask import request
 import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError as BotoClientError
-import serverboi_interactions_lambda.messages.responses as responses
+import serverboi_utils.responses as response_utils
 
 
 def route_onboard_command(request: request) -> dict:
@@ -45,7 +45,7 @@ def onboard_aws(account_id: str) -> str:
 
         message = "Error adding user account_id to table."
 
-    data = responses.form_response_data(content=message)
+    data = response_utils.form_response_data(content=message)
 
     return data
 
@@ -112,7 +112,7 @@ def validate(user_id: str, service: str) -> str:
         except BotoClientError as error:
             print(error)
             message = "Unable to assume into ServerBoi-Resource.Assumed-Role. Make sure you've created the needed resources in your account."
-            data = responses.form_response_data(content=message)
+            data = response_utils.form_response_data(content=message)
             return data
 
         message = "Successfully able to access account. You're onboarded!"
@@ -120,6 +120,6 @@ def validate(user_id: str, service: str) -> str:
     else:
         message = "You have no account registered with ServerBoi. Onboard an account to ServerBoi to get started."
 
-    data = responses.form_response_data(content=message)
+    data = response_utils.form_response_data(content=message)
 
     return data

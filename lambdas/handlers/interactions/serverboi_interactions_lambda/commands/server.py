@@ -1,10 +1,10 @@
 from flask import request
 import boto3
-from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError as BotoClientError
 from uuid import uuid4
-import serverboi_interactions_lambda.messages.responses as responses
-from serverboi_utils.regions import Region, ServiceRegion
+import serverboi_utils.responses as response_utils
+import serverboi_utils.embeds as embed_utils
+from serverboi_utils.regions import ServiceRegion
 import os
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
@@ -54,17 +54,17 @@ def server_start(server_id: str) -> str:
 
     if not instance:
         content = f"ServerID: {server_id} is not a server."
-        data = responses.form_response_data(content=content)
+        data = response_utils.form_response_data(content=content)
 
     try:
         instance.start()
     except BotoClientError as error:
         print(error)
         content = "Error contacting EC2."
-        data = responses.form_response_data(content=content)
+        data = response_utils.form_response_data(content=content)
     else:
         content = "Instance is starting"
-        data = responses.form_response_data(content=content)
+        data = response_utils.form_response_data(content=content)
 
     return data
 
@@ -73,7 +73,7 @@ def server_stop(server_id: str) -> str:
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        return responses.form_response_data(
+        return response_utils.form_response_data(
             content=f"ServerID: {server_id} is not a server."
         )
 
@@ -82,9 +82,9 @@ def server_stop(server_id: str) -> str:
     except BotoClientError as error:
         print(error)
         content = "Error contacting EC2."
-        data = responses.form_response_data(content=content)
+        data = response_utils.form_response_data(content=content)
     else:
-        data = responses.form_response_data(content="Instance is stopping")
+        data = response_utils.form_response_data(content="Instance is stopping")
 
     return data
 
@@ -105,7 +105,7 @@ def server_status(server_id: str) -> str:
     service_region = ServiceRegion.generate_from_lookup(region)
 
     if not server_info:
-        return responses.form_response_data(
+        return response_utils.form_response_data(
             content=f"ServerID: {server_id} is not a server."
         )
 
@@ -118,9 +118,9 @@ def server_status(server_id: str) -> str:
     except BotoClientError as error:
         print(error)
         content = "Error contacting EC2."
-        data = responses.form_response_data(content=content)
+        data = response_utils.form_response_data(content=content)
     else:
-        embed = responses.form_server_embed(
+        embed = embed_utils.form_server_embed(
             server_name=server_name,
             server_id=server_id,
             ip=ip,
@@ -131,14 +131,12 @@ def server_status(server_id: str) -> str:
             owner=owner,
             service=service,
         )
-        data = responses.form_response_data(embeds=[embed])
+        data = response_utils.form_response_data(embeds=[embed])
 
     return data
 
 
 def server_list() -> str:
-    response = f"**Current managed servers:**\n"
-
     # Set this outside handler
     dynamo = boto3.resource("dynamodb")
 
@@ -150,10 +148,10 @@ def server_list() -> str:
     except BotoClientError as error:
         print(error)
         content = "Error contacting EC2."
-        return responses.form_response_data(content=content)
+        return response_utils.form_response_data(content=content)
 
     if len(table_response["Items"]) == 0:
-        data = responses.form_response_data(
+        data = response_utils.form_response_data(
             content="No servers are currently managed. 😔"
         )
 
@@ -175,21 +173,23 @@ def server_list() -> str:
 
             instance = _create_instance_resource(account_id, region, instance_id)
 
+            service_region = ServiceRegion.generate_from_lookup(region)
+
             try:
                 state = instance.state
                 ip = instance.public_ip_address
             except BotoClientError as error:
                 print(error)
                 content = "Error contacting EC2."
-                return responses.form_response_data(content=content)
+                return response_utils.form_response_data(content=content)
 
-            embed = responses.form_server_embed(
+            embed = embed_utils.form_server_embed(
                 server_name=server_name,
                 server_id=server_id,
                 ip=ip,
                 port=port,
                 status=state["Name"],
-                location=region,
+                region=service_region,
                 game=game,
                 owner=owner,
                 service=service,
@@ -197,7 +197,7 @@ def server_list() -> str:
 
             embeds.append(embed)
 
-        data = responses.form_response_data(
+        data = response_utils.form_response_data(
             content="**Currently managed servers:**", embeds=embeds
         )
 

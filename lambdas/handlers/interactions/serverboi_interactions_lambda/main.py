@@ -1,12 +1,10 @@
 import os
 import awsgi
-import boto3
 from serverboi_interactions_lambda.commands.server import route_server_command
 from serverboi_interactions_lambda.commands.onboard import route_onboard_command
 from serverboi_interactions_lambda.commands.create import route_create_command
-import serverboi_interactions_lambda.messages.responses as responses
+import serverboi_utils.responses as response_utils
 from discord_interactions import verify_key_decorator
-from typing import List
 from flask import (
     Flask,
     jsonify,
@@ -32,16 +30,18 @@ def index() -> dict:
         interaction_token = request.json["token"]
         application_id = request.json["application_id"]
 
-        responses.post_temp_response(interaction_id, interaction_token)
+        response_utils.post_temp_response(interaction_id, interaction_token)
 
         command = request.json["data"]["options"][0]["name"]
 
         command_response = route_command(command, request)
         print(command_response)
 
-        responses.edit_response(application_id, interaction_token, command_response)
+        response_utils.edit_response(
+            application_id, interaction_token, command_response
+        )
 
-        return True
+        return ("", 204)
 
 
 def route_command(command: str, request: request) -> dict:

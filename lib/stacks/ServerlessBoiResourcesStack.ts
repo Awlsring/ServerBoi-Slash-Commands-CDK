@@ -18,7 +18,6 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly requestsLayer: LayerVersion
   readonly a2sLayer: LayerVersion
   readonly serverBoiUtils: LayerVersion
-  readonly serverBoiUtils2: LayerVersion
 
 
   constructor(scope: Construct, id: string) {
@@ -42,7 +41,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       "Serverboi-Utils-Layer",
       {
         code: Code.fromAsset(
-          "lambdas/layers/serverboi_utils/serverboi_utils.zip"
+          "lambdas/layers/serverboi_utils/serverboi_utils_package.zip"
         ),
         compatibleRuntimes: [Runtime.PYTHON_3_8],
         description: "Lambda Layer for ServerBoi Utils",
