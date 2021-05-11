@@ -9,13 +9,13 @@ from uuid import uuid4
 from discord import Color
 
 
-PROVISION_ARN = os.environ.get("PROVISION_ARN")
+TERMINATE_ARN = os.environ.get("PROVISION_ARN")
 
 
-def route_create_command(request: request) -> dict:
+def route_terminate_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
 
-    server_commands = {"valheim": create_server}
+    server_commands = {"valheim": terminate_server}
 
     # Set user info
     create_server_kwargs = {}
@@ -36,13 +36,15 @@ def route_create_command(request: request) -> dict:
     return server_commands[server_command](**create_server_kwargs)
 
 
-def create_server(**kwargs) -> str:
+def terminate_server(**kwargs) -> str:
     sfn = boto3.client("stepfunctions")
 
     execution_name = uuid4().hex.upper()
 
     kwargs["execution_name"] = execution_name
-    input_data = json.dumps(kwargs)
+    data = json.dumps(kwargs)
+
+    sfn.start_execution(stateMachineArn=TERMINATE_ARN, name=execution_name, input=data)
 
     parameter_data = kwargs
 
@@ -67,9 +69,5 @@ def create_server(**kwargs) -> str:
     )
 
     data = response_utils.form_response_data(embeds=[embed])
-
-    sfn.start_execution(
-        stateMachineArn=PROVISION_ARN, name=execution_name, input=input_data
-    )
 
     return data

@@ -73,6 +73,10 @@ export class ServerWorkflowsStack extends Stack {
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(60),
       functionName: checkName,
+      environment: {
+        USER_TABLE: props.resourcesStack.userList.tableName,
+        SERVER_TABLE: props.resourcesStack.serverList.tableName,
+      },
       role: new Role(this, `${checkName}-Role`, {
         assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
         roleName: `${checkName}-Role`,

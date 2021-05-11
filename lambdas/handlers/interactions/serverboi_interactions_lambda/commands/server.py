@@ -4,11 +4,13 @@ from botocore.exceptions import ClientError as BotoClientError
 from uuid import uuid4
 import serverboi_utils.responses as response_utils
 import serverboi_utils.embeds as embed_utils
+import serverboi_utils.states as state_utils
 from serverboi_utils.regions import ServiceRegion
 import os
-import a2s
+from discord import Color
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
+TERMINATE_ARN = os.environ.get("PROVISION_ARN")
 
 
 def route_server_command(request: request) -> dict:
@@ -184,12 +186,14 @@ def server_list() -> str:
                 content = "Error contacting EC2."
                 return response_utils.form_response_data(content=content)
 
+            status = state_utils.translate_state(service, state["Name"].lower())
+
             embed = embed_utils.form_server_embed(
                 server_name=server_name,
                 server_id=server_id,
                 ip=ip,
                 port=port,
-                status=state["Name"],
+                status=status,
                 region=service_region,
                 game=game,
                 owner=owner,

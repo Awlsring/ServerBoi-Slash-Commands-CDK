@@ -7,6 +7,7 @@ from boto3.dynamodb.conditions import Key
 import serverboi_utils.embeds as embed_utils
 import serverboi_utils.responses as response_utils
 from discord import Color
+import time
 
 DYNAMO = boto3.resource("dynamodb")
 STS = boto3.client("sts")
@@ -104,6 +105,8 @@ def lambda_handler(event, context) -> dict:
 
     server_id = uuid4()
     server_id = str(server_id)[:4].upper()
+
+    event["server_id"] = server_id
 
     user_info = _get_user_info_from_table(user_id, USER_TABLE)
 

@@ -20,6 +20,20 @@ def edit_response(application_id: str, interaction_token: str, data: dict):
         print(f"Edit Response: {response}.")
 
 
+def post_new_reponse(application_id: str, interaction_token: str, data: dict):
+    print(f"Data: {data}")
+    update_url = (
+        f"https://discord.com/api/webhooks/{application_id}/{interaction_token}"
+    )
+    response = requests.post(update_url, json=data)
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+    else:
+        print(f"Edit Response: {response}.")
+
+
 def form_response_data(**kwargs) -> dict:
     print(kwargs)
     embeds = kwargs.get("embeds")
