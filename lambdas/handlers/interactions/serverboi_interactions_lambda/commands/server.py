@@ -173,7 +173,7 @@ def server_status(server_id: str) -> str:
         data = response_utils.form_response_data(content=content)
     else:
         embed = embed_utils.form_server_embed(
-            server_name=server_name,
+            server_name=f"{server_name} ({server_id})",
             server_id=server_id,
             ip=ip,
             port=port,
@@ -235,14 +235,12 @@ def server_list() -> str:
                 content = "Error contacting EC2."
                 return response_utils.form_response_data(content=content)
 
-            status = state_utils.translate_state(service, state["Name"].lower())
-
             embed = embed_utils.form_server_embed(
-                server_name=server_name,
+                server_name=f"{server_name} ({server_id})",
                 server_id=server_id,
                 ip=ip,
                 port=port,
-                status=status,
+                status=state["Name"],
                 region=service_region,
                 game=game,
                 owner=owner,

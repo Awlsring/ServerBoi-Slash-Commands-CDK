@@ -115,7 +115,7 @@ def lambda_handler(event, context) -> dict:
         service_region = ServiceRegion.generate_from_lookup(region)
 
         server_embed = embed_utils.form_server_embed(
-            server_name=name,
+            server_name=f"{name} ({server_id})",
             server_id=user_id,
             ip=instance_ip,
             port=server_port,
