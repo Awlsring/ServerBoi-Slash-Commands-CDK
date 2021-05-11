@@ -11,7 +11,7 @@ import json
 from discord import Color
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
-TERMINATE_ARN = os.environ.get("PROVISION_ARN")
+TERMINATE_ARN = os.environ.get("TERMINATE_ARN")
 
 
 def route_server_command(request: request) -> dict:

@@ -183,7 +183,7 @@ export class ServerWorkflowsStack extends Stack {
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
-          "dynamodb:Scan",
+          "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:PutItem",
           "dynamodb:UpdateItem",

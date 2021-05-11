@@ -18,7 +18,8 @@ STAGE = "Terminate and Deregister"
 
 
 def lambda_handler(event, context) -> dict:
-    server_id = event["server_id"]
+    print(event)
+    server_id = event["id"]
     interaction_token = event["interaction_token"]
     application_id = event["application_id"]
     execution_name = event["execution_name"]
@@ -69,7 +70,9 @@ def lambda_handler(event, context) -> dict:
 
         instance = ec2_resource.Instance(instance_id)
 
-        instance.terminate()
+        resp = instance.terminate()
+
+        print(resp)
 
         SERVER_TABLE.delete_item(Key={"ServerID": server_id})
 
