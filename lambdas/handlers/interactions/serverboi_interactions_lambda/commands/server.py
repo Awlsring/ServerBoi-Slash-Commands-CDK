@@ -6,6 +6,7 @@ import serverboi_utils.responses as response_utils
 import serverboi_utils.embeds as embed_utils
 from serverboi_utils.regions import ServiceRegion
 import os
+import a2s
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
 

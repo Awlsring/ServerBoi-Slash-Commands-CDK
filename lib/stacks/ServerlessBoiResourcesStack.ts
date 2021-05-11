@@ -33,6 +33,7 @@ export class ServerlessBoiResourcesStack extends Stack {
         compatibleRuntimes: [Runtime.PYTHON_3_8],
         description: "Lambda Layer for Discord.py",
         layerVersionName: "ServerBoi-Discord-Layer",
+        removalPolicy: RemovalPolicy.RETAIN
       }
     );
 
@@ -41,7 +42,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       "Serverboi-Utils-Layer",
       {
         code: Code.fromAsset(
-          "lambdas/layers/serverboi_utils/serverboi_utils_package.zip"
+          "lambdas/layers/serverboi_utils/serverboi_utils.zip"
         ),
         compatibleRuntimes: [Runtime.PYTHON_3_8],
         description: "Lambda Layer for ServerBoi Utils",
@@ -60,6 +61,7 @@ export class ServerlessBoiResourcesStack extends Stack {
         compatibleRuntimes: [Runtime.PYTHON_3_8],
         description: "Lambda Layer for Requests",
         layerVersionName: "ServerBoi-Requests-Layer",
+        removalPolicy: RemovalPolicy.RETAIN
       }
     );
 
@@ -73,6 +75,7 @@ export class ServerlessBoiResourcesStack extends Stack {
         compatibleRuntimes: [Runtime.PYTHON_3_8],
         description: "Lambda Layer for A2S",
         layerVersionName: "ServerBoi-A2S-Layer",
+        removalPolicy: RemovalPolicy.RETAIN
       }
     );
 
@@ -86,7 +89,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       destinationBucket: this.resourcesBucket,
     });
 
-    this.serverList = new Table(this, "Server-Tarle", {
+    this.serverList = new Table(this, "Server-Table", {
       partitionKey: { name: "ServerID", type: AttributeType.STRING },
       tableName: "ServerBoi-Server-List",
     });

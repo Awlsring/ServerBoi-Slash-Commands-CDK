@@ -3,6 +3,7 @@ from discord import Embed, Color
 from time import gmtime, strftime
 from serverboi_utils.regions import ServiceRegion
 from serverboi_utils.states import translate_state
+import a2s
 
 
 def form_workflow_embed(
@@ -83,8 +84,10 @@ def form_server_embed(
     embed.add_field(name="Game", value=game, inline=True)
 
     if active:
-        # TODO: Pull live player count
-        embed.add_field(name="Players", value="x/x", inline=True)
+        info = a2s.info((ip, int(port)))
+        embed.add_field(
+            name="Players", value=f"{info.player_count}/{info.max_players}", inline=True
+        )
 
     embed.set_footer(
         text=f"Owner: {owner} | 🌎 Hosted on {service} in region {region.name} | 🕒 Pulled at {strftime('%H:%M:%S UTC', gmtime())}"
