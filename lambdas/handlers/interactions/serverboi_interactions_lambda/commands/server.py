@@ -154,6 +154,9 @@ def server_status(server_id: str) -> str:
     account_id = server_info["AccountID"]
     port = server_info["Port"]
 
+    if game == "valheim":
+        port = port + 1
+
     service_region = ServiceRegion.generate_from_lookup(region)
 
     if not server_info:
@@ -222,6 +225,9 @@ def server_list() -> str:
             instance_id = server_info.get("InstanceID")
             port = server_info["Port"]
             service = server_info["Service"]
+
+            if game == "valheim":
+                port = port + 1
 
             instance = _create_instance_resource(account_id, region, instance_id)
 
