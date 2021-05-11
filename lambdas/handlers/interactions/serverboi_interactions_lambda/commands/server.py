@@ -7,6 +7,7 @@ import serverboi_utils.embeds as embed_utils
 import serverboi_utils.states as state_utils
 from serverboi_utils.regions import ServiceRegion
 import os
+import json
 from discord import Color
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
@@ -22,10 +23,24 @@ def route_server_command(request: request) -> dict:
         "stop": server_stop,
         "add": add_server,
         "list": server_list,
+        "terminate": server_terminate,
     }
 
     if server_command == "list":
         return server_commands[server_command]()
+
+    elif server_command == "terminate":
+        terminate_server_kwargs = {}
+        terminate_server_kwargs["interaction_id"] = request.json["id"]
+        terminate_server_kwargs["interaction_token"] = request.json["token"]
+        terminate_server_kwargs["application_id"] = request.json["application_id"]
+
+        options = request.json["data"]["options"][0]["options"][0]["options"]
+
+        for option in options:
+            terminate_server_kwargs[option["name"]] = option["value"]
+
+        return server_commands[server_command](**terminate_server_kwargs)
 
     elif server_command == "add":
         name = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
@@ -50,6 +65,40 @@ def route_server_command(request: request) -> dict:
         ]
 
         return server_commands[server_command](server_id)
+
+
+def server_terminate(**kwargs) -> str:
+    sfn = boto3.client("stepfunctions")
+
+    execution_name = uuid4().hex.upper()
+
+    kwargs["execution_name"] = execution_name
+    data = json.dumps(kwargs)
+
+    sfn.start_execution(stateMachineArn=TERMINATE_ARN, name=execution_name, input=data)
+
+    parameter_data = kwargs
+
+    key_to_remove = [
+        "interaction_id",
+        "interaction_token",
+        "application_id",
+        "execution_name",
+    ]
+    for key in key_to_remove:
+        parameter_data.pop(key)
+
+    embed = embed_utils.form_workflow_embed(
+        workflow_name=f"Terminate-Server",
+        workflow_description=f"Workflow ID: {execution_name}",
+        status="⏳ Pending",
+        stage="Starting...",
+        color=Color.greyple(),
+    )
+
+    data = response_utils.form_response_data(embeds=[embed])
+
+    return data
 
 
 def server_start(server_id: str) -> str:

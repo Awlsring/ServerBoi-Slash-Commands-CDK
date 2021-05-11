@@ -112,7 +112,6 @@ def lambda_handler(event, context) -> dict:
 
         wf_embed.add_field(name="ServerID", value=server_id, inline=False)
 
-        status = state_utils.translate_state(service, state["Name"].lower())
         service_region = ServiceRegion.generate_from_lookup(region)
 
         server_embed = embed_utils.form_server_embed(
@@ -120,7 +119,7 @@ def lambda_handler(event, context) -> dict:
             server_id=user_id,
             ip=instance_ip,
             port=server_port,
-            status=status,
+            status=state["Name"],
             region=service_region,
             game=game,
             owner=username,

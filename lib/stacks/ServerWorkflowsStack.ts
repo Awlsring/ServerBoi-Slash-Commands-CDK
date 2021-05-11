@@ -107,6 +107,7 @@ export class ServerWorkflowsStack extends Stack {
           "logs:CreateLogStream",
           "logs:PutLogEvents",
           "ec2:TerminateInstances",
+          "dynamodb:DeleteItem",
           "sts:AssumeRole",
         ],
       })
@@ -153,5 +154,63 @@ export class ServerWorkflowsStack extends Stack {
       definition: stepDefinition,
       stateMachineName: "Provision-Server-Workflow",
     });
+
+    const terminateName = "ServerBoi-Verify-And-Terminate-Lambda";
+    const terminateLambda = new Function(this, terminateName, {
+      runtime: Runtime.PYTHON_3_8,
+      handler: "terminate_lambda.main.lambda_handler",
+      code: Code.fromAsset("lambdas/handlers/terminate_lambda/"),
+      memorySize: 128,
+      tracing: Tracing.ACTIVE,
+      timeout: Duration.seconds(60),
+      layers: [props.resourcesStack.discordLayer, serverBoiUtils],
+      functionName: terminateName,
+      environment: {
+        RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
+        USER_TABLE: props.resourcesStack.userList.tableName,
+        SERVER_TABLE: props.resourcesStack.serverList.tableName,
+      },
+      role: new Role(this, `${terminateName}-Role`, {
+        assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
+        roleName: `${terminateName}-Role`,
+      }),
+    });
+
+    terminateLambda.addToRolePolicy(
+      new PolicyStatement({
+        resources: ["*"],
+        actions: [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "sts:AssumeRole",
+          "ec2:TerminateInstances"
+        ],
+      })
+    );
+
+    //step definitions
+    const terminateLambdaStep = new LambdaInvoke(
+      this,
+      "Terminate-Step",
+      {
+        lambdaFunction: terminateLambda,
+      }
+    );
+
+    const termEndStep = new Succeed(this, 'Term-End-Step')
+
+    const termStepDefinition = terminateLambdaStep.next(termEndStep)
+
+    const terminate = new StateMachine(this, "Terminate-Server-State-Machine", {
+      definition: termStepDefinition,
+      stateMachineName: "Terminate-Server-Workflow",
+    });
+
   }
 }

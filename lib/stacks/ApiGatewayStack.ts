@@ -80,7 +80,8 @@ export class ApiGatewayStack extends Stack {
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
         USER_TABLE: props.resourcesStack.userList.tableName,
-        PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow'
+        PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow',
+        TERMINATE_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow'
       },
       role: new Role(this, "ServerlessBoi-Main-Lambda-Role", {
         assumedBy: new ServicePrincipal("lambda.amazonaws.com"),

@@ -33,9 +33,9 @@ commands = {
                             "name": "id",
                             "description": "The ID of the server to take action on.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "stop",
@@ -46,9 +46,9 @@ commands = {
                             "name": "id",
                             "description": "The ID of the server to take action on.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "status",
@@ -59,14 +59,27 @@ commands = {
                             "name": "id",
                             "description": "The ID of the server to take action on.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "list",
                     "type": 1,
                     "description": "Get status of the specified server.",
+                },
+                {
+                    "name": "terminate",
+                    "type": 1,
+                    "description": "Terminate the specified server.",
+                    "options": [
+                        {
+                            "name": "id",
+                            "description": "The ID of the server to take action on.",
+                            "type": 3,
+                            "required": True,
+                        }
+                    ],
                 },
                 {
                     "name": "add",
@@ -77,35 +90,35 @@ commands = {
                             "name": "name",
                             "description": "Name of the server",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "game",
                             "description": "Game that is hosted on the server.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "service",
                             "description": "The cloud provider the instance is on.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "service-identifier",
                             "description": "The cloud providers account identifier (AWS: Account ID, Azure: Subscription ID, GCP: Project)",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "instance-id",
                             "description": "The ID of the instance in the cloud provider.",
                             "type": 3,
-                            "required": True
-                        }
-                    ]
-                }
-            ]
+                            "required": True,
+                        },
+                    ],
+                },
+            ],
         },
         {
             "name": "create",
@@ -121,42 +134,41 @@ commands = {
                             "name": "service",
                             "description": "Service server is hosted on.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "region",
                             "description": "Use ServerBoi generics (US-West) or use a service's specific name (us-west-2)",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "name",
                             "description": "Name of the server.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "world-name",
                             "description": "Name of the servers world.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "password",
                             "description": "Password for server. Must be at least 5 characters in length.",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         },
                         {
                             "name": "world-file-url",
                             "description": "Use an existing world file. Must be publicly accessible url.",
                             "type": 3,
-                            "required": False
+                            "required": False,
                         },
-
-                    ]
+                    ],
                 }
-            ]
+            ],
         },
         {
             "name": "onboard",
@@ -172,9 +184,9 @@ commands = {
                             "name": "account-id",
                             "description": "ID of the AWS Account to onboard",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "validate",
@@ -185,18 +197,16 @@ commands = {
                             "name": "service",
                             "description": "Service to validate",
                             "type": 3,
-                            "required": True
+                            "required": True,
                         }
-                    ]
-                }
-            ]
-        }
-    ]
+                    ],
+                },
+            ],
+        },
+    ],
 }
 
-headers = {
-    "Authorization": f"Bot {discord_token}"
-}
+headers = {"Authorization": f"Bot {discord_token}"}
 
 if __name__ == "__main__":
     r = requests.post(url, headers=headers, json=commands)
