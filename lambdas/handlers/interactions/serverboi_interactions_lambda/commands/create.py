@@ -46,7 +46,7 @@ def create_server(**kwargs) -> str:
 
     sfn.start_execution(stateMachineArn=PROVISION_ARN, name=execution_name, input=data)
 
-    parameter_data = data
+    parameter_data = kwargs
 
     key_to_remove = [
         "interaction_id",
