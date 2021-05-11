@@ -29,6 +29,19 @@ export class ServerWorkflowsStack extends Stack {
   constructor(scope: Construct, id: string, props: ServerWorkflowsStackProps) {
     super(scope, id, props);
 
+    const serverBoiUtils = new LayerVersion(
+      this,
+      "Serverboi-Utils-Layer",
+      {
+        code: Code.fromAsset(
+          "lambdas/layers/serverboi_utils/serverboi_utils.zip"
+        ),
+        compatibleRuntimes: [Runtime.PYTHON_3_8],
+        description: "Lambda Layer for ServerBoi Utils",
+        layerVersionName: "ServerBoi-Utils-Layer"
+      }
+    )
+
     const verifyName = "ServerBoi-Verify-And-Provision-Lambda";
     const verifyLambda = new Function(this, verifyName, {
       runtime: Runtime.PYTHON_3_8,
@@ -37,7 +50,7 @@ export class ServerWorkflowsStack extends Stack {
       memorySize: 128,
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(60),
-      layers: [props.resourcesStack.discordLayer, props.resourcesStack.serverBoiUtils],
+      layers: [props.resourcesStack.discordLayer, serverBoiUtils],
       functionName: verifyName,
       environment: {
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
@@ -56,7 +69,7 @@ export class ServerWorkflowsStack extends Stack {
       handler: "check_server_status.main.lambda_handler",
       code: Code.fromAsset("lambdas/handlers/check_server_status/"),
       memorySize: 128,
-      layers: [props.resourcesStack.a2sLayer, props.resourcesStack.discordLayer, props.resourcesStack.serverBoiUtils],
+      layers: [props.resourcesStack.a2sLayer, props.resourcesStack.discordLayer, serverBoiUtils],
       tracing: Tracing.ACTIVE,
       timeout: Duration.seconds(60),
       functionName: checkName,

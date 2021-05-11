@@ -37,20 +37,6 @@ export class ServerlessBoiResourcesStack extends Stack {
       }
     );
 
-    this.serverBoiUtils = new LayerVersion(
-      this,
-      "Serverboi-Utils-Layer",
-      {
-        code: Code.fromAsset(
-          "lambdas/layers/serverboi_utils/serverboi_utils.zip"
-        ),
-        compatibleRuntimes: [Runtime.PYTHON_3_8],
-        description: "Lambda Layer for ServerBoi Utils",
-        layerVersionName: "ServerBoi-Utils-Layer",
-        removalPolicy: RemovalPolicy.RETAIN
-      }
-    )
-
     this.requestsLayer = new LayerVersion(
       this,
       "ServerBoi-Request-Layer",

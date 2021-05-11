@@ -46,12 +46,25 @@ export class ApiGatewayStack extends Stack {
       }
     );
 
+    const serverBoiUtils = new LayerVersion(
+      this,
+      "Serverboi-Utils-Layer",
+      {
+        code: Code.fromAsset(
+          "lambdas/layers/serverboi_utils/serverboi_utils.zip"
+        ),
+        compatibleRuntimes: [Runtime.PYTHON_3_8],
+        description: "Lambda Layer for ServerBoi Utils",
+        layerVersionName: "ServerBoi-Utils-Layer"
+      }
+    )
+
     const lambdaLayers = [
       flaskLayer,
       props.resourcesStack.a2sLayer,
       props.resourcesStack.discordLayer,
       props.resourcesStack.requestsLayer,
-      props.resourcesStack.serverBoiUtils
+      serverBoiUtils
     ]
     const lambda = new Function(this, "ServerlessBoi-Main-Lambda", {
       runtime: Runtime.PYTHON_3_8,
