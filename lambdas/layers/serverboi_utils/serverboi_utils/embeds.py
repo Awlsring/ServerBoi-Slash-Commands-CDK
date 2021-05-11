@@ -43,10 +43,18 @@ def form_server_embed(
     owner: str,
     service: str,
 ) -> Embed:
+    # Set address
+    if ip is None:
+        address = "No address while inactive"
+        description = "\u200B"
+    else:
+        address = f"{ip}:{port}"
+        description = f"Connect: steam://connect/{address}"
+
     embed = Embed(
         title=f"{server_name}",
         color=Color.blurple(),
-        description=f"Connect: steam://connect/{ip}:{port}",
+        description=description,
     )
 
     embed.set_thumbnail(
@@ -64,12 +72,6 @@ def form_server_embed(
 
     embed.add_field(name="\u200B", value=f"\u200B", inline=True)
 
-    # Set address
-    if ip is None:
-        address = "No address while inactive"
-        embed.description("")
-    else:
-        address = f"{ip}:{port}"
     embed.add_field(name="Address", value=f"`{address}`", inline=True)
 
     embed.add_field(
