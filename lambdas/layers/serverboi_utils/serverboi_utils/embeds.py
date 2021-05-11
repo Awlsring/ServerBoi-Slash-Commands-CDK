@@ -62,12 +62,14 @@ def form_server_embed(
 
     embed.add_field(name="Status", value=f"{state_emoji} {state}", inline=True)
 
+    embed.add_field(name="\u200B", value=f"\u200B", inline=True)
+
     # Set address
-    if ip != "" or ip != "None":
-        address = f"{ip}:{port}"
-    else:
+    if ip is None:
         address = "No address while inactive"
         embed.description("")
+    else:
+        address = f"{ip}:{port}"
     embed.add_field(name="Address", value=f"`{address}`", inline=True)
 
     embed.add_field(
