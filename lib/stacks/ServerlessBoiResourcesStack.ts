@@ -1,4 +1,4 @@
-import { Stack, Construct } from "monocdk";
+import { Stack, Construct, RemovalPolicy } from "monocdk";
 import { Table, AttributeType, Attribute } from "monocdk/aws-dynamodb";
 import { Bucket } from "monocdk/aws-s3";
 import { BucketDeployment, Source } from "monocdk/aws-s3-deployment";
@@ -46,6 +46,7 @@ export class ServerlessBoiResourcesStack extends Stack {
         compatibleRuntimes: [Runtime.PYTHON_3_8],
         description: "Lambda Layer for ServerBoi Utils",
         layerVersionName: "ServerBoi-Utils-Layer",
+        removalPolicy: RemovalPolicy.RETAIN
       }
     )
 
