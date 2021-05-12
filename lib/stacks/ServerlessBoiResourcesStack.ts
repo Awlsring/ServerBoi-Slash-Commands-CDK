@@ -12,6 +12,7 @@ export class ServerlessBoiResourcesStack extends Stack {
   //Creates all resources referenced across stacks
 
   readonly resourcesBucket: Bucket;
+  readonly clientBucket: Bucket;
   readonly serverList: Table;
   readonly userList: Table;
   readonly discordLayer: LayerVersion
@@ -68,6 +69,10 @@ export class ServerlessBoiResourcesStack extends Stack {
     this.resourcesBucket = new Bucket(this, "Resources-Bucket", {
       bucketName: "serverboi-resources-bucket",
       publicReadAccess: true,
+    });
+
+    this.clientBucket = new Bucket(this, "Client-Bucket", {
+      bucketName: "serverboi-client-bucket",
     });
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {

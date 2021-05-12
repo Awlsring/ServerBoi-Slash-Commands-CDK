@@ -2,10 +2,7 @@
   "valheim": {
     "container": "lloesche/valheim-server",
     "build_time": 300,
-    "ports": {
-      "primary": 2456,
-      "range": [2456,2458]
-    },
+    "ports": [2456,2458],
     "aws": {
       "instance_type": "c4.large"
     }

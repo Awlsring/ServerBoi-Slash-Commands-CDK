@@ -167,7 +167,32 @@ commands = {
                             "required": False,
                         },
                     ],
-                }
+                },
+                {
+                    "name": "csgo",
+                    "type": 1,
+                    "description": "Create a Valheim Server.",
+                    "options": [
+                        {
+                            "name": "service",
+                            "description": "Service server is hosted on.",
+                            "type": 3,
+                            "required": True,
+                        },
+                        {
+                            "name": "region",
+                            "description": "Use ServerBoi generics (US-West) or use a service's specific name (us-west-2)",
+                            "type": 3,
+                            "required": True,
+                        },
+                        {
+                            "name": "name",
+                            "description": "Name of the server.",
+                            "type": 3,
+                            "required": False,
+                        },
+                    ],
+                },
             ],
         },
         {

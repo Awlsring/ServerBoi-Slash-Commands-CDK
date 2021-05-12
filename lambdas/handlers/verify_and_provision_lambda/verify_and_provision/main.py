@@ -6,6 +6,7 @@ from botocore.exceptions import ClientError as BotoClientError
 from boto3.dynamodb.conditions import Key
 import serverboi_utils.embeds as embed_utils
 import serverboi_utils.responses as response_utils
+import verify_and_provision.lib.docker_game_commands as docker_commands
 from discord import Color
 import time
 
@@ -31,9 +32,9 @@ def _get_user_info_from_table(user_id: str, table: boto3.resource) -> str:
         return response["Items"][0]
 
 
-def form_user_data(server_name: str, world_name: str, password: str) -> str:
+def form_user_data(docker_command: str) -> str:
     return f"""#!/bin/bash
-sudo apt-get update && apt-get upgrade -y
+sudo apt-get update && sudo apt-get upgrade -y
 
 sudo apt-get install \
     apt-transport-https \
@@ -52,19 +53,7 @@ sudo apt-get update
 
 sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 
-mkdir -p /valheim-server/config/worlds /valheim-server/data
-
-sudo docker run -d \
-    --name valheim-server \
-    --cap-add=sys_nice \
-    --stop-timeout 120 \
-    -p 2456-2457:2456-2457/udp \
-    -v /valheim-server/config:/config \
-    -v /valheim-server/data:/opt/valheim \
-    -e SERVER_NAME="{server_name}" \
-    -e WORLD_NAME="{world_name}" \
-    -e SERVER_PASS="{password}" \
-    lloesche/valheim-server"""
+{docker_command}"""
 
 
 def get_image_id(ec2: boto3.client, region: str) -> str:
@@ -91,6 +80,11 @@ def lambda_handler(event, context) -> dict:
     interaction_token = event["interaction_token"]
     application_id = event["application_id"]
     execution_name = event["execution_name"]
+
+    # pack event into a dict cause lambda flips if you try to **event -_-
+    kwargs = {}
+    for item, value in event.items():
+        kwargs[item] = value
 
     embed = embed_utils.form_workflow_embed(
         workflow_name=WORKFLOW_NAME,
@@ -149,8 +143,8 @@ def lambda_handler(event, context) -> dict:
         game_data = build_data[game]
 
         event["wait_time"] = game_data["build_time"]
-        port_range = game_data["ports"]["range"]
-        event["server_port"] = game_data["ports"]["primary"]
+        port_range = game_data["ports"]
+        event["server_port"] = port_range[0]
 
         sec_group_name = f"ServerBoi-Resource-{game}-{name}-{server_id}"
 
@@ -196,7 +190,8 @@ def lambda_handler(event, context) -> dict:
             ],
         )
 
-        user_data = form_user_data(name, event["world-name"], password)
+        docker_command = docker_commands.route_docker_command(game, **kwargs)
+        user_data = form_user_data(docker_command)
 
         image_id = get_image_id(ec2_client, region)
 

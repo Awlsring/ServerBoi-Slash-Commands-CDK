@@ -44,20 +44,6 @@ def create_server(**kwargs) -> str:
     kwargs["execution_name"] = execution_name
     input_data = json.dumps(kwargs)
 
-    parameter_data = kwargs
-
-    key_to_remove = [
-        "interaction_id",
-        "interaction_token",
-        "application_id",
-        "username",
-        "user_id",
-        "game",
-        "execution_name",
-    ]
-    for key in key_to_remove:
-        parameter_data.pop(key)
-
     embed = embed_utils.form_workflow_embed(
         workflow_name=f"Provision-Server",
         workflow_description=f"Workflow ID: {execution_name}",
