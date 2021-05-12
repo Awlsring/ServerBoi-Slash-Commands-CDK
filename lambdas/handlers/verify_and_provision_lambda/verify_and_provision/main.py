@@ -8,7 +8,6 @@ import serverboi_utils.embeds as embed_utils
 import serverboi_utils.responses as response_utils
 import verify_and_provision.lib.docker_game_commands as docker_commands
 from discord import Color
-import time
 
 DYNAMO = boto3.resource("dynamodb")
 STS = boto3.client("sts")
