@@ -1,4 +1,5 @@
-def route_docker_command(game: str, **kwargs) -> str:
+def route_docker_command(**kwargs) -> str:
+    game = kwargs["game"]
 
     docker_commands = {
         "valheim": form_valheim_command,

@@ -150,7 +150,7 @@ def lambda_handler(event: dict, context) -> dict:
 
         group_id = security_group.create(ec2_client, game, server_id, ports)
 
-        docker_command = docker_commands.route_docker_command(game, **kwargs)
+        docker_command = docker_commands.route_docker_command(**kwargs)
         user_data = form_user_data(docker_command)
 
         instance = instances.create(

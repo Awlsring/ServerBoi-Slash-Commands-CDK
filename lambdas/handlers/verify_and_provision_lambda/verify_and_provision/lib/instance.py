@@ -23,6 +23,7 @@ def create(
         MinCount=1,
         SecurityGroupIds=[group_id],
         UserData=user_data,
+        KeyName="ServerBoiKey",
     )
 
     instance = instances[0]
@@ -50,14 +51,14 @@ def get_image_id(ec2_client: boto3.client) -> str:
 
 
 def form_block_device_mapping(ebs_size: int) -> List[dict]:
-    return (
-        [
-            {
-                "Ebs": {
-                    "DeleteOnTermination": True,
-                    "VolumeSize": ebs_size,
-                    "VolumeType": "standard",
-                }
+    return [
+        {
+            "DeviceName": "/dev/sdh",
+            "VirtualName": "ephemeral",
+            "Ebs": {
+                "DeleteOnTermination": True,
+                "VolumeSize": int(ebs_size),
+                "VolumeType": "standard",
             },
-        ],
-    )
+        },
+    ]

@@ -123,7 +123,7 @@ export class ServerWorkflowsStack extends Stack {
     );
 
     const waitForProvision = new Wait(this, 'Wait-For-Provision', {
-      time: WaitTime.secondsPath('$.Payload.wait_time'),
+      time: WaitTime.secondsPath('$.wait_time'),
     })
 
     const checkServerStatus = new LambdaInvoke(
