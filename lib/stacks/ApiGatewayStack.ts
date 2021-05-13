@@ -31,6 +31,10 @@ export class ApiGatewayStack extends Stack {
       'arn:aws:secretsmanager:us-west-2:742762521158:secret:ServerBoi-Public-Key-gB6pgg'
     )
 
+    const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint");
+
+    const url = api.url
+
     const applicationId = process.env["PUBLIC_ID"];
     console.log(applicationId);
 
@@ -106,6 +110,7 @@ export class ApiGatewayStack extends Stack {
       handler: "bootstrap_call.main.lambda_handler",
       layers: lambdaLayers,
       environment: {
+        API_URL: url,
         PUBLIC_KEY: publicKey.secretValue.toString(),
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
@@ -126,7 +131,7 @@ export class ApiGatewayStack extends Stack {
       })
     );
 
-    const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint");
+    
     
     const bootstrap = api.root.addResource("bootstrap")
     

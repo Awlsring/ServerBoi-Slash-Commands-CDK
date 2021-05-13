@@ -29,8 +29,7 @@ export class TerminateServerWorkflow extends Construct {
   constructor(scope: Construct, id: string, props: TerminateServerProps) {
     super(scope, id);
 
-    const terminateName = "ServerBoi-Verify-And-Terminate-Lambda";
-
+    const terminateName = "Terminate-Lambda";
     const terminate = new PythonLambda(this, terminateName, {
       name: terminateName,
       codePath: "lambdas/handlers/terminate_lambda/",

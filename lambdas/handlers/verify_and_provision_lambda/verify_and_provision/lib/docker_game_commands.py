@@ -10,6 +10,7 @@ def route_docker_command(**kwargs) -> str:
 
 
 def form_valheim_command(**kwargs) -> str:
+    url = kwargs.get("url", None)
     server_name = kwargs.get("name", "ServerBoi-Valheim")
     world_name = kwargs.get("world-name", "ServerBoi-Valheim")
     password = kwargs.get("password", "69420")
@@ -26,6 +27,7 @@ def form_valheim_command(**kwargs) -> str:
     -e SERVER_NAME="{server_name}" \
     -e WORLD_NAME="{world_name}" \
     -e SERVER_PASS="{password}" \
+    -e WORKFLOW_ENDPOINT="{url}" \
     lloesche/valheim-server"""
 
 
@@ -33,6 +35,7 @@ def form_csgo_command(**kwargs) -> str:
     interaction_token = kwargs.get("interaction_token")
     application_id = kwargs.get("application_id")
     execution_name = kwargs.get("execution_name")
+    url = kwargs.get("url", None)
     server_name = kwargs.get("name")
     gsl_token = kwargs.get("gsl-token")
 
@@ -57,6 +60,7 @@ def form_csgo_command(**kwargs) -> str:
     -e INTERACTION_TOKEN={interaction_token} \
     -e APPLICATION_ID={application_id} \
     -e EXECUTION_NAME={execution_name} \
+    -e WORKFLOW_ENDPOINT={url} \
     -e SERVER_NAME={server_name} \
     -e GSL_TOKEN={gsl_token} "
 

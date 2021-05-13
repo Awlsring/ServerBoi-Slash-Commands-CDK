@@ -10,6 +10,7 @@ from discord import Color
 
 
 PROVISION_ARN = os.environ.get("PROVISION_ARN")
+URL = os.environ.get("API_URL")
 
 # TODO: Overhaul this if all will use kwargs anyways
 def route_create_command(request: request) -> dict:
@@ -41,6 +42,7 @@ def create_server(**kwargs) -> str:
 
     execution_name = uuid4().hex.upper()
 
+    kwargs["url"] = URL
     kwargs["execution_name"] = execution_name
     input_data = json.dumps(kwargs)
 
