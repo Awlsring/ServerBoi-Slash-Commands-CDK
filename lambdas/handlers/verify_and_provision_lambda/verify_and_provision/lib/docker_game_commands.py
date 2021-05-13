@@ -34,7 +34,7 @@ def form_csgo_command(**kwargs) -> str:
     application_id = kwargs.get("application_id")
     execution_name = kwargs.get("execution_id")
     server_name = kwargs.get("name")
-    gsl_token = kwargs.get("token")
+    gsl_token = kwargs.get("gsl-token")
 
     overrides = {
         "FPS-MAX",
@@ -51,18 +51,18 @@ def form_csgo_command(**kwargs) -> str:
         "GAME-MODE",
     }
 
-    command = f"""sudo docker run -d \
+    command = f"sudo docker run -d \
     --net=host \
     --name serverboi-csgo \
     -e INTERACTION_ID={interaction_id} \
     -e APPLICATION_ID={application_id} \
     -e EXECUTION_NAME={execution_name} \
     -e SERVER_NAME={server_name} \
-    -e GSL_TOKEN={gsl_token}"""
+    -e GSL_TOKEN={gsl_token} "
 
     for key, value in kwargs.items():
         if key.upper() in overrides:
-            command = f"{command}-e {key.upper()}={value} \ \n"
+            command = f"{command}-e {key.upper()}={value} "
 
     command = f"{command}serverboi/csgo:dev"
 

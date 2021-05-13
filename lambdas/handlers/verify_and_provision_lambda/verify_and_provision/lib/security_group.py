@@ -51,15 +51,39 @@ def _set_egress(ec2_client: boto3, group_id: str):
 def _set_ingress(ec2_client: boto3, group_id: str, ports: List[str]):
     permissions = []
 
+    http = {
+        "IpProtocol": "tcp",
+        "FromPort": 80,
+        "ToPort": 80,
+        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+    }
+
+    https = {
+        "IpProtocol": "tcp",
+        "FromPort": 443,
+        "ToPort": 443,
+        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+    }
+
+    permissions.append(http)
+    permissions.append(https)
+
     for port in ports:
-        permission = {
+        tcp = {
             "IpProtocol": "tcp",
             "FromPort": port,
             "ToPort": port,
             "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
         }
+        udp = {
+            "IpProtocol": "udp",
+            "FromPort": port,
+            "ToPort": port,
+            "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+        }
 
-        permissions.append(permission)
+        permissions.append(udp)
+        permissions.append(tcp)
 
     ec2_client.authorize_security_group_ingress(
         GroupId=group_id, IpPermissions=permissions

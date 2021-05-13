@@ -119,6 +119,7 @@ export class ServerWorkflowsStack extends Stack {
       "Verify-And-Provision-Step",
       {
         lambdaFunction: verifyLambda,
+        outputPath: '$.Payload'
       }
     );
 
