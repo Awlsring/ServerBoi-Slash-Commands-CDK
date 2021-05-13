@@ -5,9 +5,9 @@ import {
   LayerVersion,
 } from "monocdk/aws-lambda";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
-import { WaitForBootstrap } from "./constructs/WaitForBootstrap" 
-import { ProvisionServerWorkflow } from "./constructs/workflows/ProvisionServerWorkflow"
-import { TerminateServerWorkflow } from "./constructs/workflows/TerminateServerWorkflow"
+import { WaitForBootstrap } from "../constructs/WaitForBootstrap" 
+import { ProvisionServerWorkflow } from "../constructs/workflows/ProvisionServerWorkflow"
+import { TerminateServerWorkflow } from "../constructs/workflows/TerminateServerWorkflow"
 
 
 export interface ServerWorkflowsStackProps extends StackProps {

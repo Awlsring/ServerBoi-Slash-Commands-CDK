@@ -14,6 +14,7 @@ import {
 import { Role, ServicePrincipal, PolicyStatement } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { Secret } from "monocdk/aws-secretsmanager"
+import { PythonLambda } from "../constructs/PythonLambdaConstruct";
 
 export interface ApiGatewayStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;
@@ -66,15 +67,12 @@ export class ApiGatewayStack extends Stack {
       props.resourcesStack.requestsLayer,
       serverBoiUtils
     ]
-    const lambda = new Function(this, "ServerlessBoi-Main-Lambda", {
-      runtime: Runtime.PYTHON_3_8,
+
+    const commandHandler = new PythonLambda(this, "Command-Handler", {
+      name: "Command-Handler",
+      codePath: "lambdas/handlers/interactions/",
       handler: "serverboi_interactions_lambda.main.lambda_handler",
-      code: Code.fromAsset("lambdas/handlers/interactions/"),
       layers: lambdaLayers,
-      memorySize: 128,
-      tracing: Tracing.ACTIVE,
-      timeout: Duration.seconds(60),
-      functionName: "ServerlessBoi-Main-Lambda",
       environment: {
         PUBLIC_KEY: publicKey.secretValue.toString(),
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
@@ -83,13 +81,8 @@ export class ApiGatewayStack extends Stack {
         PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow',
         TERMINATE_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow'
       },
-      role: new Role(this, "ServerlessBoi-Main-Lambda-Role", {
-        assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
-        roleName: "ServerlessBoi-Main-Lambda-Role",
-      }),
-    });
-
-    lambda.addToRolePolicy(
+    })
+    commandHandler.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
         actions: [
@@ -107,13 +100,71 @@ export class ApiGatewayStack extends Stack {
       })
     );
 
+    const bootstrapCall = new PythonLambda(this, "Bootstrap-Call", {
+      name: "Bootstrap-Call",
+      codePath: "lambdas/handlers/bootstrap_call/",
+      handler: "bootstrap_call.main.lambda_handler",
+      layers: lambdaLayers,
+      environment: {
+        PUBLIC_KEY: publicKey.secretValue.toString(),
+        RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
+        SERVER_TABLE: props.resourcesStack.serverList.tableName,
+        USER_TABLE: props.resourcesStack.userList.tableName,
+        PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow',
+        TERMINATE_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow'
+      },
+    })
+    bootstrapCall.lambda.addToRolePolicy(
+      new PolicyStatement({
+        resources: ["*"],
+        actions: [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "states:SendTaskSuccess"
+        ],
+      })
+    );
+
     const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint");
+    
+    const bootstrap = api.root.addResource("bootstrap")
+    
+    bootstrap.addMethod(
+      "Post",
+      new LambdaIntegration(bootstrapCall.lambda, {
+        proxy: false,
+        passthroughBehavior: PassthroughBehavior.NEVER,
+        requestTemplates: {
+            'application/json': `{ 
+                "token": "$input.params('token')",
+                "scope": "$input.params('scope')"
+            }`,
+        },
+        integrationResponses: [{
+            statusCode: '200',
+            responseParameters: {
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+                'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,GET'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              },
+        }]}), {
+        methodResponses: [{ 
+            statusCode: '200',
+            responseParameters: {
+                'method.response.header.Access-Control-Allow-Headers': true,
+                'method.response.header.Access-Control-Allow-Methods': true,
+                'method.response.header.Access-Control-Allow-Credentials': true,
+                'method.response.header.Access-Control-Allow-Origin': true,
+            },
+        }]
+    })
 
     const discord = api.root.addResource("discord");
 
     discord.addMethod(
       "Post",
-      new LambdaIntegration(lambda, {
+      new LambdaIntegration(commandHandler.lambda, {
         proxy: true,
         passthroughBehavior: PassthroughBehavior.NEVER,
         requestTemplates: {

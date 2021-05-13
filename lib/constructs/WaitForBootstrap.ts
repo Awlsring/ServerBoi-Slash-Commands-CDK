@@ -19,12 +19,13 @@ export class WaitForBootstrap extends Construct {
 
     this.tokenBucket = new Bucket(this, "Token-Bucket", {
       bucketName: "serverboi-provision-token-bucket",
+      publicReadAccess: true,
       lifecycleRules: [{
         expiration: Duration.days(1)
       }]
     })
 
-    const getTokenName = "Get Token";
+    const getTokenName = "Get-Token";
     const getToken = new PythonLambda(this, getTokenName, {
       name: getTokenName,
       codePath: "lambdas/handlers/get_token",
