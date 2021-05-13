@@ -9,7 +9,7 @@
   },
   "csgo": {
     "container": "serverboi/csgo:dev",
-    "build_time": 600,
+    "build_time": 900,
     "ports": [27015,27020,27005],
     "aws": {
       "instance_type": "c5.large"
