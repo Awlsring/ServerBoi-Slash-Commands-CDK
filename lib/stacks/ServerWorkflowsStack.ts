@@ -132,7 +132,7 @@ export class ServerWorkflowsStack extends Stack {
       "Check-Server-Status-Step",
       {
         lambdaFunction: checkLambda,
-        inputPath: "$."
+        inputPath: "$"
       });
 
     const isServerUpCheck = new Choice(this, 'Is-Server-Up-Check', {
