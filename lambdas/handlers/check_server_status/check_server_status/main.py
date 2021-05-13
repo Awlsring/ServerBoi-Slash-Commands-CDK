@@ -5,6 +5,7 @@ import serverboi_utils.responses as response_utils
 import serverboi_utils.states as state_utils
 from serverboi_utils.regions import ServiceRegion
 import boto3
+from boto3.session import Session
 from botocore.exceptions import ClientError
 from discord import Color
 import os
@@ -25,15 +26,14 @@ if fail, wait another 1 minute. If 10 fails, fail workflow, terminate host
 """
 
 
-def _create_resource_in_target_account(region: str, account_id: str) -> boto3.resource:
+def _create_session_in_target_account(region: str, account_id: str) -> Session:
     try:
         assumed_role = STS.assume_role(
             RoleArn=f"arn:aws:iam::{account_id}:role/ServerBoi-Resource.Assumed-Role",
             RoleSessionName="ServerBoiTerminateFailedInstance",
         )
 
-        ec2_resource = boto3.resource(
-            "ec2",
+        session = Session(
             region_name=region,
             aws_access_key_id=assumed_role["Credentials"]["AccessKeyId"],
             aws_secret_access_key=assumed_role["Credentials"]["SecretAccessKey"],
@@ -42,10 +42,10 @@ def _create_resource_in_target_account(region: str, account_id: str) -> boto3.re
     except ClientError as error:
         print(error)
 
-    return ec2_resource
+    return session
 
 
-def _terminate_instance(ec2: boto3.resource, instance_id: str):
+def _terminate_instance(ec2: boto3.client, instance_id: str):
     try:
         ec2.terminate_instances(
             InstanceIds=[
@@ -76,19 +76,20 @@ def lambda_handler(event, context) -> dict:
     if game == "valheim":
         server_port = int(event.get("server_port")) + 1
 
-    embed = embed_utils.form_workflow_embed(
-        workflow_name=WORKFLOW_NAME,
-        workflow_description=f"Workflow ID: {execution_name}",
-        status="🟢 running",
-        stage=STAGE,
-        color=Color.green(),
-    )
+    # embed = embed_utils.form_workflow_embed(
+    #     workflow_name=WORKFLOW_NAME,
+    #     workflow_description=f"Workflow ID: {execution_name}",
+    #     status="🟢 running",
+    #     stage=STAGE,
+    #     color=Color.green(),
+    # )
 
-    data = response_utils.form_response_data(embeds=[embed])
-    response_utils.edit_response(application_id, interaction_token, data)
+    # data = response_utils.form_response_data(embeds=[embed])
+    # response_utils.edit_response(application_id, interaction_token, data)
 
     if instance_ip is None:
-        ec2 = _create_resource_in_target_account(region, event["account_id"])
+        session = _create_session_in_target_account(region, event["account_id"])
+        ec2 = session.resource("ec2")
         instance = ec2.Instance(instance_id)
 
         state = instance.state
@@ -143,7 +144,8 @@ def lambda_handler(event, context) -> dict:
 
         if event["attempt"] >= 10:
             # Delete instance
-            ec2 = _create_resource_in_target_account(region, event["account_id"])
+            session = _create_session_in_target_account(region, event["account_id"])
+            ec2 = session.client("ec2")
             _terminate_instance(ec2, event["instance_id"])
             event["rollback"] = True
             event.pop("server_up", None)

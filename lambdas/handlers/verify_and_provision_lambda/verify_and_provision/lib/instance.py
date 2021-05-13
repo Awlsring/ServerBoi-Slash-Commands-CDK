@@ -23,7 +23,6 @@ def create(
         MinCount=1,
         SecurityGroupIds=[group_id],
         UserData=user_data,
-        KeyName="ServerBoiKey",
     )
 
     instance = instances[0]
