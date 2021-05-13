@@ -186,6 +186,12 @@ commands = {
                             "required": True,
                         },
                         {
+                            "name": "gsl-token",
+                            "description": "REQUIRED for CSGO. Create with Steam account at tinyurl.com/3afvzmd5",
+                            "type": 3,
+                            "required": True,
+                        },
+                        {
                             "name": "name",
                             "description": "Name of the server.",
                             "type": 3,

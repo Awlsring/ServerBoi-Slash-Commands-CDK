@@ -69,9 +69,12 @@ def lambda_handler(event, context) -> dict:
     application_id = event["application_id"]
     execution_name = event["execution_name"]
     execution_name = event["execution_name"]
-    instance_ip = event.get("instance_ip", False)
-    server_port = int(event.get("server_port")) + 1
+    instance_ip = event.get("instance_ip", None)
     event["rollback"] = False
+
+    # werid Valheim conditional
+    if game == "valheim":
+        server_port = int(event.get("server_port")) + 1
 
     embed = embed_utils.form_workflow_embed(
         workflow_name=WORKFLOW_NAME,
@@ -84,7 +87,7 @@ def lambda_handler(event, context) -> dict:
     data = response_utils.form_response_data(embeds=[embed])
     response_utils.edit_response(application_id, interaction_token, data)
 
-    if not instance_ip:
+    if instance_ip is None:
         ec2 = _create_resource_in_target_account(region, event["account_id"])
         instance = ec2.Instance(instance_id)
 

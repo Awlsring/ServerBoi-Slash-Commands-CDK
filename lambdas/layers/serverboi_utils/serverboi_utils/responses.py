@@ -3,8 +3,8 @@ import requests
 
 def post_temp_response(interaction_id: str, interaction_token: str):
     temp_response_url = f"https://discord.com/api/v8/interactions/{interaction_id}/{interaction_token}/callback"
-    temp_response = {"type": 5}
-    post_temp_response = requests.post(temp_response_url, temp_response)
+    temp_response = {"type": 5, "data": {"flags": 64}}
+    post_temp_response = requests.post(temp_response_url, json=temp_response)
     print(f"Temp Response: {post_temp_response}")
 
 
@@ -39,7 +39,7 @@ def form_response_data(**kwargs) -> dict:
     embeds = kwargs.get("embeds")
     content = kwargs.get("content")
 
-    data = {}
+    data = {"flags": 64}
 
     if embeds:
         data["embeds"] = []

@@ -11,11 +11,11 @@ from discord import Color
 
 PROVISION_ARN = os.environ.get("PROVISION_ARN")
 
-
+# TODO: Overhaul this if all will use kwargs anyways
 def route_create_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
 
-    server_commands = {"valheim": create_server}
+    server_commands = {"valheim": create_server, "csgo": create_server}
 
     # Set user info
     create_server_kwargs = {}
