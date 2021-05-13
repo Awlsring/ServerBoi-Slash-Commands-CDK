@@ -30,7 +30,7 @@ export class ProvisionServerWorkflow extends Construct {
   constructor(scope: Construct, id: string, props: ProvisionServerProps) {
     super(scope, id);
 
-    const provisionName = "ServerBoi-Verify-And-Provision-Lambda";
+    const provisionName = "Provision-And-Create-Resources-Lambda";
     const provision = new PythonLambda(this, provisionName, {
       name: provisionName,
       codePath: "lambdas/handlers/verify_and_provision_lambda/",
@@ -58,10 +58,11 @@ export class ProvisionServerWorkflow extends Construct {
       })
     );
 
-    const rollback = new PythonLambda(this, provisionName, {
-      name: provisionName,
-      codePath: "tmp",
-      handler: "tmp",
+    const rollbackName = 'Rollback-Resources'
+    const rollback = new PythonLambda(this, rollbackName, {
+      name: rollbackName,
+      codePath: "lambdas/handlers/rollback_provision",
+      handler: "rollback_provision.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
       environment:{
           USER_TABLE: props.userList.tableName,
