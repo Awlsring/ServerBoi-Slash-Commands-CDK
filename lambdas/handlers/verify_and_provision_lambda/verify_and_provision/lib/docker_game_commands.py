@@ -30,9 +30,9 @@ def form_valheim_command(**kwargs) -> str:
 
 
 def form_csgo_command(**kwargs) -> str:
-    interaction_id = kwargs.get("interaction_id")
+    interaction_token = kwargs.get("interaction_token")
     application_id = kwargs.get("application_id")
-    execution_name = kwargs.get("execution_id")
+    execution_name = kwargs.get("execution_name")
     server_name = kwargs.get("name")
     gsl_token = kwargs.get("gsl-token")
 
@@ -54,7 +54,7 @@ def form_csgo_command(**kwargs) -> str:
     command = f"sudo docker run -d \
     --net=host \
     --name serverboi-csgo \
-    -e INTERACTION_ID={interaction_id} \
+    -e INTERACTION_TOKEN={interaction_token} \
     -e APPLICATION_ID={application_id} \
     -e EXECUTION_NAME={execution_name} \
     -e SERVER_NAME={server_name} \

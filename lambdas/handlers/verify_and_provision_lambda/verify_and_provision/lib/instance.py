@@ -53,7 +53,7 @@ def get_image_id(ec2_client: boto3.client) -> str:
 def form_block_device_mapping(ebs_size: int) -> List[dict]:
     return [
         {
-            "DeviceName": "/dev/sdh",
+            "DeviceName": "/dev/xvda",
             "VirtualName": "ephemeral",
             "Ebs": {
                 "DeleteOnTermination": True,
