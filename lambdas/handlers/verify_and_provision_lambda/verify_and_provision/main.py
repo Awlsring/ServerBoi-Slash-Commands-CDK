@@ -44,7 +44,7 @@ def _get_user_info_from_table(user_id: str, table: boto3.resource) -> dict:
         embed = get_fail_embed()
         embed.add_field(
             name="Failure",
-            value="You multiple users have your name. That is a problem.",
+            value="Multiple users have your name. That is a problem.",
             inline=False,
         )
 

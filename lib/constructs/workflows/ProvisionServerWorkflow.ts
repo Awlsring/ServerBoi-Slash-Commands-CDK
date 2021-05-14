@@ -102,7 +102,7 @@ export class ProvisionServerWorkflow extends Construct {
           "TaskToken.$": "$$.Task.Token"
         }
       },
-      integrationPattern: IntegrationPattern.REQUEST_RESPONSE,
+      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
       queue: props.tokenQueue,
       timeout: Duration.hours(1),
     })

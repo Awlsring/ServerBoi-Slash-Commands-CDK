@@ -78,6 +78,7 @@ export class ApiGatewayStack extends Stack {
       handler: "serverboi_interactions_lambda.main.lambda_handler",
       layers: lambdaLayers,
       environment: {
+        API_URL: url,
         PUBLIC_KEY: publicKey.secretValue.toString(),
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
