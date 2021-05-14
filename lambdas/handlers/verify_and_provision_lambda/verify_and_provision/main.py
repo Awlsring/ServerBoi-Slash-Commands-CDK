@@ -130,6 +130,10 @@ def lambda_handler(event: dict, context) -> dict:
     data = response_utils.form_response_data(embeds=[embed])
     response_utils.edit_response(application_id, interaction_token, data)
 
+    """
+    TODO: To to negate slim chnace of dup record, create this then do conditonal put to Dynamo
+    If response in Item exists, then create ID again and retry til a unique one has been formed.
+    """
     server_id = uuid4()
     server_id = str(server_id)[:4].upper()
 

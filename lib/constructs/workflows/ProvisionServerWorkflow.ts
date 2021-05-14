@@ -109,9 +109,15 @@ export class ProvisionServerWorkflow extends Construct {
       outputPath: "$.Payload"
     })
 
+    const putToken = new LambdaInvoke(this, "Rollback-Provision", {
+      lambdaFunction: rollback.lambda,
+      inputPath: '$',
+      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN
+    })
+
     const rollbackProvision = new LambdaInvoke(this, "Rollback-Provision", {
       lambdaFunction: rollback.lambda,
-      inputPath: '$'
+      inputPath: '$',
     })
 
     const errorStep = new Fail(this, 'Fail-Step')
@@ -119,11 +125,11 @@ export class ProvisionServerWorkflow extends Construct {
     const endStep = new Succeed(this, 'End-Step')
 
     const stepDefinition = createResources
-      .next(waitForBootstrap)
+      .next(putToken)
 
-      waitForBootstrap.next(endStep)
+      putToken.next(endStep)
 
-      waitForBootstrap.addCatch(rollbackProvision)
+      putToken.addCatch(rollbackProvision)
 
       rollbackProvision.next(errorStep)
 
