@@ -85,6 +85,27 @@ export class ProvisionServerWorkflow extends Construct {
       })
     );
 
+    const putTokenName = "Put-Token-Lambda";
+    const putToken = new PythonLambda(this, putTokenName, {
+      name: putTokenName,
+      codePath: "lambdas/handlers/put_token/",
+      handler: "put_token.main.lambda_handler",
+      environment:{
+          TOKEN_BUCKET: props.tokenBucket.bucketName,
+      },
+    })
+    putToken.lambda.addToRolePolicy(
+      new PolicyStatement({
+        resources: ["*"],
+        actions: [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "s3:PutObject",
+        ],
+      })
+    );
+
     //step definitions
     const createResources = new LambdaInvoke(
       this,
@@ -109,8 +130,8 @@ export class ProvisionServerWorkflow extends Construct {
       outputPath: "$.Payload"
     })
 
-    const putToken = new LambdaInvoke(this, "Put-Token", {
-      lambdaFunction: rollback.lambda,
+    const putTokenStep = new LambdaInvoke(this, "Put-Token", {
+      lambdaFunction: putToken.lambda,
       inputPath: '$',
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
       payload: {
@@ -133,11 +154,11 @@ export class ProvisionServerWorkflow extends Construct {
     const endStep = new Succeed(this, 'End-Step')
 
     const stepDefinition = createResources
-      .next(putToken)
+      .next(putTokenStep)
 
-      putToken.next(endStep)
+      putTokenStep.next(endStep)
 
-      putToken.addCatch(rollbackProvision)
+      putTokenStep.addCatch(rollbackProvision)
 
       rollbackProvision.next(errorStep)
 
