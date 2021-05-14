@@ -14,7 +14,8 @@ export class WaitForBootstrap extends Construct {
     super(scope, id);
 
     this.tokenQueue = new Queue(this, "Wait-For-Bootstrap", {
-      queueName: "Wait-For-Bootstrap-Tokens"
+      queueName: "Wait-For-Bootstrap-Tokens",
+      visibilityTimeout: Duration.seconds(30)
     })
 
     this.tokenBucket = new Bucket(this, "Token-Bucket", {
@@ -32,6 +33,7 @@ export class WaitForBootstrap extends Construct {
       name: getTokenName,
       codePath: "lambdas/handlers/get_token",
       handler: "get_token.main.lambda_handler",
+      timeout: Duration.seconds(20),
       environment:{
           TOKEN_QUEUE: this.tokenQueue.queueName,
           TOKEN_BUCKET: this.tokenBucket.bucketName
