@@ -5,7 +5,8 @@ import {
   Succeed,
   Fail,
   InputType,
-  IntegrationPattern
+  IntegrationPattern,
+  JsonPath
 } from "monocdk/aws-stepfunctions";
 import { LambdaInvoke, SqsSendMessage } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
@@ -99,7 +100,7 @@ export class ProvisionServerWorkflow extends Construct {
         type: InputType.OBJECT,
         value: {
           "Input.$": "$",
-          "TaskToken.$": "$$.Task.Token"
+          "TaskToken.$": JsonPath.taskToken
         }
       },
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
