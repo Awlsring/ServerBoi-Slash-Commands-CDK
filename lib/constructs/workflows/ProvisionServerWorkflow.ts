@@ -100,7 +100,7 @@ export class ProvisionServerWorkflow extends Construct {
         type: InputType.OBJECT,
         value: {
           "Input.$": "$",
-          "TaskToken.$": JsonPath.taskToken
+          "TaskToken": JsonPath.taskToken
         }
       },
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
