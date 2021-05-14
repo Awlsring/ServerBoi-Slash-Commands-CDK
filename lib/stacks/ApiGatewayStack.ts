@@ -142,8 +142,7 @@ export class ApiGatewayStack extends Stack {
         passthroughBehavior: PassthroughBehavior.NEVER,
         requestTemplates: {
             'application/json': `{ 
-                "token": "$input.params('token')",
-                "scope": "$input.params('scope')"
+                "token": "$input.params('token')"
             }`,
         },
         integrationResponses: [{
