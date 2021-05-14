@@ -4,7 +4,8 @@ import {
   StateMachine,
   Succeed,
   Fail,
-  InputType
+  InputType,
+  IntegrationPattern
 } from "monocdk/aws-stepfunctions";
 import { LambdaInvoke, SqsSendMessage } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
@@ -101,7 +102,7 @@ export class ProvisionServerWorkflow extends Construct {
           "TaskToken.$": "$$.Task.Token"
         }
       },
-      
+      integrationPattern: IntegrationPattern.REQUEST_RESPONSE,
       queue: props.tokenQueue,
       timeout: Duration.hours(1),
     })

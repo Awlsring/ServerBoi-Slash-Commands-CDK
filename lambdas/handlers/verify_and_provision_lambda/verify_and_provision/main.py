@@ -13,7 +13,7 @@ from uuid import uuid4
 # Layers
 import serverboi_utils.embeds as embed_utils
 import serverboi_utils.responses as response_utils
-from discord import Color
+from discord import Color, Embed
 
 # Local
 import verify_and_provision.lib.docker_game_commands as docker_commands
@@ -40,10 +40,39 @@ def _get_user_info_from_table(user_id: str, table: boto3.resource) -> dict:
     except BotoClientError as error:
         print(error)
 
-    if len(response["Items"]) != 1:
-        raise Exception(f"More than one user with id of {user_id}")
+    if len(response["Items"]) > 1:
+        embed = get_fail_embed()
+        embed.add_field(
+            name="Failure",
+            value="You multiple users have your name. That is a problem.",
+            inline=False,
+        )
+
+        data = response_utils.form_response_data(embeds=[embed])
+        response_utils.edit_response(application_id, interaction_token, data)
+    elif len(response["Items"]) == 0:
+        embed = get_fail_embed()
+        embed.add_field(
+            name="Failure", value="You haven't onboarded with ServerBoi", inline=False
+        )
+
+        data = response_utils.form_response_data(embeds=[embed])
+        response_utils.edit_response(application_id, interaction_token, data)
+
     else:
         return response["Items"][0]
+
+
+def get_fail_embed() -> Embed:
+    embed = embed_utils.form_workflow_embed(
+        workflow_name=WORKFLOW_NAME,
+        workflow_description=f"Workflow ID: {execution_name}",
+        status="❌ failed",
+        stage=STAGE,
+        color=Color.red(),
+    )
+
+    return embed
 
 
 def form_user_data(docker_command: str) -> str:
@@ -71,6 +100,9 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 
 
 def lambda_handler(event: dict, context) -> dict:
+    global execution_name
+    global application_id
+    global interaction_token
     game = event["game"]
     name = event["name"]
     region = event["region"]
