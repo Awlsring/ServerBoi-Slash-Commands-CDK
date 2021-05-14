@@ -138,7 +138,7 @@ export class ApiGatewayStack extends Stack {
       "Post",
       new LambdaIntegration(bootstrapCall.lambda, {
         proxy: false,
-        passthroughBehavior: PassthroughBehavior.NEVER,
+        passthroughBehavior: PassthroughBehavior.WHEN_NO_TEMPLATES,
         integrationResponses: [{
             statusCode: '200',
             responseParameters: {

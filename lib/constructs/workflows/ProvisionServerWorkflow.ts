@@ -158,7 +158,7 @@ export class ProvisionServerWorkflow extends Construct {
 
       putTokenStep.next(endStep)
 
-      putTokenStep.addCatch(rollbackProvision)
+      putTokenStep.addCatch(rollbackProvision,)
 
       rollbackProvision.next(errorStep)
 

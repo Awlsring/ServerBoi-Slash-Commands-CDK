@@ -11,8 +11,9 @@ TOKEN_BUCKET = S3.Bucket(os.environ.get("TOKEN_BUCKET"))
 
 
 def lambda_handler(event, context):
+    print(event)
     try:
-        execution_name = event["Payload"]["execution_name"]
+        execution_name = event["Input"]["execution_name"]
         token = event["TaskToken"]
 
         TOKEN_BUCKET.put_object(Body=token, Key=execution_name)
