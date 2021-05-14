@@ -138,11 +138,6 @@ export class ApiGatewayStack extends Stack {
       new LambdaIntegration(bootstrapCall.lambda, {
         proxy: false,
         passthroughBehavior: PassthroughBehavior.NEVER,
-        requestTemplates: {
-            'application/json': `{ 
-                "token": "$input.params('TaskToken')"
-            }`,
-        },
         integrationResponses: [{
             statusCode: '200',
             responseParameters: {
