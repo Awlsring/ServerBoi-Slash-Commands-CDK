@@ -109,7 +109,7 @@ export class ProvisionServerWorkflow extends Construct {
       outputPath: "$.Payload"
     })
 
-    const putToken = new LambdaInvoke(this, "Rollback-Provision", {
+    const putToken = new LambdaInvoke(this, "Put-Token", {
       lambdaFunction: rollback.lambda,
       inputPath: '$',
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
@@ -119,7 +119,8 @@ export class ProvisionServerWorkflow extends Construct {
           "Input.$": "$",
           "TaskToken": JsonPath.taskToken
         }
-      }, 
+      },
+      timeout: Duration.hours(1)
     })
 
     const rollbackProvision = new LambdaInvoke(this, "Rollback-Provision", {
