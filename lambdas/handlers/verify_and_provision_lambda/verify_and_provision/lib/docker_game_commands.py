@@ -17,7 +17,7 @@ def form_valheim_command(**kwargs) -> str:
 
     return f"""mkdir -p /valheim-server/config/worlds /valheim-server/data
     
-    sudo docker run -d \
+    sudo docker run -t -d \
     --name valheim-server \
     --cap-add=sys_nice \
     --stop-timeout 120 \
@@ -54,7 +54,7 @@ def form_csgo_command(**kwargs) -> str:
         "GAME-MODE",
     }
 
-    command = f"sudo docker run -d \
+    command = f"sudo docker run -t -d \
     --net=host \
     --name serverboi-csgo \
     -e INTERACTION_TOKEN={interaction_token} \

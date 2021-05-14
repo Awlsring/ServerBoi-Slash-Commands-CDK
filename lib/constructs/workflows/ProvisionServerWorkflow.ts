@@ -105,11 +105,12 @@ export class ProvisionServerWorkflow extends Construct {
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
       queue: props.tokenQueue,
       timeout: Duration.hours(1),
+      outputPath: "$.Payload"
     })
 
     const rollbackProvision = new LambdaInvoke(this, "Rollback-Provision", {
       lambdaFunction: rollback.lambda,
-      inputPath: '$.Payload'
+      inputPath: '$'
     })
 
     const errorStep = new Fail(this, 'Fail-Step')
