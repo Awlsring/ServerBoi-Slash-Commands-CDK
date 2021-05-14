@@ -33,7 +33,7 @@ export class ApiGatewayStack extends Stack {
 
     const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint");
 
-    const url = "https://k6u2weffda.execute-api.us-west-2.amazonaws.com/prod"
+    const url = "https://jggje531jj.execute-api.us-west-2.amazonaws.com/prod"
 
     const applicationId = process.env["PUBLIC_ID"];
     console.log(applicationId);
