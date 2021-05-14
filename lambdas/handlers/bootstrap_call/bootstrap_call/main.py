@@ -1,4 +1,5 @@
 import boto3
+import json
 from botocore.exceptions import ClientError
 from botocore.config import Config
 
@@ -21,3 +22,5 @@ def lambda_handler(event, context):
         print(resp)
     except ClientError as error:
         raise (error)
+
+    return {"statusCode": 202, "body": json.dumps("Accepted")}
