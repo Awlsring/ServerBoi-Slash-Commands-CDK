@@ -1,4 +1,4 @@
-import { Construct, Duration } from "monocdk"
+import { Construct, Duration, RemovalPolicy } from "monocdk"
 import { Bucket } from "monocdk/aws-s3";
 import { Queue } from "monocdk/aws-sqs" 
 import { PythonLambda } from "./PythonLambdaConstruct"
@@ -20,9 +20,11 @@ export class WaitForBootstrap extends Construct {
     this.tokenBucket = new Bucket(this, "Token-Bucket", {
       bucketName: "serverboi-provision-token-bucket",
       publicReadAccess: true,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
       lifecycleRules: [{
         expiration: Duration.days(1)
-      }]
+      }],
     })
 
     const getTokenName = "Get-Token";
