@@ -112,7 +112,14 @@ export class ProvisionServerWorkflow extends Construct {
     const putToken = new LambdaInvoke(this, "Rollback-Provision", {
       lambdaFunction: rollback.lambda,
       inputPath: '$',
-      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN
+      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      payload: {
+        type: InputType.OBJECT,
+        value: {
+          "Input.$": "$",
+          "TaskToken": JsonPath.taskToken
+        }
+      }, 
     })
 
     const rollbackProvision = new LambdaInvoke(this, "Rollback-Provision", {
