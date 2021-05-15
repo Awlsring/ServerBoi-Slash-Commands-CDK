@@ -4,8 +4,10 @@ def route_docker_command(**kwargs) -> str:
     docker_commands = {
         "valheim": form_valheim_command,
         "csgo": form_csgo_command,
+        "ns2": form_ns2_command,
     }
 
+    # TODO: Spaces in input names break docker command. Handle theses
     return docker_commands[game](**kwargs)
 
 
@@ -23,12 +25,12 @@ def form_valheim_command(**kwargs) -> str:
 
     command = f"sudo docker run -t -d \
     --net=host \
-    --name serverboi-csgo \
+    --name serverboi-valheim \
     -e INTERACTION_TOKEN={interaction_token} \
     -e APPLICATION_ID={application_id} \
     -e EXECUTION_NAME={execution_name} \
     -e WORKFLOW_ENDPOINT={url} \
-    -e SERVER_NAME={server_name} "
+    -e SERVER_NAME='{server_name}' "
 
     overrides = {"MAP", "PASSWORD", "LIMIT"}
 
@@ -36,7 +38,7 @@ def form_valheim_command(**kwargs) -> str:
         if key.upper() in overrides:
             command = f"{command}-e {key.upper()}={value} "
 
-    command = f"{command}serverboi/ns2:dev"
+    command = f"{command}serverboi/valheim:dev"
 
     return command
 
@@ -65,12 +67,12 @@ def form_ns2_command(**kwargs) -> str:
 
     command = f"sudo docker run -t -d \
     --net=host \
-    --name serverboi-csgo \
+    --name serverboi-ns2 \
     -e INTERACTION_TOKEN={interaction_token} \
     -e APPLICATION_ID={application_id} \
     -e EXECUTION_NAME={execution_name} \
     -e WORKFLOW_ENDPOINT={url} \
-    -e SERVER_NAME={server_name} "
+    -e SERVER_NAME='{server_name}' "
 
     overrides = {"MAP", "PASSWORD", "LIMIT"}
 
@@ -113,7 +115,7 @@ def form_csgo_command(**kwargs) -> str:
     -e APPLICATION_ID={application_id} \
     -e EXECUTION_NAME={execution_name} \
     -e WORKFLOW_ENDPOINT={url} \
-    -e SERVER_NAME={server_name} \
+    -e SERVER_NAME='{server_name}' \
     -e GSL_TOKEN={gsl_token} "
 
     for key, value in kwargs.items():

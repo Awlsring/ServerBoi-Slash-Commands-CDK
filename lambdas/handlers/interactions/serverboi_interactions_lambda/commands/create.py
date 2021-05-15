@@ -16,7 +16,11 @@ URL = os.environ.get("API_URL")
 def route_create_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
 
-    server_commands = {"valheim": create_server, "csgo": create_server}
+    server_commands = {
+        "valheim": create_server,
+        "csgo": create_server,
+        "ns2": create_server,
+    }
 
     # Set user info
     create_server_kwargs = {}

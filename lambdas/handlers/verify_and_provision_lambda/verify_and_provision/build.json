@@ -21,7 +21,7 @@
     "build_time": 300,
     "ports": [27015,27016],
     "aws": {
-      "instance_type": "c5a.large"
+      "instance_type": "c5.large"
     },
     "drive_size": 8
   }

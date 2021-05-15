@@ -128,7 +128,7 @@ commands = {
                 {
                     "name": "valheim",
                     "type": 1,
-                    "description": "Create a Valheim Server.",
+                    "description": "Create a Valheim server.",
                     "options": [
                         {
                             "name": "service",
@@ -171,7 +171,7 @@ commands = {
                 {
                     "name": "csgo",
                     "type": 1,
-                    "description": "Create a Valheim Server.",
+                    "description": "Create a CSGO server.",
                     "options": [
                         {
                             "name": "service",
@@ -188,6 +188,31 @@ commands = {
                         {
                             "name": "gsl-token",
                             "description": "REQUIRED for CSGO. Create with Steam account at tinyurl.com/3afvzmd5",
+                            "type": 3,
+                            "required": True,
+                        },
+                        {
+                            "name": "name",
+                            "description": "Name of the server.",
+                            "type": 3,
+                            "required": False,
+                        },
+                    ],
+                },
+                {
+                    "name": "ns2",
+                    "type": 1,
+                    "description": "Create a Natural Selection 2 server.",
+                    "options": [
+                        {
+                            "name": "service",
+                            "description": "Service server is hosted on.",
+                            "type": 3,
+                            "required": True,
+                        },
+                        {
+                            "name": "region",
+                            "description": "Use ServerBoi generics (US-West) or use a service's specific name (us-west-2)",
                             "type": 3,
                             "required": True,
                         },
