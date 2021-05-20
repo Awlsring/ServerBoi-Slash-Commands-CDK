@@ -41,8 +41,9 @@ export class PipelineStack extends Stack {
       }),
     });
 
-    const prod = new PipelineStage(this, "Alpha");
+    //Pass in stage variables like env and account
+    const alpha = new PipelineStage(this, "Alpha");
 
-    pipeline.addApplicationStage(prod);
+    pipeline.addApplicationStage(alpha);
   }
 }
