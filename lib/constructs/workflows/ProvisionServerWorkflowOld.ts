@@ -32,14 +32,13 @@ export class ProvisionServerWorkflow extends Construct {
   constructor(scope: Construct, id: string, props: ProvisionServerProps) {
     super(scope, id);
 
-    const provisionName = "Provision-And-Wait-For-Docker-Lambda";
+    const provisionName = "Provision-And-Create-Resources-Lambda";
     const provision = new PythonLambda(this, provisionName, {
       name: provisionName,
-      codePath: "lambdas/handlers/provision_workflow/provision_and_wait_for_docker/",
-      handler: "provision_and_wait_for_docker.main.lambda_handler",
+      codePath: "lambdas/handlers/verify_and_provision_lambda/",
+      handler: "verify_and_provision.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
       environment:{
-        //Add workflow table
           TOKEN_BUCKET: props.tokenBucket.bucketName,
           USER_TABLE: props.userList.tableName,
           SERVER_TABLE: props.serverList.tableName,
@@ -61,35 +60,37 @@ export class ProvisionServerWorkflow extends Construct {
       })
     );
 
-    const putTokenName = "Put-Token-Lambda";
-    const putToken = new PythonLambda(this, putTokenName, {
-      name: putTokenName,
-      codePath: "lambdas/handlers/provision_workflow/put_token/",
-      handler: "put_token.main.lambda_handler",
+    const rollbackName = 'Rollback-Resources'
+    const rollback = new PythonLambda(this, rollbackName, {
+      name: rollbackName,
+      codePath: "lambdas/handlers/rollback_provision",
+      handler: "rollback_provision.main.lambda_handler",
+      layers: [props.discordLayer, props.serverboiUtilsLayer],
       environment:{
-        //Add workflow table
-          TOKEN_BUCKET: props.tokenBucket.bucketName,
+          USER_TABLE: props.userList.tableName,
+          SERVER_TABLE: props.serverList.tableName,
       },
     })
-    putToken.lambda.addToRolePolicy(
+    provision.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
         actions: [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
-          "s3:PutObject",
+          "ec2:TerminateInstances",
+          "dynamodb:DeleteItem",
+          "sts:AssumeRole",
         ],
       })
     );
 
-    const finishProvisionName = "Finish-Provision-Lambda";
-    const finishProvision = new PythonLambda(this, finishProvisionName, {
-      name: finishProvisionName,
-      codePath: "lambdas/handlers/provision_workflow/finish_provision_workflow/",
-      handler: "finish_provision_workflow.main.lambda_handler",
+    const putTokenName = "Put-Token-Lambda";
+    const putToken = new PythonLambda(this, putTokenName, {
+      name: putTokenName,
+      codePath: "lambdas/handlers/provision_workflow/put_token/",
+      handler: "put_token.main.lambda_handler",
       environment:{
-          //Add workflow table
           TOKEN_BUCKET: props.tokenBucket.bucketName,
       },
     })
@@ -106,64 +107,64 @@ export class ProvisionServerWorkflow extends Construct {
     );
 
     //step definitions
-    const provisionStep = new LambdaInvoke(
+    const createResources = new LambdaInvoke(
       this,
-      "Provision-Step",
+      "Create-Resources-Step",
       {
         lambdaFunction: provision.lambda,
         outputPath: '$.Payload'
       }
     );
 
-    const tokenNodeNames = ['Wait-For-Download', 'Starting-Server-Client']
-    
-    var tokenNodes = new Array<LambdaInvoke>()
+    const waitForBootstrap = new SqsSendMessage(this, "Wait-For-Bootstrap", {
+      messageBody: {
+        type: InputType.OBJECT,
+        value: {
+          "Input.$": "$",
+          "TaskToken": JsonPath.taskToken
+        }
+      },
+      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      queue: props.tokenQueue,
+      timeout: Duration.hours(1),
+      outputPath: "$.Payload"
+    })
 
-    tokenNodeNames.forEach(stageName => {
-        var stage = new LambdaInvoke(this, stageName, {  
-          lambdaFunction: putToken.lambda,
-          inputPath: '$',
-          integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          timeout: Duration.hours(1),
-          payload: {
-            type: InputType.OBJECT,
-            value: {
-              "Input.$": "$",
-              "TaskToken": JsonPath.taskToken
-            }
-          },
-        })
-        
-        tokenNodes.push(stage)
-    });
+    const putTokenStep = new LambdaInvoke(this, "Put-Token", {
+      lambdaFunction: putToken.lambda,
+      inputPath: '$',
+      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      payload: {
+        type: InputType.OBJECT,
+        value: {
+          "Input.$": "$",
+          "TaskToken": JsonPath.taskToken
+        }
+      },
+      timeout: Duration.hours(1)
+    })
 
-    const finishProvisionStep = new LambdaInvoke(
-      this,
-      "Finish-Provision-Step",
-      {
-        lambdaFunction: finishProvision.lambda,
-        outputPath: '$.Payload'
-      }
-    );
+    const rollbackProvision = new LambdaInvoke(this, "Rollback-Provision", {
+      lambdaFunction: rollback.lambda,
+      inputPath: '$',
+    })
+
+    const errorStep = new Fail(this, 'Fail-Step')
 
     const endStep = new Succeed(this, 'End-Step')
 
-    const stepDefinition = provisionStep
-      provisionStep.next(tokenNodes[0])
+    const stepDefinition = createResources
+      .next(putTokenStep)
 
-      var i = 0
-      do {
-        tokenNodes[i].next(tokenNodes[i + 1])
-        i + 1
-      } while (i < tokenNodes.length)
+      putTokenStep.next(endStep)
 
-      tokenNodes[i].next(finishProvisionStep)
+      putTokenStep.addCatch(rollbackProvision,)
 
-      finishProvisionStep.next(endStep)
+      rollbackProvision.next(errorStep)
 
-    this.provisionWorkflow = new StateMachine(this, "Provision-Server-State-Machine", {
+    this.provisionWorkflow = new StateMachine(this, "Provision-Server-State-Machine-Old", {
       definition: stepDefinition,
-      stateMachineName: "Provision-Server-Workflow",
+      stateMachineName: "Provision-Server-Workflow-Old",
     });
 
   }

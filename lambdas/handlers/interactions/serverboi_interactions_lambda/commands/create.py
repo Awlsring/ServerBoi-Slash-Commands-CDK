@@ -32,6 +32,7 @@ def route_create_command(request: request) -> dict:
     create_server_kwargs["interaction_id"] = request.json["id"]
     create_server_kwargs["interaction_token"] = request.json["token"]
     create_server_kwargs["application_id"] = request.json["application_id"]
+    create_server_kwargs["guild_id"] = request.json["guild_id"]
 
     options = request.json["data"]["options"][0]["options"][0]["options"]
 
