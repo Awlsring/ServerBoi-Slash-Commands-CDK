@@ -4,13 +4,11 @@ from botocore.exceptions import ClientError as BotoClientError
 from typing import List
 
 
-def create(
-    ec2_client: boto3.client, game: str, server_id: str, ports: List[str]
-) -> str:
-    group_name = f"ServerBoi-Resource-{game}-{server_id}"
+def create(ec2_client: boto3.client, game: str, ports: List[str]) -> str:
+    group_name = f"ServerBoi-Resource-{game}"
     try:
         creation_response = ec2_client.create_security_group(
-            Description=f"Sec group for {game} server: {server_id}",
+            Description=f"Sec group for {game} server.",
             GroupName=group_name,
         )
 
@@ -22,7 +20,7 @@ def create(
 
     except BotoClientError as error:
         print(error)
-        raise (error)
+        return (False, f"Failed to create security group.")
 
     return group_id
 

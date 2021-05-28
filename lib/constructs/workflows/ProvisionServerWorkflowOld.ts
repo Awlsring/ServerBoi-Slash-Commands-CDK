@@ -35,8 +35,8 @@ export class ProvisionServerWorkflow extends Construct {
     const provisionName = "Provision-And-Create-Resources-Lambda";
     const provision = new PythonLambda(this, provisionName, {
       name: provisionName,
-      codePath: "lambdas/handlers/verify_and_provision_lambda/",
-      handler: "verify_and_provision.main.lambda_handler",
+      codePath: "lambdas/handlers/provision_lambda/",
+      handler: "provision.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
       environment:{
           TOKEN_BUCKET: props.tokenBucket.bucketName,

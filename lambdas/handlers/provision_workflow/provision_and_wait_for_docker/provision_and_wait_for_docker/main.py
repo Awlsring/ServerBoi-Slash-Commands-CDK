@@ -173,7 +173,7 @@ def lambda_handler(event: dict, context) -> dict:
             print(error)
             raise error
 
-        with open("verify_and_provision/build.json") as build:
+        with open("provision/build.json") as build:
             build_data: dict = json.load(build)
 
         game_data: dict = build_data[game]

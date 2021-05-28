@@ -4,7 +4,7 @@ tsc
 
 pip install lambdas/handlers/interactions/
 
-pip install lambdas/handlers/verify_and_provision
+pip install lambdas/handlers/provision
 
 mkdir -p lambdas/layers/serverboi_utils/python/lib/python3.8/site-packages
 

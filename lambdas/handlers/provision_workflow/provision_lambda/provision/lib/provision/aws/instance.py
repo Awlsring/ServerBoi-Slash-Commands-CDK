@@ -15,23 +15,29 @@ def create(
     image_id = get_image_id(ec2_client)
     ebs_mapping = form_block_device_mapping(ebs_size)
 
-    instances = ec2_resource.create_instances(
-        BlockDeviceMappings=ebs_mapping,
-        ImageId=image_id,
-        InstanceType=instance_type,
-        MaxCount=1,
-        MinCount=1,
-        SecurityGroupIds=[group_id],
-        UserData=user_data,
-    )
+    try:
 
-    instance = instances[0]
+        instances = ec2_resource.create_instances(
+            BlockDeviceMappings=ebs_mapping,
+            ImageId=image_id,
+            InstanceType=instance_type,
+            MaxCount=1,
+            MinCount=1,
+            SecurityGroupIds=[group_id],
+            UserData=user_data,
+        )
 
-    instance.create_tags(
-        Tags=[
-            {"Key": "ManagedBy", "Value": "ServerBoi"},
-        ]
-    )
+        instance = instances[0]
+
+        instance.create_tags(
+            Tags=[
+                {"Key": "ManagedBy", "Value": "ServerBoi"},
+            ]
+        )
+
+    except BotoClientError as error:
+        print(error)
+        return (False, f"Failed to create instance.")
 
     return instance
 
