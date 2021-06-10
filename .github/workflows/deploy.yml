@@ -20,7 +20,7 @@ jobs:
       - name: CDK Deploy
         run: |
           npm run build
-          cdk deploy --all
+          cdk deploy --all --require-approval never
         env:
           AWS_REGION: ${{ secrets.REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
