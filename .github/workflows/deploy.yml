@@ -10,11 +10,14 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: "14.x"
       - name: Install CDK
         run: |
-          npm install -g aws-cdk@1.94.1
-      - name: Deploy
+          npm install -g aws-cdk@1.62.0
+      - name: Install Dependencies
+        run: |
+          npm install
+      - name: CDK Deploy
         run: |
           npm run build
           cdk deploy --all
