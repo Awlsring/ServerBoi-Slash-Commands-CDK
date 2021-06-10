@@ -1,0 +1,34 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        - name: Use Node.js
+          uses: actions/setup-node@v1
+          with:
+            node-version: '14.x'
+        - name: Cache Node.js modules
+          uses: actions/cache@v2
+          with:
+            path: ~/.npm
+            key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
+            restore-keys: |
+              ${{ runner.OS }}-node-
+              ${{ runner.OS }}-
+        - name: Install CDK
+          run: |
+            npm install -g aws-cdk@1.62.0
+      
+      - name: Synth CDK
+
+        run: |
+          npm run build
+          cdk deploy --all
+        env:
+          AWS_REGION: ${{ secrets.REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
