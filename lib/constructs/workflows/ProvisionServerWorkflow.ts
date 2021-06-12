@@ -5,29 +5,28 @@ import {
   Succeed,
   InputType,
   IntegrationPattern,
-  JsonPath
+  JsonPath,
 } from "monocdk/aws-stepfunctions";
 import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
 import { Table } from "monocdk/aws-dynamodb";
-import { PythonLambda } from "../PythonLambdaConstruct"
+import { PythonLambda } from "../PythonLambdaConstruct";
 import { Bucket } from "monocdk/aws-s3";
 import { Queue } from "monocdk/aws-sqs";
 import { Secret } from "monocdk/aws-secretsmanager";
 
 export interface ProvisionServerProps {
-    readonly discordLayer: LayerVersion
-    readonly serverboiUtilsLayer: LayerVersion
-    readonly tokenBucket: Bucket
-    readonly tokenQueue: Queue
-    readonly serverList: Table
-    readonly userList: Table
+  readonly discordLayer: LayerVersion;
+  readonly serverboiUtilsLayer: LayerVersion;
+  readonly tokenBucket: Bucket;
+  readonly tokenQueue: Queue;
+  readonly serverList: Table;
+  readonly userList: Table;
 }
 
 export class ProvisionServerWorkflow extends Construct {
-
-  public readonly provisionWorkflow: StateMachine
-  public readonly terminationWorkflow: StateMachine
+  public readonly provisionWorkflow: StateMachine;
+  public readonly terminationWorkflow: StateMachine;
 
   constructor(scope: Construct, id: string, props: ProvisionServerProps) {
     super(scope, id);
@@ -35,16 +34,17 @@ export class ProvisionServerWorkflow extends Construct {
     const provisionName = "Provision-And-Wait-For-Docker-Lambda";
     const provision = new PythonLambda(this, provisionName, {
       name: provisionName,
-      codePath: "lambdas/handlers/provision_workflow/provision_and_wait_for_docker/",
+      codePath:
+        "lambdas/handlers/provision_workflow/provision_and_wait_for_docker/",
       handler: "provision_and_wait_for_docker.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
-      environment:{
+      environment: {
         //Add workflow table
-          TOKEN_BUCKET: props.tokenBucket.bucketName,
-          USER_TABLE: props.userList.tableName,
-          SERVER_TABLE: props.serverList.tableName,
+        TOKEN_BUCKET: props.tokenBucket.bucketName,
+        USER_TABLE: props.userList.tableName,
+        SERVER_TABLE: props.serverList.tableName,
       },
-    })
+    });
     provision.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -66,11 +66,11 @@ export class ProvisionServerWorkflow extends Construct {
       name: putTokenName,
       codePath: "lambdas/handlers/provision_workflow/put_token/",
       handler: "put_token.main.lambda_handler",
-      environment:{
+      environment: {
         //Add workflow table
-          TOKEN_BUCKET: props.tokenBucket.bucketName,
+        TOKEN_BUCKET: props.tokenBucket.bucketName,
       },
-    })
+    });
     putToken.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -85,19 +85,20 @@ export class ProvisionServerWorkflow extends Construct {
 
     const disordToken = Secret.fromSecretCompleteArn(
       this,
-      'ServerBoi-Key',
-      'arn:aws:secretsmanager:us-west-2:742762521158:secret:ServerBoi-Discord-Token-HrJOa7'
-    )
+      "ServerBoi-Discord-Token",
+      "arn:aws:secretsmanager:us-west-2:518723822228:secret:ServerBoi-Discord-Token-RBBLnM"
+    );
 
     const finishProvisionName = "Finish-Provision-Lambda";
     const finishProvision = new PythonLambda(this, finishProvisionName, {
       name: finishProvisionName,
-      codePath: "lambdas/handlers/provision_workflow/finish_provision_workflow/",
+      codePath:
+        "lambdas/handlers/provision_workflow/finish_provision_workflow/",
       handler: "finish_provision_workflow.main.lambda_handler",
-      environment:{
-          DISCORD_TOKEN: disordToken.secretValue.toString(),
+      environment: {
+        DISCORD_TOKEN: disordToken.secretValue.toString(),
       },
-    })
+    });
     putToken.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -111,35 +112,31 @@ export class ProvisionServerWorkflow extends Construct {
     );
 
     //step definitions
-    const provisionStep = new LambdaInvoke(
-      this,
-      "Provision-Step",
-      {
-        lambdaFunction: provision.lambda,
-        outputPath: '$.Payload'
-      }
-    );
+    const provisionStep = new LambdaInvoke(this, "Provision-Step", {
+      lambdaFunction: provision.lambda,
+      outputPath: "$.Payload",
+    });
 
-    const tokenNodeNames = ['Wait-For-Download', 'Starting-Server-Client']
-    
-    var tokenNodes = new Array<LambdaInvoke>()
+    const tokenNodeNames = ["Wait-For-Download", "Starting-Server-Client"];
 
-    tokenNodeNames.forEach(stageName => {
-        var stage = new LambdaInvoke(this, stageName, {  
-          lambdaFunction: putToken.lambda,
-          inputPath: '$',
-          integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-          timeout: Duration.hours(1),
-          payload: {
-            type: InputType.OBJECT,
-            value: {
-              "Input.$": "$",
-              "TaskToken": JsonPath.taskToken
-            }
+    var tokenNodes = new Array<LambdaInvoke>();
+
+    tokenNodeNames.forEach((stageName) => {
+      var stage = new LambdaInvoke(this, stageName, {
+        lambdaFunction: putToken.lambda,
+        inputPath: "$",
+        integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+        timeout: Duration.hours(1),
+        payload: {
+          type: InputType.OBJECT,
+          value: {
+            "Input.$": "$",
+            TaskToken: JsonPath.taskToken,
           },
-        })
-        
-        tokenNodes.push(stage)
+        },
+      });
+
+      tokenNodes.push(stage);
     });
 
     const finishProvisionStep = new LambdaInvoke(
@@ -147,29 +144,32 @@ export class ProvisionServerWorkflow extends Construct {
       "Finish-Provision-Step",
       {
         lambdaFunction: finishProvision.lambda,
-        outputPath: '$.Payload'
+        outputPath: "$.Payload",
       }
     );
 
-    const endStep = new Succeed(this, 'End-Step')
+    const endStep = new Succeed(this, "End-Step");
 
-    const stepDefinition = provisionStep
-      provisionStep.next(tokenNodes[0])
+    const stepDefinition = provisionStep;
+    provisionStep.next(tokenNodes[0]);
 
-      var i = 0
-      do {
-        tokenNodes[i].next(tokenNodes[(i + 1)])
-        i = i + 1
-      } while (i <= (tokenNodes.length - 2))
+    var i = 0;
+    do {
+      tokenNodes[i].next(tokenNodes[i + 1]);
+      i = i + 1;
+    } while (i <= tokenNodes.length - 2);
 
-      tokenNodes[i].next(finishProvisionStep)
+    tokenNodes[i].next(finishProvisionStep);
 
-      finishProvisionStep.next(endStep)
+    finishProvisionStep.next(endStep);
 
-    this.provisionWorkflow = new StateMachine(this, "Provision-Server-State-Machine", {
-      definition: stepDefinition,
-      stateMachineName: "Provision-Server-Workflow",
-    });
-
+    this.provisionWorkflow = new StateMachine(
+      this,
+      "Provision-Server-State-Machine",
+      {
+        definition: stepDefinition,
+        stateMachineName: "Provision-Server-Workflow",
+      }
+    );
   }
 }

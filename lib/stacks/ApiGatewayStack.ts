@@ -13,7 +13,7 @@ import {
 } from "monocdk/aws-lambda";
 import { Role, ServicePrincipal, PolicyStatement } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
-import { Secret } from "monocdk/aws-secretsmanager"
+import { Secret } from "monocdk/aws-secretsmanager";
 import { PythonLambda } from "../constructs/PythonLambdaConstruct";
 
 export interface ApiGatewayStackProps extends StackProps {
@@ -27,13 +27,13 @@ export class ApiGatewayStack extends Stack {
 
     const publicKey = Secret.fromSecretCompleteArn(
       this,
-      'ServerBoi-Key',
-      'arn:aws:secretsmanager:us-west-2:742762521158:secret:ServerBoi-Public-Key-gB6pgg'
-    )
+      "ServerBoi-Public-Key",
+      "arn:aws:secretsmanager:us-west-2:518723822228:secret:ServerBoi-Public-Key-IAbb3i"
+    );
 
     const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint");
 
-    const url = "https://jggje531jj.execute-api.us-west-2.amazonaws.com/prod"
+    const url = "https://jggje531jj.execute-api.us-west-2.amazonaws.com/prod";
 
     const applicationId = process.env["PUBLIC_ID"];
     console.log(applicationId);
@@ -51,26 +51,22 @@ export class ApiGatewayStack extends Stack {
       }
     );
 
-    const serverBoiUtils = new LayerVersion(
-      this,
-      "Serverboi-Utils-Layer",
-      {
-        code: Code.fromAsset(
-          "lambdas/layers/serverboi_utils/serverboi_utils.zip"
-        ),
-        compatibleRuntimes: [Runtime.PYTHON_3_8],
-        description: "Lambda Layer for ServerBoi Utils",
-        layerVersionName: "ServerBoi-Utils-Layer"
-      }
-    )
+    const serverBoiUtils = new LayerVersion(this, "Serverboi-Utils-Layer", {
+      code: Code.fromAsset(
+        "lambdas/layers/serverboi_utils/serverboi_utils.zip"
+      ),
+      compatibleRuntimes: [Runtime.PYTHON_3_8],
+      description: "Lambda Layer for ServerBoi Utils",
+      layerVersionName: "ServerBoi-Utils-Layer",
+    });
 
     const lambdaLayers = [
       flaskLayer,
       props.resourcesStack.a2sLayer,
       props.resourcesStack.discordLayer,
       props.resourcesStack.requestsLayer,
-      serverBoiUtils
-    ]
+      serverBoiUtils,
+    ];
 
     const commandHandler = new PythonLambda(this, "Command-Handler", {
       name: "Command-Handler",
@@ -83,10 +79,12 @@ export class ApiGatewayStack extends Stack {
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
         USER_TABLE: props.resourcesStack.userList.tableName,
-        PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow',
-        TERMINATE_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow'
+        PROVISION_ARN:
+          "arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow",
+        TERMINATE_ARN:
+          "arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow",
       },
-    })
+    });
     commandHandler.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -116,10 +114,12 @@ export class ApiGatewayStack extends Stack {
         RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
         SERVER_TABLE: props.resourcesStack.serverList.tableName,
         USER_TABLE: props.resourcesStack.userList.tableName,
-        PROVISION_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow',
-        TERMINATE_ARN: 'arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow'
+        PROVISION_ARN:
+          "arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow",
+        TERMINATE_ARN:
+          "arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow",
       },
-    })
+    });
     bootstrapCall.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -127,36 +127,45 @@ export class ApiGatewayStack extends Stack {
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
-          "states:SendTaskSuccess"
+          "states:SendTaskSuccess",
         ],
       })
     );
-    
-    const bootstrap = api.root.addResource("bootstrap")
-    
+
+    const bootstrap = api.root.addResource("bootstrap");
+
     bootstrap.addMethod(
       "Post",
       new LambdaIntegration(bootstrapCall.lambda, {
         proxy: false,
         passthroughBehavior: PassthroughBehavior.WHEN_NO_TEMPLATES,
-        integrationResponses: [{
-            statusCode: '200',
+        integrationResponses: [
+          {
+            statusCode: "200",
             responseParameters: {
-                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
-                'method.response.header.Access-Control-Allow-Methods': "'OPTIONS,GET'",
-                "method.response.header.Access-Control-Allow-Origin": "'*'"
-              },
-        }]}), {
-        methodResponses: [{ 
-            statusCode: '200',
-            responseParameters: {
-                'method.response.header.Access-Control-Allow-Headers': true,
-                'method.response.header.Access-Control-Allow-Methods': true,
-                'method.response.header.Access-Control-Allow-Credentials': true,
-                'method.response.header.Access-Control-Allow-Origin': true,
+              "method.response.header.Access-Control-Allow-Headers":
+                "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
+              "method.response.header.Access-Control-Allow-Methods":
+                "'OPTIONS,GET'",
+              "method.response.header.Access-Control-Allow-Origin": "'*'",
             },
-        }]
-    })
+          },
+        ],
+      }),
+      {
+        methodResponses: [
+          {
+            statusCode: "200",
+            responseParameters: {
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true,
+              "method.response.header.Access-Control-Allow-Credentials": true,
+              "method.response.header.Access-Control-Allow-Origin": true,
+            },
+          },
+        ],
+      }
+    );
 
     const discord = api.root.addResource("discord");
 
