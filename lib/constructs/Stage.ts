@@ -11,10 +11,11 @@ export class PipelineStage extends Stage {
       this,
       "Resources-Stack"
     );
-    new ApiGatewayStack(this, "Api-Gateway-Stack", {
+    const workflowStack = new ServerWorkflowsStack(this, "Workflows-Stack", {
       resourcesStack: resourcesStack,
     });
-    new ServerWorkflowsStack(this, "Workflows-Stack", {
+    new ApiGatewayStack(this, "Api-Gateway-Stack", {
+      workflowStack: workflowStack,
       resourcesStack: resourcesStack,
     });
   }

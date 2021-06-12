@@ -4,20 +4,16 @@ import {
   LambdaIntegration,
   PassthroughBehavior,
 } from "monocdk/aws-apigateway";
-import {
-  Function,
-  Runtime,
-  Tracing,
-  Code,
-  LayerVersion,
-} from "monocdk/aws-lambda";
-import { Role, ServicePrincipal, PolicyStatement } from "monocdk/aws-iam";
+import { Runtime, Code, LayerVersion } from "monocdk/aws-lambda";
+import { PolicyStatement } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { Secret } from "monocdk/aws-secretsmanager";
 import { PythonLambda } from "../constructs/PythonLambdaConstruct";
+import { ServerWorkflowsStack } from "./ServerWorkflowsStack";
 
 export interface ApiGatewayStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;
+  readonly workflowStack: ServerWorkflowsStack;
 }
 
 export class ApiGatewayStack extends Stack {
@@ -33,7 +29,7 @@ export class ApiGatewayStack extends Stack {
 
     const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint");
 
-    const url = "https://jggje531jj.execute-api.us-west-2.amazonaws.com/prod";
+    const url = "https://api.serverboi.io";
 
     const applicationId = process.env["PUBLIC_ID"];
     console.log(applicationId);
@@ -68,22 +64,22 @@ export class ApiGatewayStack extends Stack {
       serverBoiUtils,
     ];
 
+    const standardEnv = {
+      API_URL: url,
+      PUBLIC_KEY: publicKey.secretValue.toString(),
+      RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
+      SERVER_TABLE: props.resourcesStack.serverList.tableName,
+      USER_TABLE: props.resourcesStack.userList.tableName,
+      PROVISION_ARN: props.workflowStack.provisionStateMachineArn,
+      TERMINATE_ARN: props.workflowStack.terminationStateMachineArn,
+    };
+
     const commandHandler = new PythonLambda(this, "Command-Handler", {
       name: "Command-Handler",
       codePath: "lambdas/handlers/interactions/",
       handler: "serverboi_interactions_lambda.main.lambda_handler",
       layers: lambdaLayers,
-      environment: {
-        API_URL: url,
-        PUBLIC_KEY: publicKey.secretValue.toString(),
-        RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
-        SERVER_TABLE: props.resourcesStack.serverList.tableName,
-        USER_TABLE: props.resourcesStack.userList.tableName,
-        PROVISION_ARN:
-          "arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow",
-        TERMINATE_ARN:
-          "arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow",
-      },
+      environment: standardEnv,
     });
     commandHandler.lambda.addToRolePolicy(
       new PolicyStatement({
@@ -108,17 +104,7 @@ export class ApiGatewayStack extends Stack {
       codePath: "lambdas/handlers/bootstrap_call/",
       handler: "bootstrap_call.main.lambda_handler",
       layers: lambdaLayers,
-      environment: {
-        API_URL: url,
-        PUBLIC_KEY: publicKey.secretValue.toString(),
-        RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
-        SERVER_TABLE: props.resourcesStack.serverList.tableName,
-        USER_TABLE: props.resourcesStack.userList.tableName,
-        PROVISION_ARN:
-          "arn:aws:states:us-west-2:742762521158:stateMachine:Provision-Server-Workflow",
-        TERMINATE_ARN:
-          "arn:aws:states:us-west-2:742762521158:stateMachine:Terminate-Server-Workflow",
-      },
+      environment: standardEnv,
     });
     bootstrapCall.lambda.addToRolePolicy(
       new PolicyStatement({

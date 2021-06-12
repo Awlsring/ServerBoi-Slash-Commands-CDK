@@ -25,8 +25,7 @@ export interface ProvisionServerProps {
 }
 
 export class ProvisionServerWorkflow extends Construct {
-  public readonly provisionWorkflow: StateMachine;
-  public readonly terminationWorkflow: StateMachine;
+  public readonly provisionStateMachine: StateMachine;
 
   constructor(scope: Construct, id: string, props: ProvisionServerProps) {
     super(scope, id);
@@ -163,7 +162,7 @@ export class ProvisionServerWorkflow extends Construct {
 
     finishProvisionStep.next(endStep);
 
-    this.provisionWorkflow = new StateMachine(
+    this.provisionStateMachine = new StateMachine(
       this,
       "Provision-Server-State-Machine",
       {

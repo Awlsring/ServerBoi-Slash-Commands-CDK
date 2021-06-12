@@ -12,34 +12,26 @@ from discord import Color
 PROVISION_ARN = os.environ.get("PROVISION_ARN")
 URL = os.environ.get("API_URL")
 
-# TODO: Overhaul this if all will use kwargs anyways
+
 def route_create_command(request: request) -> dict:
     server_command = request.json["data"]["options"][0]["options"][0]["name"]
 
-    server_commands = {
-        "valheim": create_server,
-        "csgo": create_server,
-        "ns2": create_server,
+    create_server_kwargs = {
+        "game": server_command,
+        "user_id": request.json["member"]["user"]["id"],
+        "username": request.json["member"]["user"]["username"],
+        "interaction_id": request.json["id"],
+        "interaction_token": request.json["token"],
+        "application_id": request.json["application_id"],
+        "guild_id": request.json["guild_id"],
     }
-
-    # Set user info
-    create_server_kwargs = {}
-    create_server_kwargs["game"] = server_command
-    create_server_kwargs["user_id"] = request.json["member"]["user"]["id"]
-    create_server_kwargs["username"] = request.json["member"]["user"]["username"]
-
-    # Set interaction info
-    create_server_kwargs["interaction_id"] = request.json["id"]
-    create_server_kwargs["interaction_token"] = request.json["token"]
-    create_server_kwargs["application_id"] = request.json["application_id"]
-    create_server_kwargs["guild_id"] = request.json["guild_id"]
 
     options = request.json["data"]["options"][0]["options"][0]["options"]
 
     for option in options:
         create_server_kwargs[option["name"]] = option["value"]
 
-    return server_commands[server_command](**create_server_kwargs)
+    return create_server(**create_server_kwargs)
 
 
 def create_server(**kwargs) -> str:
