@@ -47,6 +47,20 @@ export class ApiGatewayStack extends Stack {
       }
     );
 
+    const awsEnumsLayer = new LayerVersion(this, "AWS-Enums-Layer", {
+      code: Code.fromAsset("lambdas/layers/aws_enums/aws_enums.zip"),
+      compatibleRuntimes: [Runtime.PYTHON_3_8],
+      description: "Python Lambda Layer for AWS Enums",
+      layerVersionName: "AWS-Enums-Python",
+    });
+
+    const linodeEnumsLayer = new LayerVersion(this, "Linode-Enums-Layer", {
+      code: Code.fromAsset("lambdas/layers/linode_enums/linode_enums.zip"),
+      compatibleRuntimes: [Runtime.PYTHON_3_8],
+      description: "Python Lambda Layer for Linode Enums",
+      layerVersionName: "Linode-Enums-Python",
+    });
+
     const serverBoiUtils = new LayerVersion(this, "Serverboi-Utils-Layer", {
       code: Code.fromAsset(
         "lambdas/layers/serverboi_utils/serverboi_utils.zip"
@@ -62,6 +76,8 @@ export class ApiGatewayStack extends Stack {
       props.resourcesStack.discordLayer,
       props.resourcesStack.requestsLayer,
       serverBoiUtils,
+      awsEnumsLayer,
+      linodeEnumsLayer,
     ];
 
     const standardEnv = {

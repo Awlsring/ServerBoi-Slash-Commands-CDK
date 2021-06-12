@@ -1,7 +1,7 @@
 {
   "valheim": {
     "container": "lloesche/valheim-server",
-    "ports": [2456,2458],
+    "ports": [2456, 2458],
     "aws": {
       "instance_type": "c5a.large"
     },
@@ -14,7 +14,7 @@
   },
   "csgo": {
     "container": "serverboi/csgo:dev",
-    "ports": [27015,27020,27005],
+    "ports": [27015, 27020, 27005],
     "aws": {
       "instance_type": "c5a.large"
     },
@@ -28,7 +28,7 @@
   },
   "ns2": {
     "container": "serverboi/ns2:dev",
-    "ports": [27015,27016],
+    "ports": [27015, 27016],
     "aws": {
       "instance_type": "c5.large"
     },

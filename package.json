@@ -5,7 +5,7 @@
     "serverless_boi": "bin/serverless_boi.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "./build.sh",
     "watch": "tsc -w",
     "test": "make testpython",
     "cdk": "cdk"
