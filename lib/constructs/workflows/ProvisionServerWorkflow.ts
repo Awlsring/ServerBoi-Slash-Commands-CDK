@@ -33,9 +33,8 @@ export class ProvisionServerWorkflow extends Construct {
     const provisionName = "Provision-And-Wait-For-Docker-Lambda";
     const provision = new PythonLambda(this, provisionName, {
       name: provisionName,
-      codePath:
-        "lambdas/handlers/provision_workflow/provision_and_wait_for_docker/",
-      handler: "provision_and_wait_for_docker.main.lambda_handler",
+      codePath: "lambdas/handlers/provision_workflow/provision_lambda/",
+      handler: "provision.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
       environment: {
         //Add workflow table

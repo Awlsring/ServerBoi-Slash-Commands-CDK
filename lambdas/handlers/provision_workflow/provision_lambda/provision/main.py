@@ -15,8 +15,8 @@ from discord import Color, Embed
 
 # Local
 from provision.lib.provision.aws import aws
-import provision.lib.provision.gcp.base as gcp
-from provision.lib.provision import azure
+from provision.lib.provision.gcp import gcp
+from provision.lib.provision.azure import azure
 from provision.lib.provision.linode import linode
 
 
