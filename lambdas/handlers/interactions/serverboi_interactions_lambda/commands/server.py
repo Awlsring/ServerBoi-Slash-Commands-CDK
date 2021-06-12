@@ -4,10 +4,10 @@ from botocore.exceptions import ClientError as BotoClientError
 from uuid import uuid4
 import serverboi_utils.responses as response_utils
 import serverboi_utils.embeds as embed_utils
-import serverboi_utils.states as state_utils
 from serverboi_utils.regions import ServiceRegion
 import os
 import json
+from typing import Optional
 from discord import Color
 
 SERVER_TABLE = os.environ.get("SERVER_TABLE")
@@ -26,48 +26,34 @@ def route_server_command(request: request) -> dict:
         "terminate": server_terminate,
     }
 
-    if server_command == "list":
-        return server_commands[server_command]()
+    command_kwargs = {
+        "interaction_token": request.json["token"],
+        "interaction_id": request.json["id"],
+        "application_id": request.json["application_id"],
+    }
 
-    elif server_command == "terminate":
-        terminate_server_kwargs = {}
-        terminate_server_kwargs["interaction_id"] = request.json["id"]
-        terminate_server_kwargs["interaction_token"] = request.json["token"]
-        terminate_server_kwargs["application_id"] = request.json["application_id"]
+    options = request.json["data"]["options"][0]["options"][0]["options"]
 
-        options = request.json["data"]["options"][0]["options"][0]["options"]
+    for option in options:
+        command_kwargs[option["name"]] = option["value"]
 
-        for option in options:
-            terminate_server_kwargs[option["name"]] = option["value"]
-
-        return server_commands[server_command](**terminate_server_kwargs)
-
-    elif server_command == "add":
-        name = request.json["data"]["options"][0]["options"][0]["options"][0]["value"]
-        game = request.json["data"]["options"][0]["options"][0]["options"][1]["value"]
-        service = request.json["data"]["options"][0]["options"][0]["options"][2][
-            "value"
-        ]
-        service_id = request.json["data"]["options"][0]["options"][0]["options"][3][
-            "value"
-        ]
-        instance = request.json["data"]["options"][0]["options"][0]["options"][4][
-            "value"
-        ]
-
-        return server_commands[server_command](
-            name, game, service, service_id, instance
-        )
-
-    else:
-        server_id = request.json["data"]["options"][0]["options"][0]["options"][0][
-            "value"
-        ]
-
-        return server_commands[server_command](server_id)
+    return server_commands[server_command](**command_kwargs)
 
 
-def server_terminate(**kwargs) -> str:
+def server_terminate(**kwargs: dict) -> str:
+    """
+    Input:
+    interaction_id
+    interaction_token
+    application_id
+    id
+    """
+    server_id = kwargs.get("id")
+    instance = _get_instance_from_id(server_id)
+
+    if not instance:
+        return _bad_server_id(server_id)
+
     sfn = boto3.client("stepfunctions")
 
     execution_name = uuid4().hex.upper()
@@ -101,12 +87,13 @@ def server_terminate(**kwargs) -> str:
     return data
 
 
-def server_start(server_id: str) -> str:
+def server_start(**kwargs: dict) -> str:
+    server_id = kwargs.get("id")
+
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        content = f"ServerID: {server_id} is not a server."
-        data = response_utils.form_response_data(content=content)
+        return _bad_server_id(server_id)
 
     try:
         instance.start()
@@ -121,13 +108,13 @@ def server_start(server_id: str) -> str:
     return data
 
 
-def server_stop(server_id: str) -> str:
+def server_stop(**kwargs: dict) -> str:
+    server_id = kwargs.get("id")
+
     instance = _get_instance_from_id(server_id)
 
     if not instance:
-        return response_utils.form_response_data(
-            content=f"ServerID: {server_id} is not a server."
-        )
+        return _bad_server_id(server_id)
 
     try:
         instance.stop()
@@ -141,8 +128,13 @@ def server_stop(server_id: str) -> str:
     return data
 
 
-def server_status(server_id: str) -> str:
+def server_status(**kwargs: dict) -> str:
+    server_id = kwargs.get("id")
+
     server_info = _get_server_info_from_table(server_id)
+
+    if not server_info:
+        return _bad_server_id(server_id)
 
     server_id = server_info["ServerID"]
     owner = server_info["Owner"]
@@ -154,15 +146,7 @@ def server_status(server_id: str) -> str:
     account_id = server_info["AccountID"]
     port = server_info["Port"]
 
-    if game == "valheim":
-        port = port + 1
-
     service_region = ServiceRegion.generate_from_lookup(region)
-
-    if not server_info:
-        return response_utils.form_response_data(
-            content=f"ServerID: {server_id} is not a server."
-        )
 
     ec2 = _create_ec2_resource(account_id, region)
     instance = ec2.Instance(instance_id)
@@ -191,7 +175,7 @@ def server_status(server_id: str) -> str:
     return data
 
 
-def server_list() -> str:
+def server_list(**kwargs: dict) -> str:
     # Set this outside handler
     dynamo = boto3.resource("dynamodb")
 
@@ -262,11 +246,16 @@ def server_list() -> str:
     return data
 
 
-def add_server(
-    name: str, game: str, service: str, service_id: str, region: str, instance: str
-) -> str:
+def add_server(**kwargs: dict) -> str:
+    name = kwargs.get("name")
+    game = kwargs.get("game")
+    service = kwargs.get("service")
+    service_id = kwargs.get("service-identifier")
+
     # Assume role into account
     if service == "AWS":
+        region = kwargs.get("region", "us-west-2")
+        instance = kwargs.get("instance-id", "us-west-2")
         ec2 = _create_ec2_resource(service_id, instance)
         instance = ec2.Instance(instance)
 
@@ -308,7 +297,7 @@ def add_server(
     return response
 
 
-def _get_server_info_from_table(server_id: str) -> dict:
+def _get_server_info_from_table(server_id: str) -> Optional[dict]:
     # Set this outside handler
     dynamo = boto3.resource("dynamodb")
 
@@ -320,9 +309,10 @@ def _get_server_info_from_table(server_id: str) -> dict:
         print(response)
     except BotoClientError as error:
         print(error)
-        return False
-    else:
-        return response["Item"]
+        return None
+
+    server_info = response.get("Item", None)
+    return server_info
 
 
 def _create_ec2_resource(account_id: str, region: str):
@@ -355,7 +345,7 @@ def _get_instance_from_id(server_id: str) -> boto3.resource:
     server_info = _get_server_info_from_table(server_id)
 
     if not server_info:
-        return False
+        return None
 
     account_id = server_info.get("AccountID")
     region = server_info.get("Region")
@@ -375,3 +365,9 @@ def _create_instance_resource(
     instance = resource.Instance(instance_id)
 
     return instance
+
+
+def _bad_server_id(server_id: str) -> dict:
+    return response_utils.form_response_data(
+        content=f"No server has the ID `{server_id}`"
+    )

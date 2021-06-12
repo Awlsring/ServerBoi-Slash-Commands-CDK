@@ -41,7 +41,7 @@ def index() -> dict:
             application_id, interaction_token, command_response
         )
 
-        return ("", 204)
+        return ("", 200)
 
 
 def route_command(command: str, request: request) -> dict:
