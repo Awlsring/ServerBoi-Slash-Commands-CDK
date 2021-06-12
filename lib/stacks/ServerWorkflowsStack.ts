@@ -4,7 +4,6 @@ import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { WaitForBootstrap } from "../constructs/WaitForBootstrap";
 import { ProvisionServerWorkflow } from "../constructs/workflows/ProvisionServerWorkflow";
 import { TerminateServerWorkflow } from "../constructs/workflows/TerminateServerWorkflow";
-import { StateMachine } from "monocdk/aws-stepfunctions";
 
 export interface ServerWorkflowsStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;

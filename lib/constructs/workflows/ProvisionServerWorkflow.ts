@@ -30,7 +30,7 @@ export class ProvisionServerWorkflow extends Construct {
   constructor(scope: Construct, id: string, props: ProvisionServerProps) {
     super(scope, id);
 
-    const provisionName = "Provision-And-Wait-For-Docker-Lambda";
+    const provisionName = "Provision-Lambda";
     const provision = new PythonLambda(this, provisionName, {
       name: provisionName,
       codePath: "lambdas/handlers/provision_workflow/provision_lambda/",

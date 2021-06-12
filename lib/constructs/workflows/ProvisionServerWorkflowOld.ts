@@ -6,28 +6,27 @@ import {
   Fail,
   InputType,
   IntegrationPattern,
-  JsonPath
+  JsonPath,
 } from "monocdk/aws-stepfunctions";
 import { LambdaInvoke, SqsSendMessage } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
 import { Table } from "monocdk/aws-dynamodb";
-import { PythonLambda } from "../PythonLambdaConstruct"
+import { PythonLambda } from "../PythonLambdaConstruct";
 import { Bucket } from "monocdk/aws-s3";
 import { Queue } from "monocdk/aws-sqs";
 
 export interface ProvisionServerProps {
-    readonly discordLayer: LayerVersion
-    readonly serverboiUtilsLayer: LayerVersion
-    readonly tokenBucket: Bucket
-    readonly tokenQueue: Queue
-    readonly serverList: Table
-    readonly userList: Table
+  readonly discordLayer: LayerVersion;
+  readonly serverboiUtilsLayer: LayerVersion;
+  readonly tokenBucket: Bucket;
+  readonly tokenQueue: Queue;
+  readonly serverList: Table;
+  readonly userList: Table;
 }
 
-export class ProvisionServerWorkflow extends Construct {
-
-  public readonly provisionWorkflow: StateMachine
-  public readonly terminationWorkflow: StateMachine
+export class ProvisionServerWorkflowOld extends Construct {
+  public readonly provisionWorkflow: StateMachine;
+  public readonly terminationWorkflow: StateMachine;
 
   constructor(scope: Construct, id: string, props: ProvisionServerProps) {
     super(scope, id);
@@ -38,12 +37,12 @@ export class ProvisionServerWorkflow extends Construct {
       codePath: "lambdas/handlers/provision_lambda/",
       handler: "provision.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
-      environment:{
-          TOKEN_BUCKET: props.tokenBucket.bucketName,
-          USER_TABLE: props.userList.tableName,
-          SERVER_TABLE: props.serverList.tableName,
+      environment: {
+        TOKEN_BUCKET: props.tokenBucket.bucketName,
+        USER_TABLE: props.userList.tableName,
+        SERVER_TABLE: props.serverList.tableName,
       },
-    })
+    });
     provision.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -60,17 +59,17 @@ export class ProvisionServerWorkflow extends Construct {
       })
     );
 
-    const rollbackName = 'Rollback-Resources'
+    const rollbackName = "Rollback-Resources";
     const rollback = new PythonLambda(this, rollbackName, {
       name: rollbackName,
       codePath: "lambdas/handlers/rollback_provision",
       handler: "rollback_provision.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
-      environment:{
-          USER_TABLE: props.userList.tableName,
-          SERVER_TABLE: props.serverList.tableName,
+      environment: {
+        USER_TABLE: props.userList.tableName,
+        SERVER_TABLE: props.serverList.tableName,
       },
-    })
+    });
     provision.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -90,10 +89,10 @@ export class ProvisionServerWorkflow extends Construct {
       name: putTokenName,
       codePath: "lambdas/handlers/provision_workflow/put_token/",
       handler: "put_token.main.lambda_handler",
-      environment:{
-          TOKEN_BUCKET: props.tokenBucket.bucketName,
+      environment: {
+        TOKEN_BUCKET: props.tokenBucket.bucketName,
       },
-    })
+    });
     putToken.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -107,65 +106,63 @@ export class ProvisionServerWorkflow extends Construct {
     );
 
     //step definitions
-    const createResources = new LambdaInvoke(
-      this,
-      "Create-Resources-Step",
-      {
-        lambdaFunction: provision.lambda,
-        outputPath: '$.Payload'
-      }
-    );
+    const createResources = new LambdaInvoke(this, "Create-Resources-Step", {
+      lambdaFunction: provision.lambda,
+      outputPath: "$.Payload",
+    });
 
     const waitForBootstrap = new SqsSendMessage(this, "Wait-For-Bootstrap", {
       messageBody: {
         type: InputType.OBJECT,
         value: {
           "Input.$": "$",
-          "TaskToken": JsonPath.taskToken
-        }
+          TaskToken: JsonPath.taskToken,
+        },
       },
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
       queue: props.tokenQueue,
       timeout: Duration.hours(1),
-      outputPath: "$.Payload"
-    })
+      outputPath: "$.Payload",
+    });
 
     const putTokenStep = new LambdaInvoke(this, "Put-Token", {
       lambdaFunction: putToken.lambda,
-      inputPath: '$',
+      inputPath: "$",
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
       payload: {
         type: InputType.OBJECT,
         value: {
           "Input.$": "$",
-          "TaskToken": JsonPath.taskToken
-        }
+          TaskToken: JsonPath.taskToken,
+        },
       },
-      timeout: Duration.hours(1)
-    })
+      timeout: Duration.hours(1),
+    });
 
     const rollbackProvision = new LambdaInvoke(this, "Rollback-Provision", {
       lambdaFunction: rollback.lambda,
-      inputPath: '$',
-    })
-
-    const errorStep = new Fail(this, 'Fail-Step')
-
-    const endStep = new Succeed(this, 'End-Step')
-
-    const stepDefinition = createResources
-      .next(putTokenStep)
-
-      putTokenStep.next(endStep)
-
-      putTokenStep.addCatch(rollbackProvision,)
-
-      rollbackProvision.next(errorStep)
-
-    this.provisionWorkflow = new StateMachine(this, "Provision-Server-State-Machine-Old", {
-      definition: stepDefinition,
-      stateMachineName: "Provision-Server-Workflow-Old",
+      inputPath: "$",
     });
 
+    const errorStep = new Fail(this, "Fail-Step");
+
+    const endStep = new Succeed(this, "End-Step");
+
+    const stepDefinition = createResources.next(putTokenStep);
+
+    putTokenStep.next(endStep);
+
+    putTokenStep.addCatch(rollbackProvision);
+
+    rollbackProvision.next(errorStep);
+
+    this.provisionWorkflow = new StateMachine(
+      this,
+      "Provision-Server-State-Machine-Old",
+      {
+        definition: stepDefinition,
+        stateMachineName: "Provision-Server-Workflow-Old",
+      }
+    );
   }
 }
