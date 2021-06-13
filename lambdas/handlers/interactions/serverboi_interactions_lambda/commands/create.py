@@ -5,8 +5,11 @@ import os
 import json
 import serverboi_utils.responses as response_utils
 import serverboi_utils.embeds as embed_utils
-from aws_enums.enums import AWSRegions, AWSInstanceTypes
-from linode_enums.enums import LinodeRegions, LinodeInstanceTypes
+from serverboi_interactions_lambda.enums.aws_enums import AWSRegions, AWSInstanceTypes
+from serverboi_interactions_lambda.enums.linode_enums import (
+    LinodeRegions,
+    LinodeInstanceTypes,
+)
 
 from uuid import uuid4
 from discord import Color
