@@ -22,6 +22,8 @@ export interface ProvisionServerProps {
   readonly tokenQueue: Queue;
   readonly serverList: Table;
   readonly userList: Table;
+  readonly awsTable: Table;
+  readonly linodeTable: Table;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -37,10 +39,11 @@ export class ProvisionServerWorkflow extends Construct {
       handler: "provision.main.lambda_handler",
       layers: [props.discordLayer, props.serverboiUtilsLayer],
       environment: {
-        //Add workflow table
         TOKEN_BUCKET: props.tokenBucket.bucketName,
         USER_TABLE: props.userList.tableName,
         SERVER_TABLE: props.serverList.tableName,
+        AWS_TABLE: props.awsTable.tableName,
+        LINODE_TABLE: props.linodeTable.tableName,
       },
     });
     provision.lambda.addToRolePolicy(
@@ -65,7 +68,6 @@ export class ProvisionServerWorkflow extends Construct {
       codePath: "lambdas/handlers/provision_workflow/put_token/",
       handler: "put_token.main.lambda_handler",
       environment: {
-        //Add workflow table
         TOKEN_BUCKET: props.tokenBucket.bucketName,
       },
     });
