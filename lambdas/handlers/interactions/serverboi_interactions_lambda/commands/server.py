@@ -9,9 +9,7 @@ import os
 import json
 from typing import Optional
 from discord import Color
-
-SERVER_TABLE = os.environ.get("SERVER_TABLE")
-TERMINATE_ARN = os.environ.get("TERMINATE_ARN")
+from serverboi_interactions_lambda.lib.constants import SERVER_TABLE, TERMINATE_ARN, STS
 
 
 def route_server_command(request: request) -> dict:
@@ -176,14 +174,9 @@ def server_status(**kwargs: dict) -> str:
 
 
 def server_list(**kwargs: dict) -> str:
-    # Set this outside handler
-    dynamo = boto3.resource("dynamodb")
-
-    # Use env variable for table name
-    server_table = dynamo.Table("ServerBoi-Server-List")
 
     try:
-        table_response = server_table.scan()
+        table_response = SERVER_TABLE.scan()
     except BotoClientError as error:
         print(error)
         content = "Error contacting EC2."
@@ -286,11 +279,7 @@ def add_server(**kwargs: dict) -> str:
         }
     )
 
-    dynamo = boto3.resource("dynamodb")
-
-    table = dynamo.Table(SERVER_TABLE)
-
-    table.put_item(Item=server_item)
+    SERVER_TABLE.put_item(Item=server_item)
 
     response = f"Added {name} to management list with the ID: {short_id}."
 
@@ -298,14 +287,8 @@ def add_server(**kwargs: dict) -> str:
 
 
 def _get_server_info_from_table(server_id: str) -> Optional[dict]:
-    # Set this outside handler
-    dynamo = boto3.resource("dynamodb")
-
-    # Use env variable for table name
-    server_table = dynamo.Table("ServerBoi-Server-List")
-
     try:
-        response = server_table.get_item(Key={"ServerID": server_id})
+        response = SERVER_TABLE.get_item(Key={"ServerID": server_id})
         print(response)
     except BotoClientError as error:
         print(error)
@@ -316,11 +299,8 @@ def _get_server_info_from_table(server_id: str) -> Optional[dict]:
 
 
 def _create_ec2_resource(account_id: str, region: str):
-    # Create this sts client in init
-    sts_client = boto3.client("sts")
-
     try:
-        assumed_role_object = sts_client.assume_role(
+        assumed_role_object = STS.assume_role(
             RoleArn=f"arn:aws:iam::{account_id}:role/ServerBoi-Resource.Assumed-Role",
             RoleSessionName="ServerBoiSession",
         )

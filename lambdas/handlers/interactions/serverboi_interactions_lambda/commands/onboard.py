@@ -3,6 +3,7 @@ import boto3
 from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError as BotoClientError
 import serverboi_utils.responses as response_utils
+from serverboi_interactions_lambda.lib.constants import STS, AWS_TABLE, USER_TABLE
 
 
 def route_onboard_command(request: request) -> dict:
@@ -31,9 +32,8 @@ def route_onboard_command(request: request) -> dict:
 
 def onboard_aws(account_id: str) -> str:
     user_id = request.json["member"]["user"]["id"]
-    table = _get_table("ServerBoi-User-List")
 
-    resp = _write_user_info_to_table(user_id, table, AWSAccountID=account_id)
+    resp = _write_user_info_to_table(user_id, AWS_TABLE, AWSAccountID=account_id)
 
     if resp:
 
@@ -97,15 +97,13 @@ def validate(user_id: str, service: str) -> str:
     """
     Assume role into target account to verify account is accessible.
     """
-    table = _get_table("ServerBoi-User-List")
-    user_info = _get_user_info_from_table(user_id, table)
+    user_info = _get_user_info_from_table(user_id, USER_TABLE)
 
     account_id = user_info.get("AWSAccountID")
 
     if account_id:
-        sts = boto3.client("sts")
         try:
-            sts.assume_role(
+            STS.assume_role(
                 RoleArn=f"arn:aws:iam::{account_id}:role/ServerBoi-Resource.Assumed-Role",
                 RoleSessionName="ServerBoiValidateAWSAccount",
             )

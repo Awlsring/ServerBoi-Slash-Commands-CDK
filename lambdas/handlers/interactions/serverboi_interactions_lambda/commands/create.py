@@ -13,10 +13,7 @@ from serverboi_interactions_lambda.enums.linode_enums import (
 
 from uuid import uuid4
 from discord import Color
-
-
-PROVISION_ARN = os.environ.get("PROVISION_ARN")
-URL = os.environ.get("API_URL")
+from serverboi_interactions_lambda.lib.constants import PROVISION_ARN, URL
 
 
 def route_create_command(request: request) -> dict:

@@ -70,6 +70,8 @@ export class ApiGatewayStack extends Stack {
       RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
       SERVER_TABLE: props.resourcesStack.serverList.tableName,
       USER_TABLE: props.resourcesStack.userList.tableName,
+      AWS_TABLE: props.resourcesStack.awsTable.tableName,
+      LINODE_TABLE: props.resourcesStack.linodeTable.tableName,
       PROVISION_ARN: props.workflowStack.provisionStateMachineArn,
       TERMINATE_ARN: props.workflowStack.terminationStateMachineArn,
     };

@@ -5,15 +5,13 @@ from serverboi_interactions_lambda.commands.onboard import route_onboard_command
 from serverboi_interactions_lambda.commands.create import route_create_command
 import serverboi_utils.responses as response_utils
 from discord_interactions import verify_key_decorator
+from serverboi_interactions_lambda.lib.constants import PUBLIC_KEY
 from flask import (
     Flask,
     jsonify,
     request,
 )
 
-PUBLIC_KEY = os.environ.get("PUBLIC_KEY")
-RESOURCES_BUCKET = os.environ.get("RESOURCES_BUCKET")
-SERVER_TABLE = os.environ.get("SERVER_TABLE")
 app = Flask(__name__)
 
 
