@@ -21,14 +21,6 @@ export class ServerlessBoiResourcesStack extends Stack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    this.discordLayer = new LayerVersion(this, "ServerBoi-Discord-Layer", {
-      code: Code.fromAsset("lambdas/layers/discordpy/discordpy.zip"),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for Discord.py",
-      layerVersionName: "ServerBoi-Discord-Layer",
-      removalPolicy: RemovalPolicy.RETAIN,
-    });
-
     this.requestsLayer = new LayerVersion(this, "ServerBoi-Request-Layer", {
       code: Code.fromAsset("lambdas/layers/requests/requests.zip"),
       compatibleRuntimes: [Runtime.PYTHON_3_8],
