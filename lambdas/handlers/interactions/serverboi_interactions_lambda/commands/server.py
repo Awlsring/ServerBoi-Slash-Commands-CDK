@@ -5,7 +5,6 @@ from uuid import uuid4
 import serverboi_utils.responses as response_utils
 import serverboi_utils.embeds as embed_utils
 from serverboi_utils.regions import ServiceRegion
-import os
 import json
 from typing import Optional
 from discord import Color
@@ -30,10 +29,11 @@ def route_server_command(request: request) -> dict:
         "application_id": request.json["application_id"],
     }
 
-    options = request.json["data"]["options"][0]["options"][0]["options"]
+    options = request.json["data"]["options"][0]["options"][0].get("options", None)
 
-    for option in options:
-        command_kwargs[option["name"]] = option["value"]
+    if options:
+        for option in options:
+            command_kwargs[option["name"]] = option["value"]
 
     return server_commands[server_command](**command_kwargs)
 

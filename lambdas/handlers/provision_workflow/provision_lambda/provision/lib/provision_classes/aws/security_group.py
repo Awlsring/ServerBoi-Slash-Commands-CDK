@@ -20,7 +20,16 @@ def create(ec2_client: boto3.client, game: str, ports: List[str]) -> str:
 
     except BotoClientError as error:
         print(error)
-        return (False, f"Failed to create security group.")
+        if error.response["Error"]["Code"] == "InvalidGroup.Duplicate":
+            response = ec2_client.describe_security_groups(
+                GroupNames=[
+                    group_name,
+                ],
+            )
+            group_id = response["SecurityGroups"][0]["GroupId"]
+        else:
+            response = "Failed to create security group"
+            return (False, response)
 
     return group_id
 

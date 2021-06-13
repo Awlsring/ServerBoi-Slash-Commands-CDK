@@ -26,7 +26,7 @@ class AWSProvision(ProvisionWorkflow):
 
         user_info = self._get_user_info_from_table(self.table)
 
-        self.account_id = user_info.get("AccountID", None)
+        self.account_id = user_info.get("AWSAccountID", None)
 
         if not self.account_id:
             failure_reason = "No AWS Account is associated with this account."
@@ -66,7 +66,7 @@ class AWSProvision(ProvisionWorkflow):
 
         group_id = security_group.create(ec2_client, self.game, ports)
 
-        if group_id is tuple:
+        if type(group_id) is tuple:
             failure_reason = group_id[1]
             self._fail_workflow_status(failure_reason)
             raise Exception(failure_reason)
@@ -80,7 +80,7 @@ class AWSProvision(ProvisionWorkflow):
             self.instance_type,
         )
 
-        if response is tuple:
+        if type(response) is tuple:
             failure_reason = response[1]
             self._fail_workflow_status(failure_reason)
             raise Exception(failure_reason)
