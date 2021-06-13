@@ -15,13 +15,13 @@ export class ServerWorkflowsStack extends Stack {
 
   constructor(scope: Construct, id: string, props: ServerWorkflowsStackProps) {
     super(scope, id, props);
-    const serverBoiUtils = new LayerVersion(this, "Serverboi-Utils-Layer", {
+    const serverBoiUtils = new LayerVersion(this, "Serverboi-Util-Layer", {
       code: Code.fromAsset(
         "lambdas/layers/serverboi_utils/serverboi_utils.zip"
       ),
       compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for ServerBoi Utils",
-      layerVersionName: "ServerBoi-Utils-Layer",
+      description: "Lambda Layer for ServerBoi Util",
+      layerVersionName: "ServerBoi-Util-Layer",
     });
 
     const bootstrapConstruct = new WaitForBootstrap(
