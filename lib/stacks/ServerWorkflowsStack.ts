@@ -31,6 +31,13 @@ export class ServerWorkflowsStack extends Stack {
       layerVersionName: "Cloud-Api-Layer",
     });
 
+    const discordLayer = new LayerVersion(this, "discordpy-Layer", {
+      code: Code.fromAsset("lambdas/layers/discordpy/discordpy.zip"),
+      compatibleRuntimes: [Runtime.PYTHON_3_8],
+      description: "Lambda Layer for Discordpy",
+      layerVersionName: "Discordpy-Layer",
+    });
+
     const bootstrapConstruct = new WaitForBootstrap(
       this,
       "Wait-For-Bootstrap-Construct"
@@ -40,7 +47,7 @@ export class ServerWorkflowsStack extends Stack {
       this,
       "Provision-Workflow",
       {
-        discordLayer: props.resourcesStack.discordLayer,
+        discordLayer: discordLayer,
         serverboiUtilsLayer: serverBoiUtils,
         serverList: props.resourcesStack.serverList,
         userList: props.resourcesStack.userList,

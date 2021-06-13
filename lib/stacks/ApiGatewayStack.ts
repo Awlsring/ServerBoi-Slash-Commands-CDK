@@ -56,10 +56,17 @@ export class ApiGatewayStack extends Stack {
       layerVersionName: "ServerBoi-Utils-Layer",
     });
 
+    const discordLayer = new LayerVersion(this, "discord-py-Layer", {
+      code: Code.fromAsset("lambdas/layers/discordpy/discordpy.zip"),
+      compatibleRuntimes: [Runtime.PYTHON_3_8],
+      description: "Lambda Layer for Discordpy",
+      layerVersionName: "Discord-py-Layer",
+    });
+
     const lambdaLayers = [
       flaskLayer,
       props.resourcesStack.a2sLayer,
-      props.resourcesStack.discordLayer,
+      discordLayer,
       props.resourcesStack.requestsLayer,
       serverBoiUtils,
     ];
