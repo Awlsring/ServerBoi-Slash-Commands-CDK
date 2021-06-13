@@ -66,7 +66,7 @@ export class ServerWorkflowsStack extends Stack {
       this,
       "Terminate-Workflow",
       {
-        discordLayer: props.resourcesStack.discordLayer,
+        discordLayer: discordLayer,
         serverboiUtilsLayer: serverBoiUtils,
         serverList: props.resourcesStack.serverList,
         userList: props.resourcesStack.userList,

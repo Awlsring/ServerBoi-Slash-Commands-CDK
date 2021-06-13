@@ -31,9 +31,6 @@ export class ApiGatewayStack extends Stack {
 
     const url = "https://api.serverboi.io";
 
-    const applicationId = process.env["PUBLIC_ID"];
-    console.log(applicationId);
-
     const flaskLayer = new LayerVersion(
       this,
       "ServerlessBoi-Discord-Interactions-Layer",

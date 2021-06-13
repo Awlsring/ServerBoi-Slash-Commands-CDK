@@ -13,7 +13,6 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly userList: Table;
   readonly awsTable: Table;
   readonly linodeTable: Table;
-  readonly discordLayer: LayerVersion;
   readonly requestsLayer: LayerVersion;
   readonly a2sLayer: LayerVersion;
   readonly serverBoiUtils: LayerVersion;
