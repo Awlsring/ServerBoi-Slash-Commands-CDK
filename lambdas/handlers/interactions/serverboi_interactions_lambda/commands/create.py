@@ -81,28 +81,19 @@ def create_server(**kwargs) -> str:
     return data
 
 
-def verify_input(service: str, region: str, instance_type: str) -> dict:
-    # Check region, instance type
-    service_verifier = {"aws": verify_aws_info, "linode": verify_linode_info}
-
-    return service_verifier[service](region, instance_type)
-
-
-def verify_aws_info(region: str, instance_type: Optional[str]) -> dict:
+def verify_input(service: str, region: str, instance_type: Optional[str]) -> dict:
     incorrect_parameters = {}
-    if region not in AWSRegions:
+
+    region_enums = {"aws": AWSRegions, "linode": LinodeRegions}
+    region_enum = region_enums[service]
+
+    regions = set(item.value for item in region_enum)
+    if region not in regions:
         incorrect_parameters["region"] = region
     if instance_type:
-        if instance_type not in AWSInstanceTypes:
-            incorrect_parameters["instance_type"] = instance_type
-    return incorrect_parameters
-
-
-def verify_linode_info(region: str, instance_type: Optional[str]) -> dict:
-    incorrect_parameters = {}
-    if region not in LinodeRegions:
-        incorrect_parameters["region"] = region
-    if instance_type:
-        if instance_type not in LinodeInstanceTypes:
+        instance_enums = {"aws": AWSInstanceTypes, "linode": LinodeInstanceTypes}
+        instance_enum = instance_enums[service]
+        instance_types = set(item.value for item in instance_enum)
+        if instance_type not in instance_types:
             incorrect_parameters["instance_type"] = instance_type
     return incorrect_parameters
