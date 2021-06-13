@@ -38,11 +38,13 @@ export class ServerlessBoiResourcesStack extends Stack {
 
     this.resourcesBucket = new Bucket(this, "Resources-Bucket", {
       bucketName: "serverboi-resources-bucket",
+      removalPolicy: RemovalPolicy.DESTROY,
       publicReadAccess: true,
     });
 
     this.clientBucket = new Bucket(this, "Client-Bucket", {
       bucketName: "serverboi-client-bucket",
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
@@ -53,21 +55,25 @@ export class ServerlessBoiResourcesStack extends Stack {
     this.serverList = new Table(this, "Server-Table", {
       partitionKey: { name: "ServerID", type: AttributeType.STRING },
       tableName: "ServerBoi-Server-List",
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.linodeTable = new Table(this, "Linode-User-Table", {
       partitionKey: { name: "UserID", type: AttributeType.STRING },
       tableName: "Linode-User-List",
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.awsTable = new Table(this, "AWS-User-Table", {
       partitionKey: { name: "UserID", type: AttributeType.STRING },
       tableName: "AWS-User-List",
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.userList = new Table(this, "User-Table", {
       partitionKey: { name: "UserID", type: AttributeType.STRING },
       tableName: "ServerBoi-User-List",
+      removalPolicy: RemovalPolicy.DESTROY,
     });
   }
 }

@@ -3,6 +3,8 @@ import {
   RestApi,
   LambdaIntegration,
   PassthroughBehavior,
+  DomainName,
+  EndpointType,
 } from "monocdk/aws-apigateway";
 import { Runtime, Code, LayerVersion } from "monocdk/aws-lambda";
 import { PolicyStatement } from "monocdk/aws-iam";
@@ -10,6 +12,17 @@ import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { Secret } from "monocdk/aws-secretsmanager";
 import { PythonLambda } from "../constructs/PythonLambdaConstruct";
 import { ServerWorkflowsStack } from "./ServerWorkflowsStack";
+import {
+  Certificate,
+  CertificateValidation,
+} from "monocdk/lib/aws-certificatemanager";
+import {
+  HostedZone,
+  ARecord,
+  CnameRecord,
+  RecordTarget,
+} from "monocdk/lib/aws-route53";
+import { ApiGateway } from "monocdk/lib/aws-route53-targets";
 
 export interface ApiGatewayStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;
@@ -27,9 +40,33 @@ export class ApiGatewayStack extends Stack {
       "arn:aws:secretsmanager:us-west-2:518723822228:secret:ServerBoi-Public-Key-IAbb3i"
     );
 
-    const api = new RestApi(this, "ServerlessBoi-Discord-Endpoint");
+    const api = new RestApi(this, "Endpoint");
 
     const url = "https://api.serverboi.io";
+
+    const hostedZone = HostedZone.fromHostedZoneId(
+      this,
+      "Hosted-Zone",
+      "Z0357206AA7WHNY0D6K6"
+    );
+
+    const aRecord = new ARecord(this, "Api-A-Record", {
+      recordName: url,
+      zone: hostedZone,
+      target: RecordTarget.fromAlias(new ApiGateway(api)),
+    });
+
+    const acmCertificate = new Certificate(this, "SSL-Certificate", {
+      domainName: "*.serverboi.io",
+      validation: CertificateValidation.fromDns(hostedZone),
+    });
+
+    const domainName = new DomainName(this, "Serverboi-Domain-Name", {
+      domainName: url,
+      endpointType: EndpointType.REGIONAL,
+      mapping: api,
+      certificate: acmCertificate,
+    });
 
     const flaskLayer = new LayerVersion(
       this,
