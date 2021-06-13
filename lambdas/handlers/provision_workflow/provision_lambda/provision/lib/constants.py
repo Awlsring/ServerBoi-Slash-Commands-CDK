@@ -17,4 +17,3 @@ STAGE = "Provision"
 
 AWS_TABLE = DYNAMO.Table(os.environ.get("AWS_TABLE"))
 LINODE_TABLE = DYNAMO.Table(os.environ.get("LINODE_TABLE"))
-AZURE_TABLE = DYNAMO.Table(os.environ.get("AZURE_TABLE"))
