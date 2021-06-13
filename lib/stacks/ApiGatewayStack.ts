@@ -40,32 +40,21 @@ export class ApiGatewayStack extends Stack {
       "arn:aws:secretsmanager:us-west-2:518723822228:secret:ServerBoi-Public-Key-IAbb3i"
     );
 
-    const api = new RestApi(this, "Endpoint");
-
     const url = "https://api.serverboi.io";
 
-    const hostedZone = HostedZone.fromHostedZoneId(
+    const acmCertificate = Certificate.fromCertificateArn(
       this,
-      "Hosted-Zone",
-      "Z0357206AA7WHNY0D6K6"
+      "API-Cert-Arn",
+      "arn:aws:acm:us-west-2:518723822228:certificate/ff4b931f-ca20-466c-9110-5b72c07e60f5"
     );
 
-    const aRecord = new ARecord(this, "Api-A-Record", {
-      recordName: url,
-      zone: hostedZone,
-      target: RecordTarget.fromAlias(new ApiGateway(api)),
-    });
-
-    const acmCertificate = new Certificate(this, "SSL-Certificate", {
-      domainName: "*.serverboi.io",
-      validation: CertificateValidation.fromDns(hostedZone),
-    });
-
-    const domainName = new DomainName(this, "Serverboi-Domain-Name", {
-      domainName: url,
-      endpointType: EndpointType.REGIONAL,
-      mapping: api,
-      certificate: acmCertificate,
+    const api = new RestApi(this, "Api-Endpoint", {
+      restApiName: "Slash-Command-Endpoint",
+      domainName: {
+        domainName: "api.serverboi.io",
+        endpointType: EndpointType.REGIONAL,
+        certificate: acmCertificate,
+      },
     });
 
     const flaskLayer = new LayerVersion(
@@ -217,5 +206,20 @@ export class ApiGatewayStack extends Stack {
         },
       })
     );
+
+    const hostedZone = HostedZone.fromHostedZoneAttributes(
+      this,
+      "Hosted-Zone",
+      {
+        zoneName: "serverboi.io",
+        hostedZoneId: "Z0357206AA7WHNY0D6K6",
+      }
+    );
+
+    const aRecord = new ARecord(this, "Api-A-Record", {
+      recordName: "api.serverboi.io",
+      zone: hostedZone,
+      target: RecordTarget.fromAlias(new ApiGateway(api)),
+    });
   }
 }
