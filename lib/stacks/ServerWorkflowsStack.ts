@@ -24,6 +24,13 @@ export class ServerWorkflowsStack extends Stack {
       layerVersionName: "ServerBoi-Util-Layer",
     });
 
+    const cloudApis = new LayerVersion(this, "Cloud-Api-Layer", {
+      code: Code.fromAsset("lambdas/layers/cloud_apis/cloud_apis.zip"),
+      compatibleRuntimes: [Runtime.PYTHON_3_8],
+      description: "Lambda Layer for Cloud Provider APIs",
+      layerVersionName: "Cloud-Api-Layer",
+    });
+
     const bootstrapConstruct = new WaitForBootstrap(
       this,
       "Wait-For-Bootstrap-Construct"
@@ -41,6 +48,7 @@ export class ServerWorkflowsStack extends Stack {
         tokenQueue: bootstrapConstruct.tokenQueue,
         awsTable: props.resourcesStack.awsTable,
         linodeTable: props.resourcesStack.linodeTable,
+        cloudApis: cloudApis,
       }
     );
 

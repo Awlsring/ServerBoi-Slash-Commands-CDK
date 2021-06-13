@@ -24,6 +24,7 @@ export interface ProvisionServerProps {
   readonly userList: Table;
   readonly awsTable: Table;
   readonly linodeTable: Table;
+  readonly cloudApis: LayerVersion;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -37,7 +38,7 @@ export class ProvisionServerWorkflow extends Construct {
       name: provisionName,
       codePath: "lambdas/handlers/provision_workflow/provision_lambda/",
       handler: "provision.main.lambda_handler",
-      layers: [props.discordLayer, props.serverboiUtilsLayer],
+      layers: [props.discordLayer, props.serverboiUtilsLayer, props.cloudApis],
       environment: {
         TOKEN_BUCKET: props.tokenBucket.bucketName,
         USER_TABLE: props.userList.tableName,
