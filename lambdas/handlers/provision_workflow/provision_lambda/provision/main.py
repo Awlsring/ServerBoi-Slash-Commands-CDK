@@ -38,6 +38,7 @@ def lambda_handler(event: dict, _) -> dict:
             server_item["Password"] = password
 
         server_item.update(response)
+        event.update(response)
         event["server_id"] = server_id
 
         try:
@@ -47,3 +48,5 @@ def lambda_handler(event: dict, _) -> dict:
                 continue
             else:
                 raise error
+
+    return event

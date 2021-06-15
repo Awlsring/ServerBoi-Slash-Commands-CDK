@@ -18,9 +18,14 @@ def lambda_handler(event, context):
     print(event)
     token = event["TaskToken"]
     try:
-        resp = (SFN.send_task_success(taskToken=token, output="complete"),)
+        resp = SFN.send_task_success(
+            taskToken=token, output=json.dumps({"status": 200})
+        )
         print(resp)
     except ClientError as error:
-        raise (error)
+        print(error)
+        raise Exception(error)
 
-    return {"statusCode": 202, "body": json.dumps("Accepted")}
+    print(resp)
+
+    return event

@@ -72,6 +72,13 @@ def _set_ingress(ec2_client: boto3, group_id: str, ports: List[str]):
         "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
     }
 
+    ssh = {
+        "IpProtocol": "tcp",
+        "FromPort": 22,
+        "ToPort": 22,
+        "IpRanges": [{"CidrIp": "0.0.0.0/0"}],
+    }
+
     permissions.append(http)
     permissions.append(https)
 
