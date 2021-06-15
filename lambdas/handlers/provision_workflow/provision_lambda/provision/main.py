@@ -1,6 +1,7 @@
 from provision.lib.constants import SERVER_TABLE
 from provision.lib.provision_classes.aws.aws_class import AWSProvision
-from provision.lib.provision_classes.linode.linode_class import LinodeProvision
+
+# from provision.lib.provision_classes.linode.linode_class import LinodeProvision
 
 
 def lambda_handler(event: dict, _) -> dict:
@@ -16,7 +17,7 @@ def lambda_handler(event: dict, _) -> dict:
     for item, value in event.items():
         kwargs[item] = value
 
-    service_workflows = {"aws": AWSProvision, "linode": LinodeProvision}
+    service_workflows = {"aws": AWSProvision}
 
     workflow = service_workflows[service](**kwargs)
     response = workflow.execute()

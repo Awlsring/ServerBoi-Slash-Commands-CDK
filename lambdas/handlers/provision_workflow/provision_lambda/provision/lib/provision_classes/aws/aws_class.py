@@ -85,6 +85,6 @@ class AWSProvision(ProvisionWorkflow):
             self._fail_workflow_status(failure_reason)
             raise Exception(failure_reason)
 
-        server_info = {"instance_id": response.instance_id}
+        server_info = {"instance_id": response.instance_id, "port": ports[0]}
 
         return server_info
