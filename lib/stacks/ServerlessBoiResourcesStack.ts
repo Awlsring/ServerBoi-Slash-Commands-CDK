@@ -53,7 +53,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
       lifecycleRules: [{
-        expiration: Duration.hours(6)
+        expiration: Duration.days(1)
       }],
     })
 
