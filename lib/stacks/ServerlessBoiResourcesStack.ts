@@ -1,14 +1,14 @@
-import { Stack, Construct, RemovalPolicy } from "monocdk";
-import { Table, AttributeType, Attribute } from "monocdk/aws-dynamodb";
+import { Stack, Construct, RemovalPolicy, Duration } from "monocdk";
+import { Table, AttributeType } from "monocdk/aws-dynamodb";
 import { Bucket } from "monocdk/aws-s3";
 import { BucketDeployment, Source } from "monocdk/aws-s3-deployment";
 import { Runtime, Code, LayerVersion } from "monocdk/aws-lambda";
 
 export class ServerlessBoiResourcesStack extends Stack {
   //Creates all resources referenced across stacks
-
   readonly resourcesBucket: Bucket;
   readonly clientBucket: Bucket;
+  readonly tokenBucket: Bucket;
   readonly serverList: Table;
   readonly userList: Table;
   readonly awsTable: Table;
@@ -46,6 +46,16 @@ export class ServerlessBoiResourcesStack extends Stack {
       bucketName: "serverboi-client-bucket",
       removalPolicy: RemovalPolicy.DESTROY,
     });
+
+    this.tokenBucket = new Bucket(this, "Token-Bucket", {
+      bucketName: "serverboi-server-provision-token-bucket",
+      publicReadAccess: true,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      lifecycleRules: [{
+        expiration: Duration.hours(6)
+      }],
+    })
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],

@@ -3,7 +3,6 @@ import {
   RestApi,
   LambdaIntegration,
   PassthroughBehavior,
-  DomainName,
   EndpointType,
 } from "monocdk/aws-apigateway";
 import { Runtime, Code, LayerVersion } from "monocdk/aws-lambda";
@@ -12,14 +11,10 @@ import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { Secret } from "monocdk/aws-secretsmanager";
 import { PythonLambda } from "../constructs/PythonLambdaConstruct";
 import { ServerWorkflowsStack } from "./ServerWorkflowsStack";
-import {
-  Certificate,
-  CertificateValidation,
-} from "monocdk/lib/aws-certificatemanager";
+import { Certificate } from "monocdk/lib/aws-certificatemanager";
 import {
   HostedZone,
   ARecord,
-  CnameRecord,
   RecordTarget,
 } from "monocdk/lib/aws-route53";
 import { ApiGateway } from "monocdk/lib/aws-route53-targets";
@@ -136,7 +131,9 @@ export class ApiGatewayStack extends Stack {
       codePath: "lambdas/handlers/bootstrap_call/",
       handler: "bootstrap_call.main.lambda_handler",
       layers: lambdaLayers,
-      environment: standardEnv,
+      environment: {
+        TOKEN_BUCKET: props.resourcesStack.tokenBucket.bucketName,
+      },
     });
     bootstrapCall.lambda.addToRolePolicy(
       new PolicyStatement({

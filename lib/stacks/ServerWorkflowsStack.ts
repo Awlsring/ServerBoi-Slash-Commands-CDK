@@ -51,7 +51,7 @@ export class ServerWorkflowsStack extends Stack {
         serverboiUtilsLayer: serverBoiUtils,
         serverList: props.resourcesStack.serverList,
         userList: props.resourcesStack.userList,
-        tokenBucket: bootstrapConstruct.tokenBucket,
+        tokenBucket: props.resourcesStack.tokenBucket,
         tokenQueue: bootstrapConstruct.tokenQueue,
         awsTable: props.resourcesStack.awsTable,
         linodeTable: props.resourcesStack.linodeTable,
