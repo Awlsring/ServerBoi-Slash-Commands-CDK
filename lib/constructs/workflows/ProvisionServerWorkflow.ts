@@ -105,14 +105,16 @@ export class ProvisionServerWorkflow extends Construct {
         LINODE_TABLE: props.linodeTable.tableName,
       },
     });
-    putToken.lambda.addToRolePolicy(
+    finishProvision.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
         actions: [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
-          "s3:PutObject",
+          "dynamodb:Query",
+          "dynamodb:GetItem",
+          "sts:AssumeRole",
         ],
       })
     );

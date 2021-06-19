@@ -52,10 +52,12 @@ export class ServerlessBoiResourcesStack extends Stack {
       publicReadAccess: true,
       autoDeleteObjects: true,
       removalPolicy: RemovalPolicy.DESTROY,
-      lifecycleRules: [{
-        expiration: Duration.days(1)
-      }],
-    })
+      lifecycleRules: [
+        {
+          expiration: Duration.days(1),
+        },
+      ],
+    });
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],

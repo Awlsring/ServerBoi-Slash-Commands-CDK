@@ -18,20 +18,18 @@ from serverboi_utils.regions import ServiceRegion
 RETRY = Config(
     retries={"max_attempts": 10, "mode": "standard"},
 )
-STS = boto3.resource("sts", config=RETRY)
+STS = boto3.client("sts", config=RETRY)
 TOKEN = os.environ.get("DISCORD_TOKEN")
 
 DYNAMO = boto3.resource("dynamodb", config=RETRY)
-# USER_TABLE = DYNAMO.Table(os.environ.get("USER_TABLE"))
+AWS_TABLE = DYNAMO.Table(os.environ.get("AWS_TABLE"))
 SERVER_TABLE = DYNAMO.Table(os.environ.get("SERVER_TABLE"))
-# AWS_TABLE = DYNAMO.Table(os.environ.get("AWS_TABLE"))
-# LINODE_TABLE = DYNAMO.Table(os.environ.get("LINODE_TABLE"))
 
 WORKFLOW_NAME = "Provision-Server"
 STAGE = "Complete Workflow"
 
 
-def lambda_handler(event, context):
+def lambda_handler(event, _):
     print(event)
     game = event["game"]
     name = event["name"]
@@ -48,7 +46,8 @@ def lambda_handler(event, context):
     port = event["port"]
 
     # Get instance
-    session = _create_session_in_target_account(region, event["account_id"])
+    server_info = _get_server_info_from_table(server_id)
+    session = _create_session_in_target_account(region, server_info["account_id"])
     ec2 = session.resource("ec2")
     instance = ec2.Instance(instance_id)
 

@@ -49,7 +49,7 @@ def create_server(**kwargs) -> str:
 
         sfn = boto3.client("stepfunctions")
 
-        execution_name = uuid4().hex.upper()
+        execution_name = uuid4().hex.upper()[:12]
 
         kwargs["url"] = URL
         kwargs["execution_name"] = execution_name

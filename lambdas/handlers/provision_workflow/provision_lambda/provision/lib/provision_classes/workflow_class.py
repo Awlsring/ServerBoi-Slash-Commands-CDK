@@ -27,9 +27,9 @@ class ProvisionWorkflow(object):
         self.execution_name = kwargs.get("execution_name")
         self.user_id = kwargs.get("user_id")
 
-        docker_data = kwargs.update(self.server_id)
+        kwargs["server_id"] = self.server_id
 
-        docker_command = docker.route_docker_command(**docker_data)
+        docker_command = docker.route_docker_command(**kwargs)
         print(docker_command)
         self.user_data = docker.form_user_data(docker_command)
 

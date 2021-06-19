@@ -89,6 +89,7 @@ class AWSProvision(ProvisionWorkflow):
             "instance_id": response.instance_id,
             "port": ports[0],
             "region": self.region,
+            "account_id": self.account_id,
         }
 
         return server_info

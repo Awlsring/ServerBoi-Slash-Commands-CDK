@@ -24,12 +24,12 @@ def lambda_handler(event: dict, _) -> dict:
     response = workflow.execute()
 
     server_item = {
-        "server_id": server_id,
-        "owner_id": user_id,
-        "owner": username,
-        "game": game,
-        "name": name,
-        "service": service,
+        "ServerID": server_id,
+        "OwnerID": user_id,
+        "Owner": username,
+        "Game": game,
+        "Name": name,
+        "Service": service,
     }
 
     if password:
