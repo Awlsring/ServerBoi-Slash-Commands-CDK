@@ -20,11 +20,10 @@ def lambda_handler(event: dict, _) -> dict:
     service_workflows = {"aws": AWSProvision}
 
     workflow = service_workflows[service](**kwargs)
-    server_id = workflow._generate_server_id()
     response = workflow.execute()
 
     server_item = {
-        "ServerID": server_id,
+        "ServerID": workflow.server_id,
         "OwnerID": user_id,
         "Owner": username,
         "Game": game,
@@ -37,7 +36,7 @@ def lambda_handler(event: dict, _) -> dict:
 
     server_item.update(response)
     event.update(response)
-    event["server_id"] = server_id
+    event["server_id"] = workflow.server_id
 
     try:
         SERVER_TABLE.put_item(Item=server_item)

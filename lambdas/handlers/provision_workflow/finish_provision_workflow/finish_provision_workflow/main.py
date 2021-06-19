@@ -34,11 +34,8 @@ def lambda_handler(event, _):
     game = event["game"]
     name = event["name"]
     region = event["region"]
-    user_id = event["user_id"]
-    username = event["username"]
     server_id = event["server_id"]
     service = event["service"]
-    instance_id = event["instance_id"]
     guild_id = event["guild_id"]
     interaction_token = event["interaction_token"]
     application_id = event["application_id"]
@@ -49,7 +46,7 @@ def lambda_handler(event, _):
     server_info = _get_server_info_from_table(server_id)
     session = _create_session_in_target_account(region, server_info["account_id"])
     ec2 = session.resource("ec2")
-    instance = ec2.Instance(instance_id)
+    instance = ec2.Instance(server_info["instance_id"])
 
     # Pull fields from instance
     state = instance.state
@@ -71,26 +68,28 @@ def lambda_handler(event, _):
     # Post server embed
     service_region = ServiceRegion.generate_from_lookup(region)
     server_embed = embed_utils.form_server_embed(
-        server_name=f"{name} ({server_id})",
-        server_id=user_id,
+        server_name=f"{name}",
+        server_id=server_id,
         ip=instance_ip,
         port=port,
         status=state["Name"],
         region=service_region,
         game=game,
-        owner=username,
+        owner=server_info["Owner"],
         service=service,
     )
-    server_data = response_utils.form_response_data(embeds=[server_embed])
+    server_data = response_utils.form_response_data(
+        embeds=[server_embed], components="server"
+    )
     response_utils.post_new_reponse(application_id, interaction_token, server_data)
 
     # Post to server page
-    _post_to_embeds_channel(server_embed, guild_id)
+    _post_to_embeds_channel(server_data, guild_id)
 
     return {}
 
 
-def _post_to_embeds_channel(embed: Embed, guild_id: str):
+def _post_to_embeds_channel(server_data: dict, guild_id: str):
     discord_url = f"https://discord.com/api/v9"
     headers = {"Authorization": f"Bot {TOKEN}"}
     guild_url = f"{discord_url}/guilds/{guild_id}/channels"
@@ -99,10 +98,8 @@ def _post_to_embeds_channel(embed: Embed, guild_id: str):
 
     for channel in channels:
         if channel["name"] == "serverboi-servers":
-            data = {"embed": embed.to_dict()}
-
             channel_url = f"{discord_url}/channels/{channel['id']}/messages"
-            response = requests.post(channel_url, json=data, headers=headers)
+            response = requests.post(channel_url, json=server_data, headers=headers)
 
             print(response.json())
 
