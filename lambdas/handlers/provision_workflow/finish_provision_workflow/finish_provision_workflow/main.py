@@ -10,7 +10,7 @@ from botocore.config import Config
 
 # Layers
 import requests
-from discord import Color, Embed
+from discord import Color
 import serverboi_utils.embeds as embed_utils
 import serverboi_utils.responses as response_utils
 from serverboi_utils.regions import ServiceRegion
@@ -79,7 +79,7 @@ def lambda_handler(event, _):
         service=service,
     )
     server_data = response_utils.form_response_data(
-        embeds=[server_embed], components="server"
+        embeds=[server_embed], components="server", server_id=server_id
     )
     response_utils.post_new_reponse(application_id, interaction_token, server_data)
 

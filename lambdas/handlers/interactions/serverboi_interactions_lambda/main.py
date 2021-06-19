@@ -46,7 +46,7 @@ def index() -> dict:
 
             server_commands = {"start": server_start, "stop": server_stop}
 
-            command_response = server_commands[command_dict["command"]](command_dict)
+            command_response = server_commands[command_dict["command"]](**command_dict)
 
         print(command_response)
 
