@@ -96,6 +96,7 @@ export class ProvisionServerWorkflow extends Construct {
       codePath:
         "lambdas/handlers/provision_workflow/finish_provision_workflow/",
       handler: "finish_provision_workflow.main.lambda_handler",
+      layers: [props.discordLayer, props.serverboiUtilsLayer, props.cloudApis],
       environment: {
         DISCORD_TOKEN: disordToken.secretValue.toString(),
         USER_TABLE: props.userList.tableName,
@@ -130,7 +131,7 @@ export class ProvisionServerWorkflow extends Construct {
       var stage = new LambdaInvoke(this, stageName, {
         lambdaFunction: putToken.lambda,
         inputPath: "$",
-        outputPath: "$.Payload",
+        outputPath: "$",
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         timeout: Duration.hours(1),
         payload: {
@@ -150,7 +151,7 @@ export class ProvisionServerWorkflow extends Construct {
       "Finish-Provision-Step",
       {
         lambdaFunction: finishProvision.lambda,
-        outputPath: "$.Payload",
+        outputPath: "$",
       }
     );
 
