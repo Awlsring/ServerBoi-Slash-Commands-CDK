@@ -66,21 +66,6 @@ def form_valheim_command(**kwargs) -> str:
 
     return command
 
-    return f"""mkdir -p /valheim-server/config/worlds /valheim-server/data
-    
-    sudo docker run -t -d \
-    --name valheim-server \
-    --cap-add=sys_nice \
-    --stop-timeout 120 \
-    -p 2456-2457:2456-2457/udp \
-    -v /valheim-server/config:/config \
-    -v /valheim-server/data:/opt/valheim \
-    -e SERVER_NAME="{server_name}" \
-    -e WORLD_NAME="{world_name}" \
-    -e PASSWORD="{password}" \
-    -e WORKFLOW_ENDPOINT="{url}" \
-    serverboi/valheim:dev"""
-
 
 def form_ns2_command(**kwargs) -> str:
     url = kwargs.get("url", None)
@@ -98,11 +83,8 @@ def form_ns2_command(**kwargs) -> str:
     -e WORKFLOW_ENDPOINT={url} \
     -e SERVER_NAME='{server_name}' "
 
-    overrides = {"MAP", "PASSWORD", "LIMIT"}
-
     for key, value in kwargs.items():
-        if key.upper() in overrides:
-            command = f"{command}-e {key.upper()}={value} "
+        command = f"{command}-e {key.upper()}={value} "
 
     command = f"{command}serverboi/ns2:dev"
 
@@ -117,21 +99,6 @@ def form_csgo_command(**kwargs) -> str:
     server_name = kwargs.get("name")
     gsl_token = kwargs.get("gsl-token")
 
-    overrides = {
-        "FPS-MAX",
-        "TICK-RATE",
-        "PORT",
-        "TV-PORT",
-        "CLIENT-PORT",
-        "MAX-PLAYERS",
-        "RCON-PASSWORD",
-        "PASSWORD",
-        "START-MAP",
-        "MAP-GROUP",
-        "GAME-TYPE",
-        "GAME-MODE",
-    }
-
     command = f"sudo docker run -t -d \
     --net=host \
     --name serverboi-csgo \
@@ -143,9 +110,8 @@ def form_csgo_command(**kwargs) -> str:
     -e GSL_TOKEN={gsl_token} "
 
     for key, value in kwargs.items():
-        if key.upper() in overrides:
-            key.replace("-", "_")
-            command = f"{command}-e {key.upper()}={value} "
+        key.replace("-", "_")
+        command = f"{command}-e {key.upper()}={value} "
 
     command = f"{command}serverboi/csgo:dev"
 

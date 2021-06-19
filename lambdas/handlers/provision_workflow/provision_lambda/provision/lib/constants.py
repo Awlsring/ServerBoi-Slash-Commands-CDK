@@ -11,9 +11,8 @@ STS = boto3.client("sts", config=RETRY)
 
 USER_TABLE = DYNAMO.Table(os.environ.get("USER_TABLE"))
 SERVER_TABLE = DYNAMO.Table(os.environ.get("SERVER_TABLE"))
+AWS_TABLE = DYNAMO.Table(os.environ.get("AWS_TABLE"))
+LINODE_TABLE = DYNAMO.Table(os.environ.get("LINODE_TABLE"))
 
 WORKFLOW_NAME = "Provision-Server"
 STAGE = "Provision"
-
-AWS_TABLE = DYNAMO.Table(os.environ.get("AWS_TABLE"))
-LINODE_TABLE = DYNAMO.Table(os.environ.get("LINODE_TABLE"))

@@ -16,6 +16,7 @@ from botocore.exceptions import ClientError
 
 class ProvisionWorkflow(object):
     def __init__(self, **kwargs) -> None:
+        self.server_id = self._generate_server_id()
         self.workflow_name = "Provision-Server"
         self.stage = "Provision"
         self.user_id = kwargs["user_id"]
@@ -26,7 +27,9 @@ class ProvisionWorkflow(object):
         self.execution_name = kwargs.get("execution_name")
         self.user_id = kwargs.get("user_id")
 
-        docker_command = docker.route_docker_command(**kwargs)
+        docker_data = kwargs.update(self.server_id)
+
+        docker_command = docker.route_docker_command(**docker_data)
         print(docker_command)
         self.user_data = docker.form_user_data(docker_command)
 

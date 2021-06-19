@@ -20,3 +20,5 @@ def lambda_handler(event, context):
 
     except ClientError as error:
         raise error
+
+    return event["Input"]

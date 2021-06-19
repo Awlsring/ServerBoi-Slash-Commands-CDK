@@ -71,7 +71,7 @@ def create_server(**kwargs) -> str:
 
     else:
         response = "The following parameters are invalid |"
-        for key, value in incorrect_parameters:
+        for key, value in incorrect_parameters.items():
             response = f"{response} {key}: `{value}` |"
         data = response_utils.form_response_data(content=response)
 

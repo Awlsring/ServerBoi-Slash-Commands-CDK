@@ -6,7 +6,7 @@ from provision.lib.provision_classes.aws.aws_class import AWSProvision
 
 def lambda_handler(event: dict, _) -> dict:
     game = event["game"]
-    name = event["name"]
+    name = event.get("name", f"ServerBoi-{game}")
     user_id = event["user_id"]
     username = event["username"]
     service = event["service"]
@@ -20,33 +20,28 @@ def lambda_handler(event: dict, _) -> dict:
     service_workflows = {"aws": AWSProvision}
 
     workflow = service_workflows[service](**kwargs)
+    server_id = workflow._generate_server_id()
     response = workflow.execute()
 
-    for i in range(0, 10):
-        server_id = workflow._generate_server_id()
+    server_item = {
+        "server_id": server_id,
+        "owner_id": user_id,
+        "owner": username,
+        "game": game,
+        "name": name,
+        "service": service,
+    }
 
-        server_item = {
-            "ServerID": server_id,
-            "OwnerID": user_id,
-            "Owner": username,
-            "Game": game,
-            "Name": name,
-            "Service": service,
-        }
+    if password:
+        server_item["Password"] = password
 
-        if password:
-            server_item["Password"] = password
+    server_item.update(response)
+    event.update(response)
+    event["server_id"] = server_id
 
-        server_item.update(response)
-        event.update(response)
-        event["server_id"] = server_id
-
-        try:
-            SERVER_TABLE.put_item(Item=server_item)
-        except Exception as error:
-            if i < 10:
-                continue
-            else:
-                raise error
+    try:
+        SERVER_TABLE.put_item(Item=server_item)
+    except Exception as error:
+        raise Exception(error)
 
     return event

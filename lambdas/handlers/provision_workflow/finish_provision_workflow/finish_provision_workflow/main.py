@@ -1,5 +1,6 @@
 # System
 import os
+from typing import Optional
 
 # Boto
 import boto3
@@ -20,6 +21,12 @@ RETRY = Config(
 STS = boto3.resource("sts", config=RETRY)
 TOKEN = os.environ.get("DISCORD_TOKEN")
 
+DYNAMO = boto3.resource("dynamodb", config=RETRY)
+# USER_TABLE = DYNAMO.Table(os.environ.get("USER_TABLE"))
+SERVER_TABLE = DYNAMO.Table(os.environ.get("SERVER_TABLE"))
+# AWS_TABLE = DYNAMO.Table(os.environ.get("AWS_TABLE"))
+# LINODE_TABLE = DYNAMO.Table(os.environ.get("LINODE_TABLE"))
+
 WORKFLOW_NAME = "Provision-Server"
 STAGE = "Complete Workflow"
 
@@ -38,8 +45,7 @@ def lambda_handler(event, context):
     interaction_token = event["interaction_token"]
     application_id = event["application_id"]
     execution_name = event["execution_name"]
-    execution_name = event["execution_name"]
-    port = event["server_port"]
+    port = event["port"]
 
     # Get instance
     session = _create_session_in_target_account(region, event["account_id"])
@@ -119,3 +125,15 @@ def _create_session_in_target_account(region: str, account_id: str) -> Session:
         print(error)
 
     return session
+
+
+def _get_server_info_from_table(server_id: str) -> Optional[dict]:
+    try:
+        response = SERVER_TABLE.get_item(Key={"ServerID": server_id})
+        print(response)
+    except ClientError as error:
+        print(error)
+        return None
+
+    server_info = response.get("Item", None)
+    return server_info

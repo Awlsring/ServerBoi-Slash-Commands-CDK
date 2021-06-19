@@ -20,15 +20,20 @@ def lambda_handler(event, context):
     of Provision Workflow.
     """
     print(event)
-    execution_id = event["execution_id"]
+    execution_name = event["execution_name"]
 
-    object = S3.Object(BUCKET_NAME, execution_id)
+    object = S3.Object(BUCKET_NAME, execution_name)
     token = object.get()["Body"].read().decode("utf-8")
     print(token)
 
+    sfn_response = {}
+    for key, value in event.items():
+        sfn_response[key] = value
+
     try:
         resp = SFN.send_task_success(
-            taskToken=token, output=json.dumps({"status": 200})
+            taskToken=token,
+            output=json.dumps(sfn_response),
         )
         print(resp)
     except ClientError as error:

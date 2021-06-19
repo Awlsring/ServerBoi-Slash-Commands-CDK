@@ -98,6 +98,10 @@ export class ProvisionServerWorkflow extends Construct {
       handler: "finish_provision_workflow.main.lambda_handler",
       environment: {
         DISCORD_TOKEN: disordToken.secretValue.toString(),
+        USER_TABLE: props.userList.tableName,
+        SERVER_TABLE: props.serverList.tableName,
+        AWS_TABLE: props.awsTable.tableName,
+        LINODE_TABLE: props.linodeTable.tableName,
       },
     });
     putToken.lambda.addToRolePolicy(
@@ -126,6 +130,7 @@ export class ProvisionServerWorkflow extends Construct {
       var stage = new LambdaInvoke(this, stageName, {
         lambdaFunction: putToken.lambda,
         inputPath: "$",
+        outputPath: "$.Payload",
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         timeout: Duration.hours(1),
         payload: {
