@@ -17,21 +17,16 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install
-      - name: Create Lambda Package Dir
+      - name: Ls
         run: |
-          mkdir lambda_packages
+          ls
       - name: Pull in Lambdas
-        uses: dawidd6/action-download-artifact@v2
+        uses: pozetroninc/github-action-get-latest-release@master
         with:
-          # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
-          github_token: ${{secrets.GITHUB_TOKEN}}, required if artifact is from a different repo
-          workflow: build_zips.yml
-          workflow_conclusion: success
-          branch: main
-          event: push
-          path: lambda_packages/
-          # Optional, defaults to current repo
-          repo: https://github.com/ServerBoiTeam/Discord-Slash-Command-Lambdas
+          repository: ServerBoiTeam/Discord-Slash-Command-Lambdas
+      - name: Ls
+        run: |
+          ls
       - name: CDK Deploy
         run: |
           npm run build
