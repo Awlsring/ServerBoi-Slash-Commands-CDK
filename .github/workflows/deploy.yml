@@ -17,16 +17,12 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install
-      - name: Ls
-        run: |
-          ls
       - name: Pull in Lambdas
-        uses: pozetroninc/github-action-get-latest-release@master
-        with:
-          repository: ServerBoiTeam/Discord-Slash-Command-Lambdas
-      - name: Ls
         run: |
-          ls
+          mkdir lambda_packages
+          git clone https://github.com/ServerBoiTeam/Discord-Slash-Command-Lambdas.git lambda_packages
+          cd lambda_packages
+          for d in */ ; do echo "$d" done
       - name: CDK Deploy
         run: |
           npm run build
