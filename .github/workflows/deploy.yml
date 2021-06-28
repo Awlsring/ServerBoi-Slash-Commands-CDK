@@ -22,7 +22,7 @@ jobs:
           mkdir lambda_packages
           git clone https://github.com/ServerBoiTeam/Discord-Slash-Command-Lambdas.git lambda_packages
           cd lambda_packages
-          for d in */ ; do echo "$d" done
+          for d in */ ; do echo "$d"; done
       - name: CDK Deploy
         run: |
           npm run build
