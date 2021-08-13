@@ -35,7 +35,7 @@ export class ProvisionServerWorkflow extends Construct {
   constructor(scope: Construct, id: string, props: ProvisionServerProps) {
     super(scope, id);
 
-    const provisionName = "Provision-Lambda";
+    const provisionName = "Provision-Lambda-Go";
     const provision = new GoLambda(this, provisionName, {
       name: provisionName,
       bucket: ProvisionServer.bucket,

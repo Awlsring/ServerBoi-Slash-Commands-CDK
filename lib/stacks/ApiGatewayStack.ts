@@ -103,8 +103,8 @@ export class ApiGatewayStack extends Stack {
       TERMINATE_ARN: props.workflowStack.terminationStateMachineArn,
     };
 
-    const commandHandler = new GoLambda(this, "Command-Handler", {
-      name: "Command-Handler",
+    const commandHandler = new GoLambda(this, "Command-Handler-Go", {
+      name: "Command-Handler-Go",
       bucket: CommandHandler.bucket,
       object: CommandHandler.key,
       handler: "main",
