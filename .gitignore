@@ -12,3 +12,5 @@ cdk.out
 
 __pycache__
 .pytest_cache
+
+function_uri_list.json

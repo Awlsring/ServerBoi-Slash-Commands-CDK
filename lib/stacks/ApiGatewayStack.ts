@@ -10,6 +10,7 @@ import { PolicyStatement } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { Secret } from "monocdk/aws-secretsmanager";
 import { PythonLambda } from "../constructs/PythonLambdaConstruct";
+import { GoLambda } from "../constructs/GoLambdaConstruct";
 import { ServerWorkflowsStack } from "./ServerWorkflowsStack";
 import { Certificate } from "monocdk/lib/aws-certificatemanager";
 import {
@@ -18,6 +19,7 @@ import {
   RecordTarget,
 } from "monocdk/lib/aws-route53";
 import { ApiGateway } from "monocdk/lib/aws-route53-targets";
+import { CommandHandler } from "../../function_uri_list.json"
 
 export interface ApiGatewayStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;
@@ -101,11 +103,11 @@ export class ApiGatewayStack extends Stack {
       TERMINATE_ARN: props.workflowStack.terminationStateMachineArn,
     };
 
-    const commandHandler = new PythonLambda(this, "Command-Handler", {
+    const commandHandler = new GoLambda(this, "Command-Handler", {
       name: "Command-Handler",
-      codePath: "lambdas/handlers/interactions/",
-      handler: "serverboi_interactions_lambda.main.lambda_handler",
-      layers: lambdaLayers,
+      bucket: CommandHandler.bucket,
+      object: CommandHandler.key,
+      handler: "main",
       environment: standardEnv,
     });
     commandHandler.lambda.addToRolePolicy(

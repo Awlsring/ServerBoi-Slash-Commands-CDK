@@ -12,17 +12,18 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.94.1",
+    "@monocdk-experiment/assert": "^1.97.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
     "aws-cdk": "1.94.1",
     "jest": "^26.4.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
-    "@monocdk-experiment/assert": "^1.97.0",
     "typescript": "~3.9.7"
   },
   "dependencies": {
     "@aws-cdk/core": "1.94.1",
+    "@aws-sdk/client-s3": "^3.25.0",
     "dotenv": "*",
     "monocdk": "^1.100.0",
     "source-map-support": "^0.5.16"

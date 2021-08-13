@@ -59,6 +59,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       ],
     });
 
+
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],
       destinationBucket: this.resourcesBucket,

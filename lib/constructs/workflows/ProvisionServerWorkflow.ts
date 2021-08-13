@@ -11,9 +11,11 @@ import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
 import { Table } from "monocdk/aws-dynamodb";
 import { PythonLambda } from "../PythonLambdaConstruct";
+import { GoLambda } from "../GoLambdaConstruct";
 import { Bucket } from "monocdk/aws-s3";
 import { Queue } from "monocdk/aws-sqs";
 import { Secret } from "monocdk/aws-secretsmanager";
+import { ProvisionServer } from "../../../function_uri_list.json"
 
 export interface ProvisionServerProps {
   readonly discordLayer: LayerVersion;
@@ -34,17 +36,18 @@ export class ProvisionServerWorkflow extends Construct {
     super(scope, id);
 
     const provisionName = "Provision-Lambda";
-    const provision = new PythonLambda(this, provisionName, {
+    const provision = new GoLambda(this, provisionName, {
       name: provisionName,
-      codePath: "lambdas/handlers/provision_workflow/provision_lambda/",
-      handler: "provision.main.lambda_handler",
-      layers: [props.discordLayer, props.serverboiUtilsLayer, props.cloudApis],
+      bucket: ProvisionServer.bucket,
+      object: ProvisionServer.key,
+      handler: "main",
       environment: {
-        TOKEN_BUCKET: props.tokenBucket.bucketName,
-        USER_TABLE: props.userList.tableName,
         SERVER_TABLE: props.serverList.tableName,
         AWS_TABLE: props.awsTable.tableName,
         LINODE_TABLE: props.linodeTable.tableName,
+        DYNAMO_CONTAINER: "serverboi-dynamodb-local",
+        LOCALSTACK_CONTAINER: "serverboi-localstack",
+        STAGE: "Prod"
       },
     });
     provision.lambda.addToRolePolicy(

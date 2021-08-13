@@ -7,6 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.REGION }}
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
@@ -17,6 +22,8 @@ jobs:
       - name: Install Dependencies
         run: |
           npm install
+      - name: Download function uri list
+        run: aws s3 cp s3://serverboi-sam-packages/function_uri_list.json function_uri_list.json
       - name: Pull in Lambdas
         run: |
           mkdir lambda_packages
@@ -27,7 +34,3 @@ jobs:
         run: |
           npm run build
           cdk deploy --all --require-approval never
-        env:
-          AWS_REGION: ${{ secrets.REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_ACCESS_KEY }}
