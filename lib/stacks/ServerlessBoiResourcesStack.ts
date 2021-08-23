@@ -9,6 +9,7 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly resourcesBucket: Bucket;
   readonly clientBucket: Bucket;
   readonly tokenBucket: Bucket;
+  readonly webhookList: Table;
   readonly serverList: Table;
   readonly userList: Table;
   readonly awsTable: Table;
@@ -59,10 +60,15 @@ export class ServerlessBoiResourcesStack extends Stack {
       ],
     });
 
-
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],
       destinationBucket: this.resourcesBucket,
+    });
+
+    this.webhookList = new Table(this, "Webhook-Table", {
+      partitionKey: { name: "GuildID", type: AttributeType.STRING },
+      tableName: "ServerBoi-Webhook-List",
+      removalPolicy: RemovalPolicy.DESTROY,
     });
 
     this.serverList = new Table(this, "Server-Table", {

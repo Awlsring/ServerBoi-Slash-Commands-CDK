@@ -13,7 +13,7 @@ export interface GoLambdaProps {
     name: string
     bucket: string
     object: string
-    handler: string
+    handler?: string
     memorySize?: number
     timeout?: Duration
     environment?: { [key: string]: string}
@@ -29,7 +29,7 @@ export class GoLambda extends Construct {
     
     this.lambda = new Function(this, `${props.name}-Go-Function`, {
         runtime: Runtime.GO_1_X,
-        handler: props.handler,
+        handler: props.handler ?? "main",
         code: Code.fromBucket(packageBucket, props.object),
         memorySize: props.memorySize ?? 128,
         tracing: Tracing.ACTIVE,

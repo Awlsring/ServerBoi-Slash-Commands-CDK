@@ -6,6 +6,7 @@ import {
   InputType,
   IntegrationPattern,
   JsonPath,
+  TaskInput,
 } from "monocdk/aws-stepfunctions";
 import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
@@ -15,7 +16,11 @@ import { GoLambda } from "../GoLambdaConstruct";
 import { Bucket } from "monocdk/aws-s3";
 import { Queue } from "monocdk/aws-sqs";
 import { Secret } from "monocdk/aws-secretsmanager";
-import { ProvisionServer } from "../../../function_uri_list.json"
+import { 
+  FinishProvisioning,
+  ProvisionServer,
+  PutToken,
+ } from "../../../function_uri_list.json"
 
 export interface ProvisionServerProps {
   readonly discordLayer: LayerVersion;
@@ -23,6 +28,7 @@ export interface ProvisionServerProps {
   readonly tokenBucket: Bucket;
   readonly tokenQueue: Queue;
   readonly serverList: Table;
+  readonly webhookList: Table;
   readonly userList: Table;
   readonly awsTable: Table;
   readonly linodeTable: Table;
@@ -40,7 +46,6 @@ export class ProvisionServerWorkflow extends Construct {
       name: provisionName,
       bucket: ProvisionServer.bucket,
       object: ProvisionServer.key,
-      handler: "main",
       environment: {
         SERVER_TABLE: props.serverList.tableName,
         AWS_TABLE: props.awsTable.tableName,
@@ -68,11 +73,11 @@ export class ProvisionServerWorkflow extends Construct {
       })
     );
 
-    const putTokenName = "Put-Token-Lambda";
-    const putToken = new PythonLambda(this, putTokenName, {
+    const putTokenName = "Put-Token-Lambda-Go";
+    const putToken = new GoLambda(this, putTokenName, {
       name: putTokenName,
-      codePath: "lambdas/handlers/provision_workflow/put_token/",
-      handler: "put_token.main.lambda_handler",
+      bucket: PutToken.bucket,
+      object: PutToken.key,
       environment: {
         TOKEN_BUCKET: props.tokenBucket.bucketName,
       },
@@ -95,19 +100,18 @@ export class ProvisionServerWorkflow extends Construct {
       "arn:aws:secretsmanager:us-west-2:518723822228:secret:ServerBoi-Discord-Token-RBBLnM"
     );
 
-    const finishProvisionName = "Finish-Provision-Lambda";
-    const finishProvision = new PythonLambda(this, finishProvisionName, {
+    const finishProvisionName = "Finish-Provision-Go";
+    const finishProvision = new GoLambda(this, finishProvisionName, {
       name: finishProvisionName,
-      codePath:
-        "lambdas/handlers/provision_workflow/finish_provision_workflow/",
-      handler: "finish_provision_workflow.main.lambda_handler",
-      layers: [props.discordLayer, props.serverboiUtilsLayer, props.cloudApis],
+      bucket: FinishProvisioning.bucket,
+      object: FinishProvisioning.key,
       environment: {
         DISCORD_TOKEN: disordToken.secretValue.toString(),
         USER_TABLE: props.userList.tableName,
         SERVER_TABLE: props.serverList.tableName,
         AWS_TABLE: props.awsTable.tableName,
         LINODE_TABLE: props.linodeTable.tableName,
+        WEBHOOK_TABLE: props.webhookList.tableName
       },
     });
     finishProvision.lambda.addToRolePolicy(
@@ -127,7 +131,8 @@ export class ProvisionServerWorkflow extends Construct {
     //step definitions
     const provisionStep = new LambdaInvoke(this, "Provision-Step", {
       lambdaFunction: provision.lambda,
-      outputPath: "$.Payload",
+      inputPath: "$",
+      resultPath: "$.ServerID",
     });
 
     const tokenNodeNames = ["Wait-For-Download", "Starting-Server-Client"];
@@ -137,30 +142,35 @@ export class ProvisionServerWorkflow extends Construct {
     tokenNodeNames.forEach((stageName) => {
       var stage = new LambdaInvoke(this, stageName, {
         lambdaFunction: putToken.lambda,
-        inputPath: "$",
-        outputPath: "$",
         integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
         timeout: Duration.hours(1),
         payload: {
           type: InputType.OBJECT,
           value: {
-            "Input.$": "$",
+            ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName"),
             TaskToken: JsonPath.taskToken,
           },
         },
+        resultPath: JsonPath.DISCARD,
       });
 
       tokenNodes.push(stage);
     });
 
-    const finishProvisionStep = new LambdaInvoke(
-      this,
-      "Finish-Provision-Step",
-      {
-        lambdaFunction: finishProvision.lambda,
-        outputPath: "$",
+    const finishProvisionStep = new LambdaInvoke(this, "Finish-Provision-Step", {
+      lambdaFunction: finishProvision.lambda,
+      resultPath: JsonPath.DISCARD,
+      payload: {
+        type: InputType.OBJECT,
+        value: {
+          ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName"),
+          InteractionToken: TaskInput.fromJsonPathAt("$.InteractionToken"),
+          ApplicationID: TaskInput.fromJsonPathAt("$.ApplicationID"),
+          GuildID: TaskInput.fromJsonPathAt("$.GuildID"),
+          ServerID: TaskInput.fromJsonPathAt("$.ServerID"),
+        }
       }
-    );
+    });
 
     const endStep = new Succeed(this, "End-Step");
 
