@@ -23,7 +23,7 @@ jobs:
         run: |
           npm install
       - name: Download function uri list
-        run: aws s3 cp s3://serverboi-sam-packages/function_uri_list.json /home/runner/work/ServerBoi-Discord-Application-Commands/ServerBoi-Discord-Application-Commands/function_uri_list.json
+        run: aws s3 cp s3://serverboi-sam-packages/function_uri_list.json function_uri_list.json
       - name: Pull in Lambdas
         run: |
           mkdir lambda_packages
