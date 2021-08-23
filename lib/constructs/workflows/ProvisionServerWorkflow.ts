@@ -11,13 +11,12 @@ import {
 import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
 import { Table } from "monocdk/aws-dynamodb";
-import { PythonLambda } from "../PythonLambdaConstruct";
 import { GoLambda } from "../GoLambdaConstruct";
 import { Bucket } from "monocdk/aws-s3";
 import { Queue } from "monocdk/aws-sqs";
 import { Secret } from "monocdk/aws-secretsmanager";
 import { 
-  FinishProvisioning,
+  FinishProvision,
   ProvisionServer,
   PutToken,
  } from "../../../function_uri_list.json"
@@ -103,8 +102,8 @@ export class ProvisionServerWorkflow extends Construct {
     const finishProvisionName = "Finish-Provision-Go";
     const finishProvision = new GoLambda(this, finishProvisionName, {
       name: finishProvisionName,
-      bucket: FinishProvisioning.bucket,
-      object: FinishProvisioning.key,
+      bucket: FinishProvision.bucket,
+      object: FinishProvision.key,
       environment: {
         DISCORD_TOKEN: disordToken.secretValue.toString(),
         USER_TABLE: props.userList.tableName,
