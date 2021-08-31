@@ -21,22 +21,6 @@ export class ServerlessBoiResourcesStack extends Stack {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    this.requestsLayer = new LayerVersion(this, "ServerBoi-Request-Layer", {
-      code: Code.fromAsset("lambdas/layers/requests/requests.zip"),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for Requests",
-      layerVersionName: "ServerBoi-Requests-Layer",
-      removalPolicy: RemovalPolicy.RETAIN,
-    });
-
-    this.a2sLayer = new LayerVersion(this, "ServerBoi-A2S-Layer", {
-      code: Code.fromAsset("lambdas/layers/a2s/a2s.zip"),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for A2S",
-      layerVersionName: "ServerBoi-A2S-Layer",
-      removalPolicy: RemovalPolicy.RETAIN,
-    });
-
     this.resourcesBucket = new Bucket(this, "Resources-Bucket", {
       bucketName: "serverboi-resources-bucket",
       removalPolicy: RemovalPolicy.DESTROY,
