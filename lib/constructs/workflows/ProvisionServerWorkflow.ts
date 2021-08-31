@@ -22,8 +22,6 @@ import {
  } from "../../../function_uri_list.json"
 
 export interface ProvisionServerProps {
-  readonly discordLayer: LayerVersion;
-  readonly serverboiUtilsLayer: LayerVersion;
   readonly tokenBucket: Bucket;
   readonly tokenQueue: Queue;
   readonly serverList: Table;
@@ -31,7 +29,6 @@ export interface ProvisionServerProps {
   readonly userList: Table;
   readonly awsTable: Table;
   readonly linodeTable: Table;
-  readonly cloudApis: LayerVersion;
 }
 
 export class ProvisionServerWorkflow extends Construct {

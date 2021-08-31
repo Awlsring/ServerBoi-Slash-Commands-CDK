@@ -24,13 +24,6 @@ export class ServerWorkflowsStack extends Stack {
       layerVersionName: "ServerBoi-Util-Layer",
     });
 
-    const cloudApis = new LayerVersion(this, "Cloud-Api-Layer", {
-      code: Code.fromAsset("lambdas/layers/cloud_apis/cloud_apis.zip"),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for Cloud Provider APIs",
-      layerVersionName: "Cloud-Api-Layer",
-    });
-
     const discordLayer = new LayerVersion(this, "discordpy-Layer", {
       code: Code.fromAsset("lambdas/layers/discordpy/discordpy.zip"),
       compatibleRuntimes: [Runtime.PYTHON_3_8],
@@ -47,8 +40,6 @@ export class ServerWorkflowsStack extends Stack {
       this,
       "Provision-Workflow",
       {
-        discordLayer: discordLayer,
-        serverboiUtilsLayer: serverBoiUtils,
         serverList: props.resourcesStack.serverList,
         userList: props.resourcesStack.userList,
         tokenBucket: props.resourcesStack.tokenBucket,
@@ -56,7 +47,6 @@ export class ServerWorkflowsStack extends Stack {
         awsTable: props.resourcesStack.awsTable,
         linodeTable: props.resourcesStack.linodeTable,
         webhookList: props.resourcesStack.webhookList,
-        cloudApis: cloudApis,
       }
     );
 

@@ -54,43 +54,6 @@ export class ApiGatewayStack extends Stack {
       },
     });
 
-    const flaskLayer = new LayerVersion(
-      this,
-      "ServerlessBoi-Discord-Interactions-Layer",
-      {
-        code: Code.fromAsset(
-          "lambdas/layers/discordInteractions/discordIntegrationsLayer.zip"
-        ),
-        compatibleRuntimes: [Runtime.PYTHON_3_8],
-        description: "Lambda Layer for Discord Interactions",
-        layerVersionName: "ServerlessBoi-Discord-Interactions-Layer",
-      }
-    );
-
-    const serverBoiUtils = new LayerVersion(this, "Serverboi-Utils-Layer", {
-      code: Code.fromAsset(
-        "lambdas/layers/serverboi_utils/serverboi_utils.zip"
-      ),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for ServerBoi Utils",
-      layerVersionName: "ServerBoi-Utils-Layer",
-    });
-
-    const discordLayer = new LayerVersion(this, "discord-py-Layer", {
-      code: Code.fromAsset("lambdas/layers/discordpy/discordpy.zip"),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for Discordpy",
-      layerVersionName: "Discord-py-Layer",
-    });
-
-    const lambdaLayers = [
-      flaskLayer,
-      props.resourcesStack.a2sLayer,
-      discordLayer,
-      props.resourcesStack.requestsLayer,
-      serverBoiUtils,
-    ];
-
     const standardEnv = {
       API_URL: url,
       PUBLIC_KEY: publicKey.secretValue.toString(),
