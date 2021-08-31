@@ -19,7 +19,7 @@ import {
   RecordTarget,
 } from "monocdk/lib/aws-route53";
 import { ApiGateway } from "monocdk/lib/aws-route53-targets";
-import { CommandHandler } from "../../function_uri_list.json"
+import { CommandHandler, BootstrapCall } from "../../function_uri_list.json"
 
 export interface ApiGatewayStackProps extends StackProps {
   readonly resourcesStack: ServerlessBoiResourcesStack;
@@ -53,44 +53,7 @@ export class ApiGatewayStack extends Stack {
         certificate: acmCertificate,
       },
     });
-
-    const flaskLayer = new LayerVersion(
-      this,
-      "ServerlessBoi-Discord-Interactions-Layer",
-      {
-        code: Code.fromAsset(
-          "lambdas/layers/discordInteractions/discordIntegrationsLayer.zip"
-        ),
-        compatibleRuntimes: [Runtime.PYTHON_3_8],
-        description: "Lambda Layer for Discord Interactions",
-        layerVersionName: "ServerlessBoi-Discord-Interactions-Layer",
-      }
-    );
-
-    const serverBoiUtils = new LayerVersion(this, "Serverboi-Utils-Layer", {
-      code: Code.fromAsset(
-        "lambdas/layers/serverboi_utils/serverboi_utils.zip"
-      ),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for ServerBoi Utils",
-      layerVersionName: "ServerBoi-Utils-Layer",
-    });
-
-    const discordLayer = new LayerVersion(this, "discord-py-Layer", {
-      code: Code.fromAsset("lambdas/layers/discordpy/discordpy.zip"),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for Discordpy",
-      layerVersionName: "Discord-py-Layer",
-    });
-
-    const lambdaLayers = [
-      flaskLayer,
-      props.resourcesStack.a2sLayer,
-      discordLayer,
-      props.resourcesStack.requestsLayer,
-      serverBoiUtils,
-    ];
-
+    
     const standardEnv = {
       API_URL: url,
       PUBLIC_KEY: publicKey.secretValue.toString(),
@@ -128,11 +91,11 @@ export class ApiGatewayStack extends Stack {
       })
     );
 
-    const bootstrapCall = new PythonLambda(this, "Bootstrap-Call", {
-      name: "Bootstrap-Call",
-      codePath: "lambdas/handlers/bootstrap_call/",
-      handler: "bootstrap_call.main.lambda_handler",
-      layers: lambdaLayers,
+    const bootstrapCall = new GoLambda(this, "Bootstrap-Call-Go", {
+      name: "Command-Handler-Go",
+      bucket: BootstrapCall.bucket,
+      object: BootstrapCall.key,
+      handler: "main",
       environment: {
         TOKEN_BUCKET: props.resourcesStack.tokenBucket.bucketName,
       },
@@ -145,6 +108,7 @@ export class ApiGatewayStack extends Stack {
           "logs:CreateLogStream",
           "logs:PutLogEvents",
           "states:SendTaskSuccess",
+          "s3:GetObject"
         ],
       })
     );

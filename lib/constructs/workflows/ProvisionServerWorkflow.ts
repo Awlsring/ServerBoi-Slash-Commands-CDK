@@ -147,7 +147,7 @@ export class ProvisionServerWorkflow extends Construct {
         payload: {
           type: InputType.OBJECT,
           value: {
-            ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName"),
+            ExecutionName: "$.ExecutionName",
             TaskToken: JsonPath.taskToken,
           },
         },
@@ -163,11 +163,11 @@ export class ProvisionServerWorkflow extends Construct {
       payload: {
         type: InputType.OBJECT,
         value: {
-          ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName"),
-          InteractionToken: TaskInput.fromJsonPathAt("$.InteractionToken"),
-          ApplicationID: TaskInput.fromJsonPathAt("$.ApplicationID"),
-          GuildID: TaskInput.fromJsonPathAt("$.GuildID"),
-          ServerID: TaskInput.fromJsonPathAt("$.ServerID"),
+          ExecutionName: "$.ExecutionName",
+          InteractionToken: "$.InteractionToken",
+          ApplicationID: "$.ApplicationID",
+          GuildID: "$.GuildID",
+          ServerID: "$.ServerID",
         }
       }
     });
