@@ -152,7 +152,6 @@ export class ProvisionServerWorkflow extends Construct {
           },
         },
         resultPath: JsonPath.DISCARD,
-        payloadResponseOnly: true
       });
 
       tokenNodes.push(stage);
@@ -161,7 +160,6 @@ export class ProvisionServerWorkflow extends Construct {
     const finishProvisionStep = new LambdaInvoke(this, "Finish-Provision-Step", {
       lambdaFunction: finishProvision.lambda,
       resultPath: JsonPath.DISCARD,
-      payloadResponseOnly: true,
       payload: {
         type: InputType.OBJECT,
         value: {
