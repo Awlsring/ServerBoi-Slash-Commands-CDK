@@ -92,7 +92,7 @@ export class ApiGatewayStack extends Stack {
     );
 
     const bootstrapCall = new GoLambda(this, "Bootstrap-Call-Go", {
-      name: "Command-Handler-Go",
+      name: "Bootstrap-Call-Go",
       bucket: BootstrapCall.bucket,
       object: BootstrapCall.key,
       handler: "main",
