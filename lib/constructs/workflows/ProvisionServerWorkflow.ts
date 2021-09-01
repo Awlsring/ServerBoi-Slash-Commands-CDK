@@ -128,7 +128,7 @@ export class ProvisionServerWorkflow extends Construct {
     const provisionStep = new LambdaInvoke(this, "Provision-Step", {
       lambdaFunction: provision.lambda,
       inputPath: "$",
-      resultPath: "$.ServerID",
+      resultPath: JsonPath.DISCARD,
       payloadResponseOnly: true
     });
 
@@ -144,7 +144,7 @@ export class ProvisionServerWorkflow extends Construct {
         payload: {
           type: InputType.OBJECT,
           value: {
-            ExecutionName: "$.ExecutionName",
+            ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName").value,
             TaskToken: JsonPath.taskToken,
           },
         },
@@ -160,11 +160,11 @@ export class ProvisionServerWorkflow extends Construct {
       payload: {
         type: InputType.OBJECT,
         value: {
-          ExecutionName: "$.ExecutionName",
-          InteractionToken: "$.InteractionToken",
-          ApplicationID: "$.ApplicationID",
-          GuildID: "$.GuildID",
-          ServerID: "$.ServerID",
+          ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName").value,
+          InteractionToken: TaskInput.fromJsonPathAt("$.InteractionToken").value,
+          ApplicationID: TaskInput.fromJsonPathAt("$.ApplicationID").value,
+          GuildID: TaskInput.fromJsonPathAt("$.GuildID").value,
+          ServerID: TaskInput.fromJsonPathAt("$.ServerID").value,
         }
       }
     });

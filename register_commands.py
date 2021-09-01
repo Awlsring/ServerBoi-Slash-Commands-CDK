@@ -245,9 +245,22 @@ commands = {
                     ],
                 },
                 {
+                    "name": "linode",
+                    "type": 1,
+                    "description": "Onboard Linode account to ServerBoi.",
+                    "options": [
+                        {
+                            "name": "api-key",
+                            "description": "Api Key for Linode account to onboard",
+                            "type": 3,
+                            "required": True,
+                        }
+                    ],
+                },
+                {
                     "name": "validate",
                     "type": 1,
-                    "description": "Validate cloud account can be reached bn ServerBoi.",
+                    "description": "Validate cloud account can be reached by ServerBoi.",
                     "options": [
                         {
                             "name": "service",
