@@ -128,7 +128,7 @@ export class ProvisionServerWorkflow extends Construct {
     const provisionStep = new LambdaInvoke(this, "Provision-Step", {
       lambdaFunction: provision.lambda,
       inputPath: "$",
-      resultPath: JsonPath.DISCARD,
+      resultPath: "$.ServerID",
       payloadResponseOnly: true
     });
 
