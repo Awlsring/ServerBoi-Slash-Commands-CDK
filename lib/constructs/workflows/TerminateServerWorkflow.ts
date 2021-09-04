@@ -1,19 +1,16 @@
-import { Construct, Duration } from "monocdk";
+import { Construct } from "monocdk";
 import { LayerVersion } from "monocdk/aws-lambda";
 import {
   StateMachine,
-  Choice,
-  Condition,
-  Wait,
-  WaitTime,
   Succeed,
-  Fail,
-  InputType,
 } from "monocdk/aws-stepfunctions";
-import { LambdaInvoke, SqsSendMessage } from "monocdk/aws-stepfunctions-tasks";
+import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
 import { Table } from "monocdk/aws-dynamodb";
-import { PythonLambda } from "../PythonLambdaConstruct";
+import { GoLambda } from "../GoLambdaConstruct";
+import { 
+  TerminateServer
+ } from "../../../function_uri_list.json"
 
 export interface TerminateServerProps {
   readonly discordLayer: LayerVersion;
@@ -28,18 +25,17 @@ export class TerminateServerWorkflow extends Construct {
   constructor(scope: Construct, id: string, props: TerminateServerProps) {
     super(scope, id);
 
-    const terminateName = "Terminate-Lambda";
-    const terminate = new PythonLambda(this, terminateName, {
+    const terminateName = "Terminate-Lambda-Go";
+    const terminate = new GoLambda(this, terminateName, {
       name: terminateName,
-      codePath: "lambdas/handlers/terminate_lambda/",
-      handler: "terminate_lambda.main.lambda_handler",
-      layers: [props.discordLayer, props.serverboiUtilsLayer],
+      bucket: TerminateServer.bucket,
+      object: TerminateServer.key,
       environment: {
         USER_TABLE: props.userList.tableName,
         SERVER_TABLE: props.serverList.tableName,
+        STAGE: "Prod"
       },
     });
-
     terminate.lambda.addToRolePolicy(
       new PolicyStatement({
         resources: ["*"],
@@ -53,17 +49,16 @@ export class TerminateServerWorkflow extends Construct {
           "dynamodb:UpdateItem",
           "dynamodb:DeleteItem",
           "sts:AssumeRole",
-          "ec2:TerminateInstances",
         ],
       })
     );
 
-    //step definitions
+    //Step definitions
     const terminateLambdaStep = new LambdaInvoke(this, "Terminate-Step", {
       lambdaFunction: terminate.lambda,
     });
 
-    const termEndStep = new Succeed(this, "Term-End-Step");
+    const termEndStep = new Succeed(this, "Terminate-End-Step");
 
     const termStepDefinition = terminateLambdaStep.next(termEndStep);
 
