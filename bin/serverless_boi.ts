@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { App } from "monocdk";
 import { ApiGatewayStack } from "../lib/stacks/ApiGatewayStack";
+import { EmbedManagerStack } from "../lib/stacks/EmbedManagerStack";
 import { ServerlessBoiResourcesStack } from "../lib/stacks/ServerlessBoiResourcesStack";
 import { ServerWorkflowsStack } from "../lib/stacks/ServerWorkflowsStack";
 
@@ -11,6 +12,11 @@ const resourcesStack = new ServerlessBoiResourcesStack(app, "Resources-Stack");
 const workflowStack = new ServerWorkflowsStack(app, "Workflows-Stack", {
   resourcesStack: resourcesStack,
 });
+
+const embedManagerStack = new EmbedManagerStack(app, "Embed-Manager-Stack",{
+  serverList: resourcesStack.serverList,
+  discordToken: resourcesStack.discordToken
+})
 
 new ApiGatewayStack(app, "Api-Gateway-Stack", {
   resourcesStack: resourcesStack,

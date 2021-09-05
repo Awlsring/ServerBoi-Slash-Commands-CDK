@@ -5,11 +5,9 @@ import {
   PassthroughBehavior,
   EndpointType,
 } from "monocdk/aws-apigateway";
-import { Runtime, Code, LayerVersion } from "monocdk/aws-lambda";
 import { PolicyStatement } from "monocdk/aws-iam";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { Secret } from "monocdk/aws-secretsmanager";
-import { PythonLambda } from "../constructs/PythonLambdaConstruct";
 import { GoLambda } from "../constructs/GoLambdaConstruct";
 import { ServerWorkflowsStack } from "./ServerWorkflowsStack";
 import { Certificate } from "monocdk/lib/aws-certificatemanager";

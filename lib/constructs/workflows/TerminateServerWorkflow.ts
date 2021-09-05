@@ -13,8 +13,6 @@ import {
  } from "../../../function_uri_list.json"
 
 export interface TerminateServerProps {
-  readonly discordLayer: LayerVersion;
-  readonly serverboiUtilsLayer: LayerVersion;
   readonly serverList: Table;
   readonly userList: Table;
 }

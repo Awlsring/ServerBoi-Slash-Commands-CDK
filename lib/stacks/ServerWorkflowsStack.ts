@@ -1,5 +1,4 @@
 import { Stack, StackProps, Construct, Token } from "monocdk";
-import { Runtime, Code, LayerVersion } from "monocdk/aws-lambda";
 import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
 import { WaitForBootstrap } from "../constructs/WaitForBootstrap";
 import { ProvisionServerWorkflow } from "../constructs/workflows/ProvisionServerWorkflow";
@@ -15,21 +14,6 @@ export class ServerWorkflowsStack extends Stack {
 
   constructor(scope: Construct, id: string, props: ServerWorkflowsStackProps) {
     super(scope, id, props);
-    const serverBoiUtils = new LayerVersion(this, "Serverboi-Util-Layer", {
-      code: Code.fromAsset(
-        "lambdas/layers/serverboi_utils/serverboi_utils.zip"
-      ),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for ServerBoi Util",
-      layerVersionName: "ServerBoi-Util-Layer",
-    });
-
-    const discordLayer = new LayerVersion(this, "discordpy-Layer", {
-      code: Code.fromAsset("lambdas/layers/discordpy/discordpy.zip"),
-      compatibleRuntimes: [Runtime.PYTHON_3_8],
-      description: "Lambda Layer for Discordpy",
-      layerVersionName: "Discordpy-Layer",
-    });
 
     const bootstrapConstruct = new WaitForBootstrap(
       this,
@@ -57,8 +41,6 @@ export class ServerWorkflowsStack extends Stack {
       this,
       "Terminate-Workflow",
       {
-        discordLayer: discordLayer,
-        serverboiUtilsLayer: serverBoiUtils,
         serverList: props.resourcesStack.serverList,
         userList: props.resourcesStack.userList,
       }

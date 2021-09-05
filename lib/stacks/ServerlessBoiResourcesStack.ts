@@ -2,7 +2,8 @@ import { Stack, Construct, RemovalPolicy, Duration } from "monocdk";
 import { Table, AttributeType, BillingMode } from "monocdk/aws-dynamodb";
 import { Bucket } from "monocdk/aws-s3";
 import { BucketDeployment, Source } from "monocdk/aws-s3-deployment";
-import { Runtime, Code, LayerVersion } from "monocdk/aws-lambda";
+import { LayerVersion } from "monocdk/aws-lambda";
+import { Secret } from "monocdk/aws-secretsmanager";
 
 export class ServerlessBoiResourcesStack extends Stack {
   //Creates all resources referenced across stacks
@@ -17,9 +18,17 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly requestsLayer: LayerVersion;
   readonly a2sLayer: LayerVersion;
   readonly serverBoiUtils: LayerVersion;
+  readonly discordToken: string;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
+
+    const discordToken = Secret.fromSecretCompleteArn(
+      this,
+      " ServerBoi-Discord-Token",
+      "arn:aws:secretsmanager:us-west-2:518723822228:secret:ServerBoi-Discord-Token-RBBLnM"
+    );
+    this.discordToken = discordToken.secretValue.toString()
 
     this.resourcesBucket = new Bucket(this, "Resources-Bucket", {
       bucketName: "serverboi-resources-bucket",
