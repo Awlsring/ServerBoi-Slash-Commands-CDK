@@ -2,6 +2,7 @@ import { Construct, Stack, StackProps } from "monocdk";
 import { Table } from "monocdk/aws-dynamodb";
 import { GoLambda } from "../constructs/GoLambdaConstruct";
 import { EmbedManager } from "../../function_uri_list.json"
+import { PolicyStatement } from "monocdk/aws-iam";
 
 export interface EmbedManagerStackProps extends StackProps {
     readonly serverList: Table;
@@ -23,6 +24,18 @@ export interface EmbedManagerStackProps extends StackProps {
             STAGE: "Prod"
           },
         });
+        embedManager.lambda.addToRolePolicy(
+            new PolicyStatement({
+              resources: ["*"],
+              actions: [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "dynamodb:GetItem",
+                "sts:AssumeRole",
+              ],
+            })
+          );
         
     }
 }
