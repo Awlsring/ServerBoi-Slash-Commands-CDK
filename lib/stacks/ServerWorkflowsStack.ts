@@ -31,6 +31,7 @@ export class ServerWorkflowsStack extends Stack {
         awsTable: props.resourcesStack.awsTable,
         linodeTable: props.resourcesStack.linodeTable,
         webhookList: props.resourcesStack.webhookList,
+        channelList: props.resourcesStack.channelTable,
       }
     );
 

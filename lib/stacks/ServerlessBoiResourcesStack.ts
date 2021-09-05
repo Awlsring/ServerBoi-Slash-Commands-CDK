@@ -14,6 +14,7 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly serverList: Table;
   readonly userList: Table;
   readonly awsTable: Table;
+  readonly channelTable: Table;
   readonly linodeTable: Table;
   readonly requestsLayer: LayerVersion;
   readonly a2sLayer: LayerVersion;
@@ -57,6 +58,13 @@ export class ServerlessBoiResourcesStack extends Stack {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],
       destinationBucket: this.resourcesBucket,
     });
+
+    this.channelTable = new Table(this, "Channel-Table", {
+      partitionKey: { name: "GuildID", type: AttributeType.STRING },
+      tableName: "ServerBoi-Channel-Table",
+      removalPolicy: RemovalPolicy.DESTROY,
+      billingMode: BillingMode.PAY_PER_REQUEST
+  });
 
     this.webhookList = new Table(this, "Webhook-Table", {
       partitionKey: { name: "GuildID", type: AttributeType.STRING },

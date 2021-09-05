@@ -29,6 +29,7 @@ export interface ProvisionServerProps {
   readonly userList: Table;
   readonly awsTable: Table;
   readonly linodeTable: Table;
+  readonly channelList: Table;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -103,10 +104,8 @@ export class ProvisionServerWorkflow extends Construct {
       object: FinishProvision.key,
       environment: {
         DISCORD_TOKEN: disordToken.secretValue.toString(),
-        USER_TABLE: props.userList.tableName,
         SERVER_TABLE: props.serverList.tableName,
-        AWS_TABLE: props.awsTable.tableName,
-        LINODE_TABLE: props.linodeTable.tableName,
+        CHANNEL_TABLE: props.channelList.tableName,
         WEBHOOK_TABLE: props.webhookList.tableName
       },
     });
