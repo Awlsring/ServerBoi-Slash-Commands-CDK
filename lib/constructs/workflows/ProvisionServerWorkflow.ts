@@ -164,6 +164,7 @@ export class ProvisionServerWorkflow extends Construct {
           ApplicationID: TaskInput.fromJsonPathAt("$.ApplicationID").value,
           GuildID: TaskInput.fromJsonPathAt("$.GuildID").value,
           ServerID: TaskInput.fromJsonPathAt("$.ServerID").value,
+          Private: TaskInput.fromJsonPathAt("$.Private")
         }
       }
     });

@@ -62,6 +62,7 @@ export class ApiGatewayStack extends Stack {
       LINODE_TABLE: props.resourcesStack.linodeTable.tableName,
       PROVISION_ARN: props.workflowStack.provisionStateMachineArn,
       TERMINATE_ARN: props.workflowStack.terminationStateMachineArn,
+      DISCORD_TOKEN: props.resourcesStack.discordToken,
     };
 
     const commandHandler = new GoLambda(this, "Command-Handler-Go", {
