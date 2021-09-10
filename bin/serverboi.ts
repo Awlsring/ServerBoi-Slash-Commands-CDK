@@ -2,7 +2,7 @@
 import { App } from "monocdk";
 import { ApiGatewayStack } from "../lib/stacks/ApiGatewayStack";
 import { EmbedManagerStack } from "../lib/stacks/EmbedManagerStack";
-import { ServerlessBoiResourcesStack } from "../lib/stacks/ServerlessBoiResourcesStack";
+import { ServerlessBoiResourcesStack } from "../lib/stacks/ResourcesStack";
 import { ServerWorkflowsStack } from "../lib/stacks/ServerWorkflowsStack";
 
 const app = new App();

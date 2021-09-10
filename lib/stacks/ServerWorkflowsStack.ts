@@ -1,5 +1,5 @@
 import { Stack, StackProps, Construct, Token } from "monocdk";
-import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
+import { ServerlessBoiResourcesStack } from "./ResourcesStack";
 import { WaitForBootstrap } from "../constructs/WaitForBootstrap";
 import { ProvisionServerWorkflow } from "../constructs/workflows/ProvisionServerWorkflow";
 import { TerminateServerWorkflow } from "../constructs/workflows/TerminateServerWorkflow";
@@ -25,11 +25,9 @@ export class ServerWorkflowsStack extends Stack {
       "Provision-Workflow",
       {
         serverList: props.resourcesStack.serverList,
-        userList: props.resourcesStack.userList,
+        ownerList: props.resourcesStack.ownerList,
         tokenBucket: props.resourcesStack.tokenBucket,
         tokenQueue: bootstrapConstruct.tokenQueue,
-        awsTable: props.resourcesStack.awsTable,
-        linodeTable: props.resourcesStack.linodeTable,
         webhookList: props.resourcesStack.webhookList,
         channelList: props.resourcesStack.channelTable,
       }
@@ -43,7 +41,7 @@ export class ServerWorkflowsStack extends Stack {
       "Terminate-Workflow",
       {
         serverList: props.resourcesStack.serverList,
-        userList: props.resourcesStack.userList,
+        ownerList: props.resourcesStack.ownerList,
       }
     );
 

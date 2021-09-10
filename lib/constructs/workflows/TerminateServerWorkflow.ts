@@ -14,7 +14,7 @@ import {
 
 export interface TerminateServerProps {
   readonly serverList: Table;
-  readonly userList: Table;
+  readonly ownerList: Table;
 }
 
 export class TerminateServerWorkflow extends Construct {
@@ -29,7 +29,7 @@ export class TerminateServerWorkflow extends Construct {
       bucket: TerminateServer.bucket,
       object: TerminateServer.key,
       environment: {
-        USER_TABLE: props.userList.tableName,
+        OWNER_TABLE: props.ownerList.tableName,
         SERVER_TABLE: props.serverList.tableName,
         STAGE: "Prod"
       },

@@ -1,6 +1,6 @@
 import { Construct, Stage, StageProps } from "monocdk";
 import { ApiGatewayStack } from "../stacks/ApiGatewayStack";
-import { ServerlessBoiResourcesStack } from "../stacks/ServerlessBoiResourcesStack";
+import { ServerlessBoiResourcesStack } from "../stacks/ResourcesStack";
 import { ServerWorkflowsStack } from "../stacks/ServerWorkflowsStack";
 
 export class PipelineStage extends Stage {

@@ -26,9 +26,7 @@ export interface ProvisionServerProps {
   readonly tokenQueue: Queue;
   readonly serverList: Table;
   readonly webhookList: Table;
-  readonly userList: Table;
-  readonly awsTable: Table;
-  readonly linodeTable: Table;
+  readonly ownerList: Table;
   readonly channelList: Table;
 }
 
@@ -45,10 +43,7 @@ export class ProvisionServerWorkflow extends Construct {
       object: ProvisionServer.key,
       environment: {
         SERVER_TABLE: props.serverList.tableName,
-        AWS_TABLE: props.awsTable.tableName,
-        LINODE_TABLE: props.linodeTable.tableName,
-        DYNAMO_CONTAINER: "serverboi-dynamodb-local",
-        LOCALSTACK_CONTAINER: "serverboi-localstack",
+        OWNER_TABLE: props.ownerList.tableName,
         STAGE: "Prod"
       },
     });

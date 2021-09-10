@@ -15,6 +15,188 @@ url = f"https://discord.com/api/v8/applications/{application_id}/guilds/{server_
 
 print(url)
 
+# Probably not too useful for this
+user_command = {
+    "name": "user-test",
+    "description": "",
+    "type": 2,
+}
+
+# Refresh embed? How to limit...
+message_command = {
+    "name": "refresh",
+    "description": "",
+    "type": 3,
+}
+
+server_commands = {
+    "name": "server",
+    "description": "What do you want to do?",
+    "type": 1,
+    "options": [
+        {
+            "name": "start",
+            "type": 1,
+            "description": "Start the specified server.",
+            "options": [
+                {
+                    "name": "id",
+                    "description": "The ID of the server to take action on.",
+                    "type": 3,
+                    "required": True,
+                }
+            ],
+        },
+        {
+            "name": "stop",
+            "type": 1,
+            "description": "Stop the specified server.",
+            "options": [
+                {
+                    "name": "id",
+                    "description": "The ID of the server to take action on.",
+                    "type": 3,
+                    "required": True,
+                }
+            ],
+        },
+        {
+            "name": "status",
+            "type": 1,
+            "description": "Get status of the specified server.",
+            "options": [
+                {
+                    "name": "id",
+                    "description": "The ID of the server to take action on.",
+                    "type": 3,
+                    "required": True,
+                }
+            ],
+        },
+        {
+            "name": "relist",
+            "type": 1,
+            "description": "Relist server embed if it was unexpectedly removed.",
+            "options": [
+                {
+                    "name": "id",
+                    "description": "The ID of the server to take action on.",
+                    "type": 3,
+                    "required": True,
+                }
+            ],
+        },
+        {
+            "name": "terminate",
+            "type": 1,
+            "description": "Terminate the specified server.",
+            "options": [
+                {
+                    "name": "id",
+                    "description": "The ID of the server to take action on.",
+                    "type": 3,
+                    "required": True,
+                }
+            ],
+        }
+    ]
+}
+
+commands2 = {
+    "name": "test",
+    "description": "TEST.",
+    "choices": [
+        {
+            "name": "test1",
+            "value": "aws"
+        },
+        {
+            "name": "test2",
+            "value": "linode"
+        },
+    ],
+    "options": [
+        {
+            "name": "service",
+            "description": "Service server is hosted on.",
+            "type": 3,
+            "required": True,
+            "choices": [
+                {
+                    "name": "AWS",
+                    "value": "aws"
+                },
+                {
+                    "name": "Linode",
+                    "value": "linode"
+                },
+            ]
+        },
+        {
+            "name": "region",
+            "description": "Abstracted regions. To set a specific region, choose Override and type a region in override-region.",
+            "type": 3,
+            "required": True,
+            "choices": [
+                {
+                    "name": "US-West",
+                    "value": "us-west"
+                },
+                {
+                    "name": "US-East",
+                    "value": "us-east"
+                },
+                {
+                    "name": "US-Central",
+                    "value": "us-central"
+                },
+                {
+                    "name": "US-South",
+                    "value": "us-south"
+                },
+                {
+                    "name": "Override",
+                    "value": "override"
+                },
+            ]
+        },
+        {
+            "name": "private",
+            "description": "Defaults to public. If server is private, server won't be listed",
+            "type": 5,
+            "required": False,
+        },
+        {
+            "name": "profile",
+            "description": "Profile to create server. If not set, will be your personal default",
+            "type": 3,
+            "required": False,
+            "choices": [
+                {
+                    "name": "Personal",
+                    "value": "aws"
+                },
+                {
+                    "name": "Server",
+                    "value": "server"
+                },
+            ]
+        },
+        {
+            "name": "name",
+            "description": "Name of the server.",
+            "type": 3,
+            "required": False,
+        },
+        {
+            "name": "override-region",
+            "description": "Overried the selected region for a service specific one",
+            "type": 3,
+            "required": False,
+        }
+    ],
+}
+
 commands = {
     "name": "sb",
     "description": "Commands to interact with Servers controlled by ServerBoi",
@@ -224,6 +406,51 @@ commands = {
                         },
                     ],
                 },
+                {
+                    "name": "test",
+                    "type": 1,
+                    "description": "TEST.",
+                    "options": [
+                        {
+                            "name": "service",
+                            "description": "Service server is hosted on.",
+                            "type": 3,
+                            "required": True,
+                            "choices": [
+                                {
+                                    "name": "AWS",
+                                    "value": "aws"
+                                },
+                                {
+                                    "name": "Linode",
+                                    "value": "linode"
+                                },
+                            ]
+                        },
+                        {
+                            "name": "region",
+                            "description": "Use ServerBoi generics (US-West) or use a service's specific name (us-west-2)",
+                            "type": 3,
+                            "required": True,
+                            "choices": [
+                                {
+                                    "name": "AWS",
+                                    "value": "aws"
+                                },
+                                {
+                                    "name": "Linode",
+                                    "value": "linode"
+                                },
+                            ]
+                        },
+                        {
+                            "name": "name",
+                            "description": "Name of the server.",
+                            "type": 3,
+                            "required": False,
+                        },
+                    ],
+                },
             ],
         },
         {
@@ -278,5 +505,7 @@ commands = {
 headers = {"Authorization": f"Bot {discord_token}"}
 
 if __name__ == "__main__":
-    r = requests.post(url, headers=headers, json=commands)
+
+    url = f"https://discord.com/api/v8/applications/{application_id}/guilds/{server_id}/commands/884540690128830474"
+    r = requests.delete(url, headers=headers)
     print(r.content)

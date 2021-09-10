@@ -6,7 +6,7 @@ import {
   EndpointType,
 } from "monocdk/aws-apigateway";
 import { PolicyStatement } from "monocdk/aws-iam";
-import { ServerlessBoiResourcesStack } from "./ServerlessBoiResourcesStack";
+import { ServerlessBoiResourcesStack } from "./ResourcesStack";
 import { Secret } from "monocdk/aws-secretsmanager";
 import { GoLambda } from "../constructs/GoLambdaConstruct";
 import { ServerWorkflowsStack } from "./ServerWorkflowsStack";
@@ -57,11 +57,10 @@ export class ApiGatewayStack extends Stack {
       PUBLIC_KEY: publicKey.secretValue.toString(),
       RESOURCES_BUCKET: props.resourcesStack.resourcesBucket.bucketName,
       SERVER_TABLE: props.resourcesStack.serverList.tableName,
-      USER_TABLE: props.resourcesStack.userList.tableName,
-      AWS_TABLE: props.resourcesStack.awsTable.tableName,
-      LINODE_TABLE: props.resourcesStack.linodeTable.tableName,
+      OWNER_TABLE: props.resourcesStack.ownerList.tableName,
       PROVISION_ARN: props.workflowStack.provisionStateMachineArn,
       TERMINATE_ARN: props.workflowStack.terminationStateMachineArn,
+      CHANNEL_TABLE: props.resourcesStack.channelTable.tableName,
       DISCORD_TOKEN: props.resourcesStack.discordToken,
     };
 

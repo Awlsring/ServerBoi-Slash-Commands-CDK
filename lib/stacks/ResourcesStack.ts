@@ -12,13 +12,8 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly tokenBucket: Bucket;
   readonly webhookList: Table;
   readonly serverList: Table;
-  readonly userList: Table;
-  readonly awsTable: Table;
+  readonly ownerList: Table;
   readonly channelTable: Table;
-  readonly linodeTable: Table;
-  readonly requestsLayer: LayerVersion;
-  readonly a2sLayer: LayerVersion;
-  readonly serverBoiUtils: LayerVersion;
   readonly discordToken: string;
 
   constructor(scope: Construct, id: string) {
@@ -80,25 +75,33 @@ export class ServerlessBoiResourcesStack extends Stack {
       billingMode: BillingMode.PAY_PER_REQUEST
     });
 
-    this.linodeTable = new Table(this, "Linode-User-Table", {
+
+    const oldLinodeTable = new Table(this, "Linode-User-Table", {
       partitionKey: { name: "UserID", type: AttributeType.STRING },
       tableName: "Linode-User-List",
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST
     });
 
-    this.awsTable = new Table(this, "AWS-User-Table", {
+    const oldAwsTable = new Table(this, "AWS-User-Table", {
       partitionKey: { name: "UserID", type: AttributeType.STRING },
       tableName: "AWS-User-List",
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST
     });
 
-    this.userList = new Table(this, "User-Table", {
+    const userList = new Table(this, "User-Table", {
       partitionKey: { name: "UserID", type: AttributeType.STRING },
       tableName: "ServerBoi-User-List",
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST
     });
+
+    this.ownerList = new Table(this, "Owner-Table", {
+      partitionKey: { name: "OwnerID", type: AttributeType.STRING },
+      tableName: "ServerBoi-Owner-List",
+      removalPolicy: RemovalPolicy.DESTROY,
+      billingMode: BillingMode.PAY_PER_REQUEST
+    })
   }
 }
