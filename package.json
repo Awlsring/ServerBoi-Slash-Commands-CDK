@@ -1,8 +1,8 @@
 {
-  "name": "serverless_boi",
+  "name": "serverboi",
   "version": "0.1.0",
   "bin": {
-    "serverless_boi": "bin/serverless_boi.js"
+    "serverboi": "bin/serverboi.js"
   },
   "scripts": {
     "build": "tsc",
