@@ -2,7 +2,6 @@ import { Stack, Construct, RemovalPolicy, Duration } from "monocdk";
 import { Table, AttributeType, BillingMode } from "monocdk/aws-dynamodb";
 import { Bucket } from "monocdk/aws-s3";
 import { BucketDeployment, Source } from "monocdk/aws-s3-deployment";
-import { LayerVersion } from "monocdk/aws-lambda";
 import { Secret } from "monocdk/aws-secretsmanager";
 
 export class ServerlessBoiResourcesStack extends Stack {
@@ -71,28 +70,6 @@ export class ServerlessBoiResourcesStack extends Stack {
     this.serverList = new Table(this, "Server-Table", {
       partitionKey: { name: "ServerID", type: AttributeType.STRING },
       tableName: "ServerBoi-Server-List",
-      removalPolicy: RemovalPolicy.DESTROY,
-      billingMode: BillingMode.PAY_PER_REQUEST
-    });
-
-
-    const oldLinodeTable = new Table(this, "Linode-User-Table", {
-      partitionKey: { name: "UserID", type: AttributeType.STRING },
-      tableName: "Linode-User-List",
-      removalPolicy: RemovalPolicy.DESTROY,
-      billingMode: BillingMode.PAY_PER_REQUEST
-    });
-
-    const oldAwsTable = new Table(this, "AWS-User-Table", {
-      partitionKey: { name: "UserID", type: AttributeType.STRING },
-      tableName: "AWS-User-List",
-      removalPolicy: RemovalPolicy.DESTROY,
-      billingMode: BillingMode.PAY_PER_REQUEST
-    });
-
-    const userList = new Table(this, "User-Table", {
-      partitionKey: { name: "UserID", type: AttributeType.STRING },
-      tableName: "ServerBoi-User-List",
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST
     });

@@ -7,7 +7,6 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "make testpython",
     "cdk": "cdk"
   },
   "devDependencies": {

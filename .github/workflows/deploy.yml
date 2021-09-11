@@ -24,12 +24,6 @@ jobs:
           npm install
       - name: Download function uri list
         run: aws s3 cp s3://serverboi-sam-packages/function_uri_list.json function_uri_list.json
-      - name: Pull in Lambdas
-        run: |
-          mkdir lambda_packages
-          git clone https://github.com/ServerBoiTeam/Discord-Slash-Command-Lambdas.git lambda_packages
-          cd lambda_packages
-          for d in */ ; do echo "$d" && cd $d/lambda && npm install && npm run compile && ls && cd ../.. ; done
       - name: CDK Deploy
         run: |
           npm run build
