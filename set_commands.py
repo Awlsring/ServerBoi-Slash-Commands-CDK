@@ -44,8 +44,15 @@ override_region_blob = {
 
 override_hardware_blob = {
     "name": "override-hardware",
-    "description": "Overried the default hardware for the server",
+    "description": "Override the default hardware for the server",
     "type": 3,
+    "required": False,
+}
+
+create_profile_blob = {
+    "name": "profile",
+    "description": "Profile to create server for",
+    "type": 8,
     "required": False,
 }
 
@@ -124,6 +131,7 @@ create_commands = {
             "options": [
                 service_blob,
                 region_blob,
+                create_profile_blob,
                 private_blob,
                 name_blob,
                 {
@@ -161,6 +169,7 @@ create_commands = {
                     "type": 3,
                     "required": True,
                 },
+                create_profile_blob,
                 private_blob,
                 name_blob,
                 override_region_blob,
@@ -174,6 +183,7 @@ create_commands = {
             "options": [
                 service_blob,
                 region_blob,
+                create_profile_blob,
                 private_blob,
                 name_blob,
                 override_region_blob,
@@ -187,6 +197,7 @@ create_commands = {
             "options": [
                 service_blob,
                 region_blob,
+                create_profile_blob,
                 private_blob,
                 name_blob,
                 override_region_blob,
@@ -252,7 +263,43 @@ server_commands = {
     ],
 }
 
-authorize_command = {
+deauthorize_commands = {
+    "name": "deauthorize",
+    "description": "Deauthorize user or role for server actions",
+    "type": 1,
+    "options": [
+        {
+            "name": "user",
+            "description": "Authorize a user to perform server actions on a specified server.",
+            "type": 1,
+            "options": [
+                server_id_blob,
+                {
+                    "name": "user",
+                    "description": "User to authorize",
+                    "type": 6,
+                    "required": True,
+                },
+            ]
+        },
+        {
+            "name": "role",
+            "description": "Authorize a role to perform server actions on a specified server.",
+            "type": 1,
+            "options": [
+                server_id_blob,
+                {
+                    "name": "role",
+                    "description": "Role to authorize",
+                    "type": 8,
+                    "required": True,
+                }
+            ]
+        }
+    ]
+}
+
+authorize_commands = {
     "name": "authorize",
     "description": "Authorize user or role for server actions",
     "type": 1,
@@ -288,87 +335,6 @@ authorize_command = {
     ]
 }
 
-onboard_commands = {
-    "name": "onboard",
-    "description": "Onboard your service account to ServerBoi.",
-    "type": 1,
-    "options": [
-        {
-            "name": "aws",
-            "type": 1,
-            "description": "Onboard AWS Account to ServerBoi.",
-            "options": [
-                {
-                    "name": "account-id",
-                    "description": "ID of the AWS Account to onboard",
-                    "type": 3,
-                    "required": True,
-                }
-            ],
-        },
-        {
-            "name": "linode",
-            "type": 1,
-            "description": "Onboard Linode account to ServerBoi.",
-            "options": [
-                {
-                    "name": "api-key",
-                    "description": "Api Key for Linode account to onboard",
-                    "type": 3,
-                    "required": True,
-                }
-            ],
-        },
-        {
-            "name": "validate",
-            "type": 1,
-            "description": "Validate cloud account can be reached by ServerBoi.",
-            "options": [
-                {
-                    "name": "service",
-                    "description": "Service to validate",
-                    "type": 3,
-                    "required": True,
-                    "choices": service_choices
-                }
-            ],
-        },
-    ],
-}
-
-profile_role_blob = {
-    "name": "role",
-    "description": "Role",
-    "type": 8,
-    "required": True,
-},
-
-profile_commands2 = {
-    "name": "profile",
-    "description": "Profile test",
-    "type": 1,
-    "options": [
-        {
-            "name": "add",
-            "type": 1,
-            "description": "Add account to Profile.",
-            "options": [
-                {
-                    "name": "role",
-                    "description": "Add AWS account to Profile",
-                    "type": 8,
-                    "required": True,
-                },
-                {
-                    "name": "aws",
-                    "description": "Add AWS account to Profile",
-                    "type": 3,
-                    "required": True,
-                },
-            ]
-        },
-    ],
-}
 
 remove_commands = {
     "name": "remove",
@@ -499,10 +465,10 @@ set_commands = {
     ],
 }
 
-commands = [authorize_command]
+commands = [authorize_commands]
 
 headers = {"Authorization": f"Bot {discord_token}"}
 
 if __name__ == "__main__":
-    r = requests.post(url, headers=headers, json=set_commands)
+    r = requests.post(url, headers=headers, json=deauthorize_commands)
     print(r.content.decode())

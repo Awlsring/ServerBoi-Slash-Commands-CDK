@@ -30,6 +30,7 @@ export class ServerWorkflowsStack extends Stack {
         tokenQueue: bootstrapConstruct.tokenQueue,
         webhookList: props.resourcesStack.webhookList,
         channelList: props.resourcesStack.channelTable,
+        discordToken: props.resourcesStack.discordToken
       }
     );
 

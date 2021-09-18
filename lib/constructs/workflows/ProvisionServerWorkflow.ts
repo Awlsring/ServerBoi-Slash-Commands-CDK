@@ -28,6 +28,7 @@ export interface ProvisionServerProps {
   readonly webhookList: Table;
   readonly ownerList: Table;
   readonly channelList: Table;
+  readonly discordToken: string;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -44,6 +45,7 @@ export class ProvisionServerWorkflow extends Construct {
       environment: {
         SERVER_TABLE: props.serverList.tableName,
         OWNER_TABLE: props.ownerList.tableName,
+        DISCORD_TOKEN: props.discordToken,
         STAGE: "Prod"
       },
     });
