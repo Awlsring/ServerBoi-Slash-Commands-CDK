@@ -8,7 +8,7 @@ import {
   JsonPath,
   TaskInput,
 } from "monocdk/aws-stepfunctions";
-import { LambdaInvoke } from "monocdk/aws-stepfunctions-tasks";
+import { LambdaInvoke, StepFunctionsStartExecution } from "monocdk/aws-stepfunctions-tasks";
 import { PolicyStatement } from "monocdk/aws-iam";
 import { Table } from "monocdk/aws-dynamodb";
 import { GoLambda } from "../GoLambdaConstruct";
@@ -29,6 +29,7 @@ export interface ProvisionServerProps {
   readonly ownerList: Table;
   readonly channelList: Table;
   readonly discordToken: string;
+  readonly terminationWorkflow: StateMachine;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -168,17 +169,31 @@ export class ProvisionServerWorkflow extends Construct {
 
     const endStep = new Succeed(this, "End-Step");
 
+    const catchFailure = new StepFunctionsStartExecution(this, "Terminate-Failed-Server", {
+      stateMachine: props.terminationWorkflow,
+      name: "Terminate-Failed-Server",
+      input: TaskInput.fromObject({
+        Token: TaskInput.fromJsonPathAt("$.InteractionToken").value,
+        ApplicationID: TaskInput.fromJsonPathAt("$.ApplicationID").value,
+        ServerID: TaskInput.fromJsonPathAt("$.ServerID").value,
+        ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName").value,
+        Fallback: true,
+      }),
+    })
+
     const stepDefinition = provisionStep;
     provisionStep.next(tokenNodes[0]);
 
     var i = 0;
     do {
+      tokenNodes[i].addCatch(catchFailure)
       tokenNodes[i].next(tokenNodes[i + 1]);
       i = i + 1;
     } while (i <= tokenNodes.length - 2);
 
     tokenNodes[i].next(finishProvisionStep);
 
+    finishProvisionStep.addCatch(catchFailure)
     finishProvisionStep.next(endStep);
 
     this.provisionStateMachine = new StateMachine(

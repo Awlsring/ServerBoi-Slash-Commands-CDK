@@ -20,6 +20,17 @@ export class ServerWorkflowsStack extends Stack {
       "Wait-For-Bootstrap-Construct"
     );
 
+    const terminationWorkflow = new TerminateServerWorkflow(
+      this,
+      "Terminate-Workflow",
+      {
+        serverList: props.resourcesStack.serverList,
+        ownerList: props.resourcesStack.ownerList,
+      }
+    );
+
+    this.terminationStateMachineArn = terminationWorkflow.terminationStateMachine.stateMachineArn;
+    
     const provisionWorkflow = new ProvisionServerWorkflow(
       this,
       "Provision-Workflow",
@@ -30,23 +41,13 @@ export class ServerWorkflowsStack extends Stack {
         tokenQueue: bootstrapConstruct.tokenQueue,
         webhookList: props.resourcesStack.webhookList,
         channelList: props.resourcesStack.channelTable,
-        discordToken: props.resourcesStack.discordToken
+        discordToken: props.resourcesStack.discordToken,
+        terminationWorkflow: terminationWorkflow.terminationStateMachine,
       }
     );
 
     this.provisionStateMachineArn =
       provisionWorkflow.provisionStateMachine.stateMachineArn;
 
-    const terminationWorkflow = new TerminateServerWorkflow(
-      this,
-      "Terminate-Workflow",
-      {
-        serverList: props.resourcesStack.serverList,
-        ownerList: props.resourcesStack.ownerList,
-      }
-    );
-
-    this.terminationStateMachineArn =
-      terminationWorkflow.terminationStateMachine.stateMachineArn;
   }
 }

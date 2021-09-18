@@ -56,9 +56,8 @@ export class TerminateServerWorkflow extends Construct {
       lambdaFunction: terminate.lambda,
     });
 
-    const termEndStep = new Succeed(this, "Terminate-End-Step");
 
-    const termStepDefinition = terminateLambdaStep.next(termEndStep);
+    const termStepDefinition = terminateLambdaStep;
 
     this.terminationStateMachine = new StateMachine(
       this,
