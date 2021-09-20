@@ -43,6 +43,7 @@ export class ServerWorkflowsStack extends Stack {
         channelList: props.resourcesStack.channelTable,
         discordToken: props.resourcesStack.discordToken,
         terminationWorkflow: terminationWorkflow.terminationStateMachine,
+        provisionConfigurationBucket: props.resourcesStack.provisionConfigBucket
       }
     );
 

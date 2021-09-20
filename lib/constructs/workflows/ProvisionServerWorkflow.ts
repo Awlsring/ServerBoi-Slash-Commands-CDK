@@ -30,6 +30,7 @@ export interface ProvisionServerProps {
   readonly channelList: Table;
   readonly discordToken: string;
   readonly terminationWorkflow: StateMachine;
+  readonly provisionConfigurationBucket: Bucket;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -47,6 +48,7 @@ export class ProvisionServerWorkflow extends Construct {
         SERVER_TABLE: props.serverList.tableName,
         OWNER_TABLE: props.ownerList.tableName,
         DISCORD_TOKEN: props.discordToken,
+        CONFIGURATION_BUCKET: props.provisionConfigurationBucket.bucketName,
         STAGE: "Prod"
       },
     });

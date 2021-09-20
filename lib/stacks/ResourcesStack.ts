@@ -14,6 +14,7 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly ownerList: Table;
   readonly channelTable: Table;
   readonly discordToken: string;
+  readonly provisionConfigBucket: Bucket;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -47,6 +48,11 @@ export class ServerlessBoiResourcesStack extends Stack {
         },
       ],
     });
+
+    this.provisionConfigBucket = new Bucket(this, "Provision-Config-Bucket", {
+      bucketName: "serverboi-provision-configuration-bucket",
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],
