@@ -31,6 +31,7 @@ export interface ProvisionServerProps {
   readonly discordToken: string;
   readonly terminationWorkflow: StateMachine;
   readonly provisionConfigurationBucket: Bucket;
+  readonly dockerComposeTemplateBucket: Bucket;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -49,6 +50,7 @@ export class ProvisionServerWorkflow extends Construct {
         OWNER_TABLE: props.ownerList.tableName,
         DISCORD_TOKEN: props.discordToken,
         CONFIGURATION_BUCKET: props.provisionConfigurationBucket.bucketName,
+        COMPOSE_BUCKET: props.dockerComposeTemplateBucket.bucketName,
         STAGE: "Prod"
       },
     });

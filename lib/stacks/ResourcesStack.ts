@@ -15,6 +15,7 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly channelTable: Table;
   readonly discordToken: string;
   readonly provisionConfigBucket: Bucket;
+  readonly dockerComposeBucket: Bucket;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -44,15 +45,27 @@ export class ServerlessBoiResourcesStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       lifecycleRules: [
         {
-          expiration: Duration.days(1),
+          expiration: Duration.hours(1),
         },
       ],
     });
 
-    this.provisionConfigBucket = new Bucket(this, "Provision-Config-Bucket", {
-      bucketName: "serverboi-provision-configuration-bucket",
+    this.provisionConfigBucket = new Bucket(this, "Config-Bucket", {
+      bucketName: "serverboi-configuration-bucket",
       removalPolicy: RemovalPolicy.DESTROY,
     })
+
+    this.dockerComposeBucket = new Bucket(this, "Compose-Template-Bucket", {
+      bucketName: "serverboi-docker-compose-bucket",
+      publicReadAccess: true,
+      autoDeleteObjects: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      lifecycleRules: [
+        {
+          expiration: Duration.hours(1),
+        },
+      ],
+    });
 
     const deployment = new BucketDeployment(this, "Bucket-Deployment", {
       sources: [Source.asset("lib/stacks/resources/onboardingDeployment")],
