@@ -50,7 +50,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       ],
     });
 
-    this.provisionConfigBucket = new Bucket(this, "Config-Bucket", {
+    this.provisionConfigBucket = new Bucket(this, "Provision-Config-Bucket", {
       bucketName: "serverboi-provision-configuration-bucket",
       removalPolicy: RemovalPolicy.DESTROY,
     })
