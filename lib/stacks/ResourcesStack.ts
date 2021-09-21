@@ -45,7 +45,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       lifecycleRules: [
         {
-          expiration: Duration.hours(1),
+          expiration: Duration.days(1),
         },
       ],
     });
@@ -62,7 +62,7 @@ export class ServerlessBoiResourcesStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY,
       lifecycleRules: [
         {
-          expiration: Duration.hours(1),
+          expiration: Duration.days(1),
         },
       ],
     });
