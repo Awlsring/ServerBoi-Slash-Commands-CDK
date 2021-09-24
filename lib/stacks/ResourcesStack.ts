@@ -16,6 +16,7 @@ export class ServerlessBoiResourcesStack extends Stack {
   readonly discordToken: string;
   readonly provisionConfigBucket: Bucket;
   readonly dockerComposeBucket: Bucket;
+  readonly sshBucket: Bucket;
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
@@ -52,6 +53,11 @@ export class ServerlessBoiResourcesStack extends Stack {
 
     this.provisionConfigBucket = new Bucket(this, "Provision-Config-Bucket", {
       bucketName: "serverboi-provision-configuration-bucket",
+      removalPolicy: RemovalPolicy.DESTROY,
+    })
+
+    this.sshBucket = new Bucket(this, "SSH-Bucket", {
+      bucketName: "serverboi-ssh-bucket",
       removalPolicy: RemovalPolicy.DESTROY,
     })
 

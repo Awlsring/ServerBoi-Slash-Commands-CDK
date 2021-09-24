@@ -44,7 +44,8 @@ export class ServerWorkflowsStack extends Stack {
         discordToken: props.resourcesStack.discordToken,
         terminationWorkflow: terminationWorkflow.terminationStateMachine,
         provisionConfigurationBucket: props.resourcesStack.provisionConfigBucket,
-        dockerComposeTemplateBucket: props.resourcesStack.dockerComposeBucket
+        dockerComposeTemplateBucket: props.resourcesStack.dockerComposeBucket,
+        sshBucket: props.resourcesStack.sshBucket,
       }
     );
 

@@ -32,6 +32,7 @@ export interface ProvisionServerProps {
   readonly terminationWorkflow: StateMachine;
   readonly provisionConfigurationBucket: Bucket;
   readonly dockerComposeTemplateBucket: Bucket;
+  readonly sshBucket: Bucket;
 }
 
 export class ProvisionServerWorkflow extends Construct {
@@ -51,6 +52,7 @@ export class ProvisionServerWorkflow extends Construct {
         DISCORD_TOKEN: props.discordToken,
         CONFIGURATION_BUCKET: props.provisionConfigurationBucket.bucketName,
         COMPOSE_BUCKET: props.dockerComposeTemplateBucket.bucketName,
+        KEY_BUCKET: props.sshBucket.bucketName,
         STAGE: "Prod"
       },
     });
@@ -62,6 +64,7 @@ export class ProvisionServerWorkflow extends Construct {
           "logs:CreateLogStream",
           "logs:PutLogEvents",
           "s3:GetObject",
+          "s3:PutObject",
           "dynamodb:Scan",
           "dynamodb:Query",
           "dynamodb:PutItem",
@@ -108,7 +111,8 @@ export class ProvisionServerWorkflow extends Construct {
         DISCORD_TOKEN: disordToken.secretValue.toString(),
         SERVER_TABLE: props.serverList.tableName,
         CHANNEL_TABLE: props.channelList.tableName,
-        WEBHOOK_TABLE: props.webhookList.tableName
+        WEBHOOK_TABLE: props.webhookList.tableName,
+        KEY_BUCKET: props.sshBucket.bucketName
       },
     });
     finishProvision.lambda.addToRolePolicy(
@@ -118,6 +122,8 @@ export class ProvisionServerWorkflow extends Construct {
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
+          "s3:GetObject",
+          "s3:PutObject",
           "dynamodb:Query",
           "dynamodb:GetItem",
           "sts:AssumeRole",
@@ -129,30 +135,22 @@ export class ProvisionServerWorkflow extends Construct {
     const provisionStep = new LambdaInvoke(this, "Provision-Step", {
       lambdaFunction: provision.lambda,
       inputPath: "$",
-      resultPath: "$.ServerID",
+      resultPath: "$.ProvisionResponse",
       payloadResponseOnly: true
     });
 
-    const tokenNodeNames = ["Wait-For-Download", "Starting-Server-Client"];
-
-    var tokenNodes = new Array<LambdaInvoke>();
-
-    tokenNodeNames.forEach((stageName) => {
-      var stage = new LambdaInvoke(this, stageName, {
-        lambdaFunction: putToken.lambda,
-        integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
-        timeout: Duration.hours(1),
-        payload: {
-          type: InputType.OBJECT,
-          value: {
-            ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName").value,
-            TaskToken: JsonPath.taskToken,
-          },
+    const waitForClient = new LambdaInvoke(this, "Wait-For-Client", {
+      lambdaFunction: putToken.lambda,
+      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      timeout: Duration.hours(1),
+      payload: {
+        type: InputType.OBJECT,
+        value: {
+          ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName").value,
+          TaskToken: JsonPath.taskToken,
         },
-        resultPath: JsonPath.DISCARD,
-      });
-
-      tokenNodes.push(stage);
+      },
+      resultPath: JsonPath.DISCARD,
     });
 
     const finishProvisionStep = new LambdaInvoke(this, "Finish-Provision-Step", {
@@ -165,13 +163,12 @@ export class ProvisionServerWorkflow extends Construct {
           InteractionToken: TaskInput.fromJsonPathAt("$.InteractionToken").value,
           ApplicationID: TaskInput.fromJsonPathAt("$.ApplicationID").value,
           GuildID: TaskInput.fromJsonPathAt("$.GuildID").value,
-          ServerID: TaskInput.fromJsonPathAt("$.ServerID").value,
+          ServerID: TaskInput.fromJsonPathAt("$.ProvisionResponse.ServerID").value,
+          PrivateKeyObject: TaskInput.fromJsonPathAt("$.ProvisionResponse.PrivateKeyObject").value,
           Private: TaskInput.fromJsonPathAt("$.Private").value
         }
       }
     });
-
-    const endStep = new Succeed(this, "End-Step");
 
     const catchFailure = new StepFunctionsStartExecution(this, "Terminate-Failed-Server", {
       stateMachine: props.terminationWorkflow,
@@ -186,19 +183,10 @@ export class ProvisionServerWorkflow extends Construct {
     })
 
     const stepDefinition = provisionStep;
-    provisionStep.next(tokenNodes[0]);
-
-    var i = 0;
-    do {
-      tokenNodes[i].addCatch(catchFailure)
-      tokenNodes[i].next(tokenNodes[i + 1]);
-      i = i + 1;
-    } while (i <= tokenNodes.length - 2);
-
-    tokenNodes[i].next(finishProvisionStep);
-
+    provisionStep.next(waitForClient);
+    waitForClient.addCatch(catchFailure)
+    waitForClient.next(finishProvisionStep)
     finishProvisionStep.addCatch(catchFailure)
-    finishProvisionStep.next(endStep);
 
     this.provisionStateMachine = new StateMachine(
       this,
