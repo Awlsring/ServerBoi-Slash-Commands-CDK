@@ -59,6 +59,11 @@ export class ServerlessBoiResourcesStack extends Stack {
     this.sshBucket = new Bucket(this, "SSH-Bucket", {
       bucketName: "serverboi-ssh-bucket",
       removalPolicy: RemovalPolicy.DESTROY,
+      lifecycleRules: [
+        {
+          expiration: Duration.days(1),
+        },
+      ],
     })
 
     this.dockerComposeBucket = new Bucket(this, "Compose-Template-Bucket", {

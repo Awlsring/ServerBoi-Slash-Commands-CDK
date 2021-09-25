@@ -142,14 +142,14 @@ create_commands = {
                 },
                 {
                     "name": "password",
-                    "description": "Password for server. Must be at least 5 characters in length.",
+                    "description": "Password for server. Must be at least 6 characters in length. Defaults to `secret`",
                     "type": 3,
                     "required": False,
                 },
                 {
-                    "name": "world-file-url",
-                    "description": "Use an existing world file. Must be publicly accessible url.",
-                    "type": 3,
+                    "name": "server-public",
+                    "description": "If the server should be publicly listed on steam.",
+                    "type": 5,
                     "required": False,
                 },
                 override_region_blob,
@@ -470,5 +470,5 @@ commands = [authorize_commands]
 headers = {"Authorization": f"Bot {discord_token}"}
 
 if __name__ == "__main__":
-    r = requests.post(url, headers=headers, json=deauthorize_commands)
+    r = requests.post(url, headers=headers, json=create_commands)
     print(r.content.decode())
