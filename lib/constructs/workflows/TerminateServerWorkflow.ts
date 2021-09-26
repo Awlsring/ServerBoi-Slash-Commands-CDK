@@ -15,6 +15,8 @@ import {
 export interface TerminateServerProps {
   readonly serverList: Table;
   readonly ownerList: Table;
+  readonly keyBucket: string;
+  readonly discordToken: string;
 }
 
 export class TerminateServerWorkflow extends Construct {
@@ -31,6 +33,8 @@ export class TerminateServerWorkflow extends Construct {
       environment: {
         OWNER_TABLE: props.ownerList.tableName,
         SERVER_TABLE: props.serverList.tableName,
+        DISCORD_TOKEN: props.discordToken,
+        KEY_BUCKET: props.keyBucket,
         STAGE: "Prod"
       },
     });
@@ -41,6 +45,7 @@ export class TerminateServerWorkflow extends Construct {
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents",
+          "s3:DeleteObject",
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:PutItem",

@@ -131,7 +131,8 @@ export class ProvisionServerWorkflow extends Construct {
           "kms:DescribeKey",
           "kms:Encrypt",
           "kms:GenerateDataKey*",
-          "kms:ReEncrypt*"
+          "kms:ReEncrypt*",
+          "secretsmanager:GetSecretValue"
         ],
       })
     );

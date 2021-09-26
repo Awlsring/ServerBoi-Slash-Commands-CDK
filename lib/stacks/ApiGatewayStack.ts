@@ -93,6 +93,7 @@ export class ApiGatewayStack extends Stack {
           "s3:GetObject",
           "s3:PutObject",
           "sts:AssumeRole",
+          "secretsmanager:GetSecretValue"
         ],
       })
     );

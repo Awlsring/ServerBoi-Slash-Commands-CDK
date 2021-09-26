@@ -20,7 +20,6 @@ export class ServerlessBoiResourcesStack extends Stack {
 
   constructor(scope: Construct, id: string) {
     super(scope, id);
-
     const discordToken = Secret.fromSecretCompleteArn(
       this,
       " ServerBoi-Discord-Token",

@@ -247,7 +247,15 @@ server_commands = {
         {
             "name": "relist",
             "type": 1,
-            "description": "Relist server embed if it was unexpectedly removed.",
+            "description": "Relist server embed if it was removed.",
+            "options": [
+                server_id_blob
+            ],
+        },
+        {
+            "name": "ssh-key",
+            "type": 1,
+            "description": "Retrieve ssh key for server.",
             "options": [
                 server_id_blob
             ],
@@ -470,5 +478,5 @@ commands = [authorize_commands]
 headers = {"Authorization": f"Bot {discord_token}"}
 
 if __name__ == "__main__":
-    r = requests.post(url, headers=headers, json=create_commands)
+    r = requests.post(url, headers=headers, json=server_commands)
     print(r.content.decode())
