@@ -8,6 +8,7 @@ import {
 } from "monocdk/aws-lambda";
 import { Bucket } from "monocdk/aws-s3";
 import { Role, ServicePrincipal } from "monocdk/aws-iam";
+import { RetentionDays } from "monocdk/lib/aws-logs";
 
 export interface GoLambdaProps {
     name: string
@@ -41,6 +42,7 @@ export class GoLambda extends Construct {
           assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
           roleName: `${props.name}-Role`,
         }),
+        logRetention: RetentionDays.ONE_WEEK
       })
 
   }
