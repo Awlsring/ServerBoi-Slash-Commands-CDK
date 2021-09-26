@@ -62,6 +62,7 @@ export class ApiGatewayStack extends Stack {
       TERMINATE_ARN: props.workflowStack.terminationStateMachineArn,
       CHANNEL_TABLE: props.resourcesStack.channelTable.tableName,
       DISCORD_TOKEN: props.resourcesStack.discordToken,
+      KEY_BUCKET: props.resourcesStack.sshBucket.bucketName
     };
 
     const commandHandler = new GoLambda(this, "Command-Handler-Go", {
@@ -84,6 +85,13 @@ export class ApiGatewayStack extends Stack {
           "dynamodb:UpdateItem",
           "states:StartExecution",
           "dynamodb:GetItem",
+          "kms:Decrypt",
+          "kms:DescribeKey",
+          "kms:Encrypt",
+          "kms:GenerateDataKey*",
+          "kms:ReEncrypt*",
+          "s3:GetObject",
+          "s3:PutObject",
           "sts:AssumeRole",
         ],
       })

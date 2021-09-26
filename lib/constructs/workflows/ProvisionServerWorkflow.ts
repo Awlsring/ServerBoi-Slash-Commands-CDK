@@ -127,6 +127,11 @@ export class ProvisionServerWorkflow extends Construct {
           "dynamodb:Query",
           "dynamodb:GetItem",
           "sts:AssumeRole",
+          "kms:Decrypt",
+          "kms:DescribeKey",
+          "kms:Encrypt",
+          "kms:GenerateDataKey*",
+          "kms:ReEncrypt*"
         ],
       })
     );
