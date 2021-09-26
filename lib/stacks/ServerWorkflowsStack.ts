@@ -28,6 +28,7 @@ export class ServerWorkflowsStack extends Stack {
         ownerList: props.resourcesStack.ownerList,
         keyBucket: props.resourcesStack.sshBucket.bucketName,
         discordToken: props.resourcesStack.discordToken,
+        channelList: props.resourcesStack.channelTable
       }
     );
 

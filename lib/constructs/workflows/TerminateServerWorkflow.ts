@@ -17,6 +17,7 @@ export interface TerminateServerProps {
   readonly ownerList: Table;
   readonly keyBucket: string;
   readonly discordToken: string;
+  readonly channelList: Table
 }
 
 export class TerminateServerWorkflow extends Construct {
@@ -34,6 +35,7 @@ export class TerminateServerWorkflow extends Construct {
         OWNER_TABLE: props.ownerList.tableName,
         SERVER_TABLE: props.serverList.tableName,
         DISCORD_TOKEN: props.discordToken,
+        CHANNEL_TABLE: props.channelList.tableName,
         KEY_BUCKET: props.keyBucket,
         STAGE: "Prod"
       },
