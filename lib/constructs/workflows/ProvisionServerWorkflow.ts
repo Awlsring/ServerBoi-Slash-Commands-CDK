@@ -171,7 +171,7 @@ export class ProvisionServerWorkflow extends Construct {
           GuildID: TaskInput.fromJsonPathAt("$.GuildID").value,
           ServerID: TaskInput.fromJsonPathAt("$.ProvisionResponse.ServerID").value,
           PrivateKeyObject: TaskInput.fromJsonPathAt("$.ProvisionResponse.PrivateKeyObject").value,
-          Private: TaskInput.fromJsonPathAt("$.Private").value
+          Visible: TaskInput.fromJsonPathAt("$.Visible").value
         }
       }
     });
