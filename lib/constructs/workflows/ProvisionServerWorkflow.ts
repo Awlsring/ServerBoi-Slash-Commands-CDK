@@ -203,7 +203,9 @@ export class ProvisionServerWorkflow extends Construct {
     })
 
     const stepDefinition = provisionStep;
-    provisionStep.next(waitForClient);
+    provisionStep.next(waitForBoot)
+    waitForBoot.addCatch(catchFailure)
+    waitForBoot.next(waitForClient)
     waitForClient.addCatch(catchFailure)
     waitForClient.next(finishProvisionStep)
     finishProvisionStep.addCatch(catchFailure)
