@@ -145,6 +145,20 @@ export class ProvisionServerWorkflow extends Construct {
       payloadResponseOnly: true
     });
 
+    const waitForBoot = new LambdaInvoke(this, "Wait-For-Boot", {
+      lambdaFunction: putToken.lambda,
+      integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
+      timeout: Duration.hours(1),
+      payload: {
+        type: InputType.OBJECT,
+        value: {
+          ExecutionName: TaskInput.fromJsonPathAt("$.ExecutionName").value,
+          TaskToken: JsonPath.taskToken,
+        },
+      },
+      resultPath: JsonPath.DISCARD,
+    });
+
     const waitForClient = new LambdaInvoke(this, "Wait-For-Client", {
       lambdaFunction: putToken.lambda,
       integrationPattern: IntegrationPattern.WAIT_FOR_TASK_TOKEN,
